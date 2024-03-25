@@ -1,12 +1,6 @@
-import { Inter } from 'next/font/google'
-
 import './globals.css'
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['300', '400', '500', '700'],
-})
+import { Providers } from './providers'
+import { fonts } from './fonts'
 
 export default function RootLayout({
   children,
@@ -14,8 +8,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={inter.className}>
-      <body>{children}</body>
+    <html lang="pt-BR" className={fonts.inter.className}>
+      <Providers>{children}</Providers>
     </html>
   )
 }
