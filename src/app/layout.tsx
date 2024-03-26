@@ -9,7 +9,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={fonts.inter.className}>
-      <Providers>{children}</Providers>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }
