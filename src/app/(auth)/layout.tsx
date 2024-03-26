@@ -8,6 +8,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <>
       <NavBar />
+
       {children}
     </>
   )
