@@ -10,7 +10,7 @@ export function NavBar() {
           width={150}
           height={75}
         />
-        <div className="w-56 h- text-right bg-red-400 p-3 rounded text-white">
+        <div className="w-56 h- text-center bg-red-400 p-3 rounded text-white">
           Ambiente de Homologação
         </div>
       </div>

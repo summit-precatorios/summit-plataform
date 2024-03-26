@@ -42,6 +42,7 @@ export default function Signin() {
           <div className="flex justify-start w-96">
             <Button
               mt="4"
+              size="lg"
               _hover={{ opacity: 0.7 }}
               className="w-full bg-[#EAAC2E] text-white"
             >
