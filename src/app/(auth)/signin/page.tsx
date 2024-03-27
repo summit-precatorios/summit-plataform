@@ -19,10 +19,13 @@ export default function Signin() {
             label="CPF"
             htmlFor="document"
             inputType="text"
-            placeholder="Informe o seu cpf"
+            placeholder="Informe o seu CPF"
             inputName="document"
             inputId="document"
           />
+          <span className="text-red-400 text-xs text-left">
+            Informe um cpf válido
+          </span>
           <PasswordInput
             htmlFor="password"
             inputId="password"
