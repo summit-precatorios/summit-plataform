@@ -1,4 +1,5 @@
 import { Input } from '@chakra-ui/react'
+import { FieldValues, UseFormRegister } from 'react-hook-form'
 
 interface InputGroupProps {
   label: string
@@ -7,23 +8,33 @@ interface InputGroupProps {
   inputName: string
   inputId: string
   placeholder: string
+  register: UseFormRegister<FieldValues>
 }
 
-export default function InputGroup(props: InputGroupProps) {
+export default function InputGroup({
+  htmlFor,
+  inputId,
+  inputType,
+  label,
+  placeholder,
+  register,
+  inputName,
+}: InputGroupProps) {
   return (
     <>
-      <div className="flex flex-col justify-start w-96 mb-6">
-        <label className="mb-4 text-base font-medium" htmlFor={props.htmlFor}>
-          {props.label}
+      <div className="flex flex-col justify-start w-96 mb-4">
+        <label className="mb-4 text-base font-medium" htmlFor={htmlFor}>
+          {label}
         </label>
         <Input
           isRequired={true}
           size="lg"
           focusBorderColor="#737171"
-          type={props.inputType}
-          placeholder={props.placeholder}
-          name={props.inputName}
-          id={props.inputId}
+          type={inputType}
+          placeholder={placeholder}
+          id={inputId}
+          {...register(inputName)}
+          textColor={'#737171'}
         />
       </div>
     </>

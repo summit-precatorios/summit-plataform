@@ -1,3 +1,4 @@
+import Container from '@/components/Container'
 import { NavBar } from '@/components/NavBar'
 import { ReactNode } from 'react'
 
@@ -8,8 +9,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <>
       <NavBar />
-
-      {children}
+      <Container>{children}</Container>
     </>
   )
 }
