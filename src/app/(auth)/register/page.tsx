@@ -2,7 +2,8 @@
 
 import InputGroup from '@/components/InputGroup'
 import PasswordInput from '@/components/PasswordInput'
-import { Button, Link } from '@chakra-ui/react'
+import { validate } from '@/utils/validate'
+import { Button, Link, useToast } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -10,13 +11,14 @@ import * as z from 'zod'
 const registerUserSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
-  document: z.string().refine((value) => value.trim().length === 11, {
+  document: z.string().refine((value) => validate(value), {
     message: 'CPF inválido!',
   }),
   password: z.string().min(8, 'Sua senha precisa de no mínimo 8 caracteres'),
 })
 
 export default function Page() {
+  const toast = useToast()
   const {
     register,
     handleSubmit,
@@ -36,7 +38,12 @@ export default function Page() {
       })
       return response
     } catch (e) {
-      console.log(e)
+      toast({
+        title: 'Serviço Indisponível',
+        status: 'error',
+        description: e.message,
+        isClosable: true,
+      })
     }
   }
 

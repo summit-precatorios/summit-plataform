@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { redirect } from 'next/navigation'
-import { checkDocument } from '@/utils/checkDocument'
+import { checkDocument } from '@/utils/validate'
 
 const registerUserSchema = z.object({
   document: z

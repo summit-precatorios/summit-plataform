@@ -1,4 +1,4 @@
-export function checkDocument(document: string): boolean {
+export function validate(document: string): boolean {
   if (typeof document !== 'string') return false
 
   // Tirar formatação
