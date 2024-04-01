@@ -31,22 +31,28 @@ export default function Signin() {
   })
 
   async function registerUser(data: unknown) {
-    const response = await fetch('http://localhost:4004/auth/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data, null, 2),
-    })
-
-    if (response.status === 401) {
-      toast({
-        title: 'Erro de Autenticação',
-        status: 'error',
-        description: 'Login e/ou senha incorretos',
+    try {
+      const response = await fetch('http://localhost:4004/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data, null, 2),
       })
-    } else {
-      return redirect('/profile')
+
+      if (response.status === 401)
+        toast({
+          title: 'Erro de Autenticação',
+          status: 'error',
+          description: 'Login e/ou senha incorretos',
+        })
+    } catch (e: unknown) {
+      toast({
+        title: 'Serviço Indisponível',
+        status: 'error',
+        description: e.message,
+        isClosable: true,
+      })
     }
   }
 
