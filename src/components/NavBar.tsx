@@ -4,7 +4,7 @@ import Link from 'next/link'
 export function NavBar() {
   return (
     <>
-      <div className="flex w-full mt-2 sm:text-center justify-evenly items-center pr-3 md:flex p-2">
+      <div className="flex w-full mt-2 sm:text-center justify-between items-center pr-3 md:flex p-2">
         <Link href={'/'}>
           <Image
             src="/large-summit-logo.svg"

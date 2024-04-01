@@ -36,7 +36,15 @@ export default function Page() {
         },
         body: JSON.stringify(data, null, 2),
       })
-      return response
+
+      console.log(response.status)
+      if (response.status === 201)
+        return toast({
+          title: 'Cadastro',
+          status: 'success',
+          description: 'Sua conta foi criada com sucesso',
+          isClosable: true,
+        })
     } catch (e) {
       toast({
         title: 'Serviço Indisponível',

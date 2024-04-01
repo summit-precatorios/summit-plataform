@@ -2,18 +2,17 @@
 
 import InputGroup from '@/components/InputGroup'
 import PasswordInput from '@/components/PasswordInput'
+import { validate } from '@/utils/validate'
 import { Button, Link, useToast } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { redirect } from 'next/navigation'
-import { checkDocument } from '@/utils/validate'
 
 const registerUserSchema = z.object({
   document: z
     .string()
     .refine(
-      (document: string) => checkDocument(document),
+      (document: string) => validate(document),
       'Por favor, informe um CPF válido',
     ),
   password: z.string(),
