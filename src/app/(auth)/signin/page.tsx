@@ -13,7 +13,7 @@ const registerUserSchema = z.object({
     .string()
     .refine(
       (document: string) => validate(document),
-      'Por favor, informe um CPF válido',
+      'Por favor, informe um CPF válido.',
     ),
   password: z.string(),
 })
@@ -39,12 +39,14 @@ export default function Signin() {
         body: JSON.stringify(data, null, 2),
       })
 
-      if (response.status === 401)
-        toast({
-          title: 'Erro de Autenticação',
-          status: 'error',
-          description: 'Login e/ou senha incorretos',
-        })
+      if (response.status === 401) return
+      toast({
+        title: 'Erro de Autenticação',
+        status: 'error',
+        description: 'Login e/ou senha incorretos',
+      })
+
+      console.log(response)
     } catch (e: unknown) {
       toast({
         title: 'Serviço Indisponível',

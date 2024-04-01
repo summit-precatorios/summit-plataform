@@ -12,7 +12,7 @@ const registerUserSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
   document: z.string().refine((value) => validate(value), {
-    message: 'CPF inválido!',
+    message: 'Por favor, informe um CPF válido.',
   }),
   password: z.string().min(8, 'Sua senha precisa de no mínimo 8 caracteres'),
 })
@@ -37,7 +37,6 @@ export default function Page() {
         body: JSON.stringify(data, null, 2),
       })
 
-      console.log(response.status)
       if (response.status === 201)
         return toast({
           title: 'Cadastro',
