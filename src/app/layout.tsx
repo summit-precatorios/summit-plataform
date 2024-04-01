@@ -1,6 +1,7 @@
 import './globals.css'
 import { Providers } from './providers'
 import { fonts } from './fonts'
+import { NavBar } from '@/components/NavBar'
 
 export default function RootLayout({
   children,
@@ -10,7 +11,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={fonts.inter.className}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <NavBar />
+          {children}
+        </Providers>
       </body>
     </html>
   )

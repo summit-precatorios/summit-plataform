@@ -8,7 +8,6 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <>
-      <NavBar />
       <Container>{children}</Container>
     </>
   )
