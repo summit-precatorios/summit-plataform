@@ -46,12 +46,20 @@ export function RegisterForm() {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      console.log(data)
-      toast({
-        variant: 'default',
-        title: 'Conta criada com sucesso!',
-        description: 'Parabéns! Sua conta foi criada com sucesso!',
+      const response = await fetch('http://localhost:4004/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data, null, 2),
       })
+
+      console.log(await response.json())
+
+      if (response.ok)
+        toast({
+          variant: 'default',
+          title: 'Conta criada com sucesso!',
+          description: 'Parabéns! Sua conta foi criada com sucesso!',
+        })
     } catch (err) {
       toast({
         variant: 'destructive',
