@@ -1,12 +1,5 @@
 import { Button } from '@/components/ui/button'
-// import {
-//   OrganizationSwitcher,
-//   SignInButton,
-//   SignedIn,
-//   SignedOut,
-//   UserButton,
-//   useSession,
-// } from '@clerk/nextjs'
+
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -19,7 +12,11 @@ export function Header() {
         </Link>
 
         <div className="flex gap-2">
-          <Button className="text-white">Entrar</Button>
+          <Button type="submit" className="text-white" asChild>
+            <Link href="/signin" className="text-white">
+              Entrar
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

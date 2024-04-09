@@ -125,15 +125,13 @@ export function RegisterForm() {
               </FormItem>
             )}
           />
-          <div className="flex w-full justify-between">
-            <Button type="submit" className="text-white">
+          <div className="flex w-full flex-col gap-5 items-center">
+            <Button type="submit" className="text-white w-full">
               Registrar
             </Button>
-            <Button type="submit" className="text-white" asChild>
-              <Link href="/" className="text-white">
-                Voltar
-              </Link>
-            </Button>
+            <Link href="/" className="text-black font-semibold">
+              Voltar
+            </Link>
           </div>
         </form>
       </Form>
