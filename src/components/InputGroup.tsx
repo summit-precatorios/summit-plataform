@@ -1,4 +1,3 @@
-import { Input } from '@chakra-ui/react'
 import { FieldValues, UseFormRegister } from 'react-hook-form'
 
 interface InputGroupProps {

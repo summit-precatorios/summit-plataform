@@ -1,7 +1,9 @@
 import './globals.css'
-import { Providers } from './providers'
 import { fonts } from './fonts'
-import { NavBar } from '@/components/NavBar'
+import { cn } from '@/lib/utils'
+import { Toaster } from '@/components/ui/toaster'
+import { Header } from './header'
+import { Footer } from './footer'
 
 export default function RootLayout({
   children,
@@ -9,12 +11,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={fonts.inter.className}>
-      <body>
-        <Providers>
-          <NavBar />
-          {children}
-        </Providers>
+    <html
+      lang="pt-BR"
+      suppressHydrationWarning
+      className={fonts.inter.className}
+    >
+      <body
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased',
+          fonts.inter,
+        )}
+      >
+        <Toaster />
+        <Header />
+        {children}
+        <Footer />
       </body>
     </html>
   )

@@ -1,5 +1,3 @@
-import Container from '@/components/Container'
-import { NavBar } from '@/components/NavBar'
 import { ReactNode } from 'react'
 
 interface AuthLayoutProps {
@@ -7,8 +5,8 @@ interface AuthLayoutProps {
 }
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <>
-      <Container>{children}</Container>
-    </>
+    <main className="container mx-auto pt-12 min-h-screen">
+      <div className="w-full">{children}</div>
+    </main>
   )
 }
