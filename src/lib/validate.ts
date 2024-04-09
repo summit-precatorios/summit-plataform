@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function validate(document: string): boolean {
   if (typeof document !== 'string') return false
 
@@ -8,22 +9,22 @@ export function validate(document: string): boolean {
   if (document.length !== 11 || !!document.match(/(\d)\1{10}/)) return false
 
   // String para Array
-  document = document.split('')
+  const arrayDocument = document.split('')
 
-  const validator = document
+  const validator = arrayDocument
     // Pegar os últimos 2 digitos de validação
     .filter((digit, index, array) => index >= array.length - 2 && digit)
     // Transformar digitos em números
     .map((el) => +el)
 
-  const toValidate = (pop) =>
-    document
+  const toValidate = (pop: any) =>
+    arrayDocument
       // Pegar Array de items para validar
       .filter((digit, index, array) => index < array.length - pop && digit)
       // Transformar digitos em números
       .map((el) => +el)
 
-  const rest = (count, pop) =>
+  const rest = (count: any, pop: any) =>
     ((toValidate(pop)
       // Calcular Soma dos digitos e multiplicar por 10
       .reduce((soma, el, i) => soma + el * (count - i), 0) *
