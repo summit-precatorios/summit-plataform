@@ -9,12 +9,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Eye, EyeOff } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
 import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import { InputPassword } from '@/components/ui/input-password'
+import Link from 'next/link'
 
 const formSchema = z.object({
   fullName: z
@@ -47,15 +48,16 @@ export function RegisterForm() {
     try {
       console.log(data)
       toast({
-        variant: 'destructive',
-        description: 'Sua conta foi criada com sucesso!',
+        variant: 'default',
+        title: 'Conta criada com sucesso!',
+        description: 'Parabéns! Sua conta foi criada com sucesso!',
       })
     } catch (err) {
       toast({
         variant: 'destructive',
         title: 'Algo deu errado',
         description:
-          'Não foi possível a criação da sua conta. Tente novamnte mais tarde',
+          'Não foi possível a criação da sua conta. Tente novamente mais tarde',
       })
     }
 
@@ -113,21 +115,26 @@ export function RegisterForm() {
               <FormItem>
                 <FormLabel>Senha</FormLabel>
                 <FormControl>
-                  <Input
-                    className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-                    placeholder="Search..."
-                    type="search"
+                  <InputPassword
+                    placeholder="Define sua senha"
+                    type="password"
+                    {...field}
                   />
-                  <Input placeholder="Define sua senha" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="text-white">
-            Registrar
-          </Button>
-          <Eye /> <EyeOff />
+          <div className="flex w-full justify-between">
+            <Button type="submit" className="text-white">
+              Registrar
+            </Button>
+            <Button type="submit" className="text-white" asChild>
+              <Link href="/" className="text-white">
+                Voltar
+              </Link>
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
