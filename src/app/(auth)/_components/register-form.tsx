@@ -134,7 +134,7 @@ export function RegisterForm() {
             )}
           />
           <div className="flex w-full flex-col gap-5 items-center">
-            <Button type="submit" className="text-white w-full">
+            <Button type="submit" className="text-white w-full h-12">
               Registrar
             </Button>
             <Link href="/" className="text-black font-semibold">

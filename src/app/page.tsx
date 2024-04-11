@@ -24,7 +24,7 @@ export default function LandingPage() {
               Registre-se agora e inicie suas negociações.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button asChild>
+              <Button asChild className="h-12">
                 <Link href="/register" className="text-white">
                   Crie sua conta
                 </Link>
