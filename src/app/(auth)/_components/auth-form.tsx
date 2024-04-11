@@ -102,9 +102,12 @@ export function AuthForm() {
             <p>
               Não tem uma conta?{' '}
               <span>
-                <a href="/register" className="text-[#EAAC2E] hover:opacity-80">
+                <Link
+                  href="/register"
+                  className="text-[#EAAC2E] hover:opacity-80"
+                >
                   Criar conta
-                </a>
+                </Link>
               </span>
             </p>
           </div>

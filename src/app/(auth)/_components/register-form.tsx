@@ -137,9 +137,17 @@ export function RegisterForm() {
             <Button type="submit" className="text-white w-full h-12">
               Registrar
             </Button>
-            <Link href="/" className="text-black font-semibold">
-              Voltar
-            </Link>
+            <p>
+              Já tem uma conta?{' '}
+              <span>
+                <Link
+                  href="/signin"
+                  className="text-[#EAAC2E] hover:opacity-80"
+                >
+                  Entrar
+                </Link>
+              </span>
+            </p>
           </div>
         </form>
       </Form>

@@ -4,15 +4,24 @@ export function Footer() {
   return (
     <div className="h-40 bg-gray-100 mt-12 flex items-center fixed bottom-0 w-full">
       <div className="container mx-auto flex justify-between items-center">
-        <div>Summit Precatórios</div>
+        <div className="font-semibold">Summit Precatórios</div>
 
-        <Link className="text-[#facc15]" href="/privacy">
+        <Link
+          className="text-[#facc15] font-semibold transition-all  hover:text-black"
+          href="/privacy"
+        >
           Política de Privacidade
         </Link>
-        <Link className="text-[#facc15]" href="/terms-of-service">
+        <Link
+          className="text-[#facc15] font-semibold transition-all  hover:text-black"
+          href="/terms-of-service"
+        >
           Termos de Serviço
         </Link>
-        <Link className="text-[#facc15]" href="/about">
+        <Link
+          className="text-[#facc15] font-semibold transition-all  hover:text-black"
+          href="/about"
+        >
           Sobre
         </Link>
       </div>
