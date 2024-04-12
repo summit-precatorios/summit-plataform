@@ -34,7 +34,13 @@ export function AuthForm() {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      console.log(data)
+      const response = await fetch('http://localhost:4004/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data, null, 2),
+      })
+
+      console.log(await response.json())
     } catch (error) {
       toast({
         variant: 'destructive',

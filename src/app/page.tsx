@@ -23,7 +23,7 @@ export default function LandingPage() {
             <p className="mt-6 text-lg leading-8 text-gray-600">
               Registre-se agora e inicie suas negociações.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
+            <div className="mt-10 flex items-center justify-evenly gap-x-6">
               <Button asChild>
                 <Link href="/register" className="text-white">
                   Crie sua conta
