@@ -17,8 +17,8 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 const formSchema = z.object({
-  document: z.string(),
-  password: z.string(),
+  document: z.string().min(1, 'O campo de CPF é obrigatório.'),
+  password: z.string().min(1, 'Informe a sua senha.'),
 })
 
 export function AuthForm() {
@@ -98,8 +98,12 @@ export function AuthForm() {
             </p>
           </div>
           <div className="flex flex-col gap-3">
-            <Button type="submit" className="text-white">
-              Acessar conta
+            <Button
+              type="submit"
+              className="text-white h-12"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? 'Acessando...' : 'Acessar conta'}
             </Button>
             <p>
               Não tem uma conta?{' '}
