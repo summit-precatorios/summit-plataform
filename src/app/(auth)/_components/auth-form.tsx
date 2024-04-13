@@ -13,6 +13,7 @@ import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -22,6 +23,7 @@ const formSchema = z.object({
 })
 
 export function AuthForm() {
+  const router = useRouter()
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -33,27 +35,32 @@ export function AuthForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      const response = await fetch('http://localhost:4004/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data, null, 2),
-      })
+    const response = await fetch('http://localhost:4004/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data, null, 2),
+    })
 
-      console.log(await response.json())
-    } catch (error) {
+    const { accessToken } = await response.json()
+
+    console.log(accessToken)
+
+    if (!accessToken) {
       toast({
         variant: 'destructive',
         title: 'Falha de Autenticação',
-        description: 'Credenciais de acesso inválidas',
+        description: 'Credenciais de acesso inválidas ou não registradas',
       })
+      return
     }
+    router.push('/dashboard')
 
     form.reset()
   }
   return (
     <div className="w-96 m-auto">
       <h1 className="text-3xl font-semibold mb-4">Entrar</h1>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField

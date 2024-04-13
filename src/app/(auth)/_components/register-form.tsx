@@ -9,13 +9,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
 import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { InputPassword } from '@/components/ui/input-password'
-import Link from 'next/link'
 
 const formSchema = z.object({
   fullName: z
@@ -45,29 +45,36 @@ export function RegisterForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      const response = await fetch('http://localhost:4004/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data, null, 2),
-      })
+    const response = await fetch('http://localhost:4004/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data, null, 2),
+    })
 
-      console.log(await response.json())
+    const { statusCode } = await response.json()
 
-      if (response.ok)
-        toast({
-          variant: 'default',
-          title: 'Conta criada com sucesso!',
-          description: 'Parabéns! Sua conta foi criada com sucesso!',
-        })
-    } catch (err) {
+    if (statusCode === 409)
       toast({
-        variant: 'destructive',
-        title: 'Algo deu errado',
+        variant: 'default',
         description:
-          'Não foi possível a criação da sua conta. Tente novamente mais tarde',
+          'Este CPF já está conectado a uma conta, por favor faça o login.',
+        action: (
+          <Button asChild>
+            <Link href="/signin">Entrar</Link>
+          </Button>
+        ),
       })
-    }
+
+    if (statusCode === 201)
+      toast({
+        variant: 'default',
+        description: 'Sua conta foi registrada com sucesso.',
+        action: (
+          <Button asChild>
+            <Link href="/signin">Entrar</Link>
+          </Button>
+        ),
+      })
 
     form.reset()
   }
