@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/toaster'
 import { Header } from './header'
 import { Footer } from './footer'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export default function RootLayout({
   children,
@@ -24,7 +25,7 @@ export default function RootLayout({
       >
         <Toaster />
         <Header />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Footer />
       </body>
     </html>

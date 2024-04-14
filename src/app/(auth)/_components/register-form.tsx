@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
+import { cpfMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
@@ -23,9 +24,12 @@ const formSchema = z.object({
     .min(3, 'Deve conter pelo menos 3 caracteres')
     .max(200, 'Deve conter no máximo 200 caracteres'),
   email: z.string().email('Insira um endereço de e-mail válido.'),
-  document: z.string().refine((document) => validate(document), {
-    message: 'CPF inválido',
-  }),
+  document: z
+    .string()
+    .refine((document) => validate(document), {
+      message: 'CPF inválido',
+    })
+    .transform((value) => value.replace(/\D/g, '')),
   password: z
     .string()
     .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
@@ -45,6 +49,8 @@ export function RegisterForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    console.log(data)
+
     const response = await fetch('http://localhost:4004/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -117,7 +123,11 @@ export function RegisterForm() {
               <FormItem>
                 <FormLabel>CPF</FormLabel>
                 <FormControl>
-                  <Input placeholder="Informe o seu CPF" {...field} />
+                  <Input
+                    placeholder="Informe o seu CPF"
+                    {...field}
+                    onChange={(e) => field.onChange(cpfMask(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

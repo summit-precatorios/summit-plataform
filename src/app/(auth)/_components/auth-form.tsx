@@ -11,6 +11,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/api'
+import { cpfMask } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,7 +20,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 const formSchema = z.object({
-  document: z.string().min(1, 'O campo de CPF é obrigatório.'),
+  document: z.string().transform((value) => value.replace(/\D/g, '')),
   password: z.string().min(1, 'Informe a sua senha.'),
 })
 
@@ -35,27 +37,39 @@ export function AuthForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    const response = await fetch('http://localhost:4004/auth/signin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data, null, 2),
-    })
+    try {
+      console.log(`${process.env.API_URL}auth/signin`)
 
-    const { accessToken } = await response.json()
+      const response = await api('auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data, null, 2),
+      })
 
-    console.log(accessToken)
+      console.log(response)
 
-    if (!accessToken) {
+      const { accessToken } = await response.json()
+
+      console.log(accessToken)
+      if (!accessToken) {
+        toast({
+          variant: 'destructive',
+          title: 'Falha de Autenticação',
+          description: 'Credenciais de acesso inválidas ou não registradas',
+        })
+        return
+      }
+
+      router.push('/dashboard')
+
+      form.reset()
+    } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Falha de Autenticação',
-        description: 'Credenciais de acesso inválidas ou não registradas',
+        title: 'Erro interno',
+        description: 'Não foi possível processar a sua requisição',
       })
-      return
     }
-    router.push('/dashboard')
-
-    form.reset()
   }
   return (
     <div className="w-96 m-auto">
@@ -70,7 +84,11 @@ export function AuthForm() {
               <FormItem>
                 <FormLabel>CPF</FormLabel>
                 <FormControl>
-                  <Input placeholder="Informe o seu CPF" {...field} />
+                  <Input
+                    placeholder="Informe o seu CPF"
+                    {...field}
+                    onChange={(e) => field.onChange(cpfMask(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
