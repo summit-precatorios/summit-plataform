@@ -9,13 +9,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
+import { cpfMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { InputPassword } from '@/components/ui/input-password'
-import Link from 'next/link'
 
 const formSchema = z.object({
   fullName: z
@@ -23,9 +24,12 @@ const formSchema = z.object({
     .min(3, 'Deve conter pelo menos 3 caracteres')
     .max(200, 'Deve conter no máximo 200 caracteres'),
   email: z.string().email('Insira um endereço de e-mail válido.'),
-  document: z.string().refine((document) => validate(document), {
-    message: 'CPF inválido',
-  }),
+  document: z
+    .string()
+    .refine((document) => validate(document), {
+      message: 'CPF inválido',
+    })
+    .transform((value) => value.replace(/\D/g, '')),
   password: z
     .string()
     .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
@@ -45,29 +49,38 @@ export function RegisterForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      const response = await fetch('http://localhost:4004/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data, null, 2),
-      })
+    console.log(data)
 
-      console.log(await response.json())
+    const response = await fetch('http://localhost:4004/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data, null, 2),
+    })
 
-      if (response.ok)
-        toast({
-          variant: 'default',
-          title: 'Conta criada com sucesso!',
-          description: 'Parabéns! Sua conta foi criada com sucesso!',
-        })
-    } catch (err) {
+    const { statusCode } = await response.json()
+
+    if (statusCode === 409)
       toast({
-        variant: 'destructive',
-        title: 'Algo deu errado',
+        variant: 'default',
         description:
-          'Não foi possível a criação da sua conta. Tente novamente mais tarde',
+          'Este CPF já está conectado a uma conta, por favor faça o login.',
+        action: (
+          <Button asChild>
+            <Link href="/signin">Entrar</Link>
+          </Button>
+        ),
       })
-    }
+
+    if (statusCode === 201)
+      toast({
+        variant: 'default',
+        description: 'Sua conta foi registrada com sucesso.',
+        action: (
+          <Button asChild>
+            <Link href="/signin">Entrar</Link>
+          </Button>
+        ),
+      })
 
     form.reset()
   }
@@ -110,7 +123,11 @@ export function RegisterForm() {
               <FormItem>
                 <FormLabel>CPF</FormLabel>
                 <FormControl>
-                  <Input placeholder="Informe o seu CPF" {...field} />
+                  <Input
+                    placeholder="Informe o seu CPF"
+                    {...field}
+                    onChange={(e) => field.onChange(cpfMask(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
