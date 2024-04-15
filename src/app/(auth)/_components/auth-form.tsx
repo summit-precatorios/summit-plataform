@@ -10,23 +10,24 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
-import { useToast } from '@/components/ui/use-toast'
-import { api } from '@/lib/api'
+import { AuthContext } from '@/contexts/AuthContext'
 import { cpfMask } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 const formSchema = z.object({
-  document: z.string().transform((value) => value.replace(/\D/g, '')),
+  document: z
+    .string()
+    .min(1, 'Informe o seu CPF')
+    .transform((value) => value.replace(/\D/g, '')),
   password: z.string().min(1, 'Informe a sua senha.'),
 })
 
 export function AuthForm() {
-  const router = useRouter()
-  const { toast } = useToast()
+  const { signIn } = useContext(AuthContext)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,37 +39,35 @@ export function AuthForm() {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      console.log(`${process.env.API_URL}auth/signin`)
+      //   console.log(`${process.env.API_URL}auth/signin`)
 
-      const response = await api('auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data, null, 2),
-      })
+      //   const response = await api('auth/signin', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify(data, null, 2),
+      //   })
 
-      console.log(response)
+      //   const { accessToken } = await response.json()
 
-      const { accessToken } = await response.json()
+      //   if (!accessToken) {
+      //     toast({
+      //       variant: 'destructive',
+      //       title: 'Falha de Autenticação',
+      //       description: 'Credenciais de acesso inválidas ou não registradas',
+      //     })
+      //     return
+      //   }
 
-      console.log(accessToken)
-      if (!accessToken) {
-        toast({
-          variant: 'destructive',
-          title: 'Falha de Autenticação',
-          description: 'Credenciais de acesso inválidas ou não registradas',
-        })
-        return
-      }
-
-      router.push('/dashboard')
+      //   router.push('/dashboard')
+      await signIn(data)
 
       form.reset()
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro interno',
-        description: 'Não foi possível processar a sua requisição',
-      })
+      // toast({
+      //   variant: 'destructive',
+      //   title: 'Erro interno',
+      //   description: 'Não foi possível processar a sua requisição',
+      // })
     }
   }
   return (
