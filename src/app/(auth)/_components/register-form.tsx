@@ -95,37 +95,6 @@ export function RegisterForm() {
         title: 'Erro interno',
         description: 'Não foi possível processar a sua requisição',
       })
-
-      // const response = await fetch('http://localhost:4004/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data, null, 2),
-      // })
-
-      // const { statusCode } = await response.json()
-
-      // if (statusCode === 409)
-      //   toast({
-      //     variant: 'default',
-      //     description:
-      //       'Este CPF já está conectado a uma conta, por favor faça o login.',
-      //     action: (
-      //       <Button asChild>
-      //         <Link href="/signin">Entrar</Link>
-      //       </Button>
-      //     ),
-      //   })
-
-      // if (statusCode === 201)
-      //   toast({
-      //     variant: 'default',
-      //     description: 'Sua conta foi registrada com sucesso.',
-      //     action: (
-      //       <Button asChild>
-      //         <Link href="/signin">Entrar</Link>
-      //       </Button>
-      //     ),
-      //   })
     }
   }
 
@@ -196,7 +165,7 @@ export function RegisterForm() {
           />
           <div className="flex w-full flex-col gap-5 items-center">
             <Button type="submit" className="text-white w-full h-12">
-              Registrar
+              {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
             </Button>
             <p>
               Já tem uma conta?{' '}
