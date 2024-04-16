@@ -38,37 +38,9 @@ export function AuthForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      //   console.log(`${process.env.API_URL}auth/signin`)
+    await signIn(data)
 
-      //   const response = await api('auth/signin', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(data, null, 2),
-      //   })
-
-      //   const { accessToken } = await response.json()
-
-      //   if (!accessToken) {
-      //     toast({
-      //       variant: 'destructive',
-      //       title: 'Falha de Autenticação',
-      //       description: 'Credenciais de acesso inválidas ou não registradas',
-      //     })
-      //     return
-      //   }
-
-      //   router.push('/dashboard')
-      await signIn(data)
-
-      form.reset()
-    } catch (error) {
-      // toast({
-      //   variant: 'destructive',
-      //   title: 'Erro interno',
-      //   description: 'Não foi possível processar a sua requisição',
-      // })
-    }
+    form.reset()
   }
   return (
     <div className="w-96 m-auto">
