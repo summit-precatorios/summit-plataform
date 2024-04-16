@@ -13,6 +13,7 @@ import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
 import { cpfMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
+import { registerRequest } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -49,40 +50,83 @@ export function RegisterForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data)
+    try {
+      const response = await registerRequest(data)
 
-    const response = await fetch('http://localhost:4004/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data, null, 2),
-    })
+      if (!response) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro interno',
+          description: 'Não foi possível processar a sua requisição',
+        })
 
-    const { statusCode } = await response.json()
+        return
+      }
 
-    if (statusCode === 409)
+      if (response && response.statusCode === 409) {
+        toast({
+          variant: 'default',
+          description:
+            'Este CPF já está conectado a uma conta, por favor faça o login.',
+          action: (
+            <Button asChild>
+              <Link href="/signin">Entrar</Link>
+            </Button>
+          ),
+        })
+      }
+
+      if (response && response.statusCode === 201) {
+        toast({
+          variant: 'default',
+          description: 'Sua conta foi registrada com sucesso.',
+          action: (
+            <Button asChild>
+              <Link href="/signin">Entrar</Link>
+            </Button>
+          ),
+        })
+      }
+
+      form.reset()
+    } catch (error) {
       toast({
-        variant: 'default',
-        description:
-          'Este CPF já está conectado a uma conta, por favor faça o login.',
-        action: (
-          <Button asChild>
-            <Link href="/signin">Entrar</Link>
-          </Button>
-        ),
+        variant: 'destructive',
+        title: 'Erro interno',
+        description: 'Não foi possível processar a sua requisição',
       })
 
-    if (statusCode === 201)
-      toast({
-        variant: 'default',
-        description: 'Sua conta foi registrada com sucesso.',
-        action: (
-          <Button asChild>
-            <Link href="/signin">Entrar</Link>
-          </Button>
-        ),
-      })
+      // const response = await fetch('http://localhost:4004/auth/register', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(data, null, 2),
+      // })
 
-    form.reset()
+      // const { statusCode } = await response.json()
+
+      // if (statusCode === 409)
+      //   toast({
+      //     variant: 'default',
+      //     description:
+      //       'Este CPF já está conectado a uma conta, por favor faça o login.',
+      //     action: (
+      //       <Button asChild>
+      //         <Link href="/signin">Entrar</Link>
+      //       </Button>
+      //     ),
+      //   })
+
+      // if (statusCode === 201)
+      //   toast({
+      //     variant: 'default',
+      //     description: 'Sua conta foi registrada com sucesso.',
+      //     action: (
+      //       <Button asChild>
+      //         <Link href="/signin">Entrar</Link>
+      //       </Button>
+      //     ),
+      //   })
+    }
   }
 
   return (

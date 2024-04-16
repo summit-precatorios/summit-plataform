@@ -74,7 +74,6 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(payload)
     } catch (error) {
-      console.log(error)
       toast({
         variant: 'destructive',
         title: 'Erro interno',
