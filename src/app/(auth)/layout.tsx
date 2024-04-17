@@ -5,7 +5,7 @@ interface AuthLayoutProps {
 }
 export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <main className="container mx-auto pt-12 min-h-screen">
+    <main className="container mx-auto pt-12">
       <div className="w-full">{children}</div>
     </main>
   )

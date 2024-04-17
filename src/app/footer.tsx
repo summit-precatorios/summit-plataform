@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <div className="h-40 bg-gray-100 mt-12 flex items-center fixed bottom-0 w-full">
+    <div className="h-40 bg-gray-100 mt-12 flex items-center">
       <div className="container mx-auto flex justify-between items-center">
         <div className="font-semibold">Summit Precatórios</div>
 
@@ -10,7 +10,7 @@ export function Footer() {
           className="text-[#facc15] font-semibold transition-all  hover:text-black"
           href="/privacy"
         >
-          Política de Privacidade
+          Aviso de Privacidade
         </Link>
         <Link
           className="text-[#facc15] font-semibold transition-all  hover:text-black"

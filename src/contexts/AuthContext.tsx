@@ -3,6 +3,7 @@
 import { useToast } from '@/components/ui/use-toast'
 import { signInRequest } from '@/services/auth'
 import { jwtDecode } from 'jwt-decode'
+import Router from 'next/router'
 import { setCookie } from 'nookies'
 import { ReactNode, createContext, useState } from 'react'
 
@@ -73,6 +74,7 @@ export function AuthProvider({ children }: AuthContextProps) {
       const payload: User = jwtDecode(token as string)
 
       setUser(payload)
+      Router.push('/dashboard')
     } catch (error) {
       toast({
         variant: 'destructive',

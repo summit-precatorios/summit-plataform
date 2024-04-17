@@ -1,5 +1,5 @@
 ' use client'
-export default function Profile() {
+export default function Dashboard() {
   return (
     <>
       <h1>Dashboard</h1>

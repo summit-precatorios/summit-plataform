@@ -1,10 +1,9 @@
-import './globals.css'
-import { fonts } from './fonts'
-import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/toaster'
-import { Header } from './header'
-import { Footer } from './footer'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { fonts } from './fonts'
+import { Footer } from './footer'
+import './globals.css'
+import { Header } from './header'
 
 export default function RootLayout({
   children,
@@ -17,12 +16,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={fonts.inter.className}
     >
-      <body
-        className={cn(
-          'min-h-screen bg-background font-sans antialiased',
-          fonts.inter,
-        )}
-      >
+      <body>
         <Toaster />
         <Header />
         <AuthProvider>{children}</AuthProvider>
