@@ -12,10 +12,8 @@ export function Header() {
         </Link>
 
         <div className="flex gap-2">
-          <Button type="submit" className="text-white h-11" asChild>
-            <Link href="/signin" className="text-white">
-              Entrar
-            </Link>
+          <Button type="submit" className=" h-11" asChild>
+            <Link href="/signin">Entrar</Link>
           </Button>
         </div>
       </div>

@@ -96,7 +96,7 @@ export function AuthForm() {
           <div className="flex flex-col gap-3">
             <Button
               type="submit"
-              className="text-white h-12"
+              className="h-12"
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? 'Acessando...' : 'Acessar conta'}

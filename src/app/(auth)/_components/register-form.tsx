@@ -164,7 +164,7 @@ export function RegisterForm() {
             )}
           />
           <div className="flex w-full flex-col gap-5 items-center">
-            <Button type="submit" className="text-white w-full h-12">
+            <Button type="submit" className="w-full h-12">
               {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
             </Button>
             <p>
