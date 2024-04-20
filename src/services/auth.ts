@@ -16,7 +16,10 @@ export async function signInRequest(data: SignInRequestData) {
   try {
     return await api('signin', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': `${process.env.API_KEY}`,
+      },
       body: JSON.stringify(data, null, 2),
     })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
