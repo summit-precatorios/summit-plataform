@@ -1,11 +1,10 @@
 'use client'
-
 import { useToast } from '@/components/ui/use-toast'
 import { signInRequest } from '@/services/auth'
 import { jwtDecode } from 'jwt-decode'
-import Router from 'next/router'
-import { setCookie } from 'nookies'
-import { ReactNode, createContext, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { parseCookies, setCookie } from 'nookies'
+import { ReactNode, createContext, useEffect, useState } from 'react'
 
 interface AuthContextProps {
   children: ReactNode
@@ -31,13 +30,17 @@ type AuthContextType = {
 export const AuthContext = createContext({} as AuthContextType)
 
 export function AuthProvider({ children }: AuthContextProps) {
+  const router = useRouter() // Inicialize o useRouter
   const { toast } = useToast()
   const [user, setUser] = useState<User | null>(null)
+
   const isAuthenticated = !!user
 
   async function signIn({ document, password }: SignInData) {
     try {
       const response = await signInRequest({ document, password })
+
+      console.log(response)
 
       if (!response) {
         toast({
@@ -45,6 +48,8 @@ export function AuthProvider({ children }: AuthContextProps) {
           title: 'Erro interno',
           description: 'Não foi possível processar a sua requisição',
         })
+
+        console.log('entrou no primeiro if')
         return
       }
 
@@ -71,11 +76,9 @@ export function AuthProvider({ children }: AuthContextProps) {
         maxAge: 60 * 60 * 1, // expires in 1 hour
       })
 
-      const payload: User = jwtDecode(token as string)
-
-      setUser(payload)
-      Router.push('/dashboard')
+      router.push('/dashboard')
     } catch (error) {
+      console.log(error)
       toast({
         variant: 'destructive',
         title: 'Erro interno',
@@ -83,6 +86,18 @@ export function AuthProvider({ children }: AuthContextProps) {
       })
     }
   }
+
+  useEffect(() => {
+    const { 'summit.token': token } = parseCookies()
+
+    if (token) {
+      const tokenDecoded = jwtDecode(token as string)
+
+      console.log(tokenDecoded.payload)
+
+      setUser(tokenDecoded.payload)
+    }
+  }, [])
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user }}>

@@ -1,7 +1,6 @@
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { fonts } from './fonts'
-import { Footer } from './footer'
 import './globals.css'
 import { Header } from './header'
 
@@ -18,9 +17,12 @@ export default function RootLayout({
     >
       <body>
         <Toaster />
-        <Header />
-        <AuthProvider>{children}</AuthProvider>
-        <Footer />
+
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
+        {/* <Footer /> */}
       </body>
     </html>
   )

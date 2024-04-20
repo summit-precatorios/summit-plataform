@@ -27,7 +27,6 @@ export default function Page() {
               alt="file drive logo"
               className="inline-block mb-8"
             />
-
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
               Descubra a maneira mais simples de localizar, adquirir ou negociar
               seus precatórios.
