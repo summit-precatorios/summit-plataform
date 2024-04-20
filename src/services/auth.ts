@@ -18,7 +18,7 @@ export async function signInRequest(data: SignInRequestData) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`,
+        'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
       },
       body: JSON.stringify(data, null, 2),
     })
@@ -32,7 +32,10 @@ export async function registerRequest(data: RegisterRequestData) {
   try {
     return await api('register', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': `${process.env.API_KEY}`,
+      },
       body: JSON.stringify(data, null, 2),
     })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

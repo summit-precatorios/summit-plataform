@@ -12,7 +12,6 @@ export async function api(resource?: string, init?: RequestInit): Promise<any> {
       signal: controller.signal,
     })
   } catch (error) {
-    console.log(error)
   } finally {
     clearTimeout(timeoutId)
   }

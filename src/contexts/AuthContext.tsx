@@ -40,8 +40,6 @@ export function AuthProvider({ children }: AuthContextProps) {
     try {
       const response = await signInRequest({ document, password })
 
-      console.log(response)
-
       if (!response) {
         toast({
           variant: 'destructive',
@@ -49,7 +47,6 @@ export function AuthProvider({ children }: AuthContextProps) {
           description: 'Não foi possível processar a sua requisição',
         })
 
-        console.log('entrou no primeiro if')
         return
       }
 
@@ -63,14 +60,27 @@ export function AuthProvider({ children }: AuthContextProps) {
         return
       }
 
+      if (response && response.statusCode === 400) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro interno',
+          description: 'Não foi possível processar a sua requisição',
+        })
+
+        return
+      }
+
       const { accessToken: token } = response
 
-      if (!token)
+      if (!token) {
         toast({
           variant: 'destructive',
           title: 'Falha de Autenticação',
           description: 'Credenciais de acesso inválidas ou não registradas',
         })
+
+        return
+      }
 
       setCookie(undefined, 'summit.token', token, {
         maxAge: 60 * 60 * 1, // expires in 1 hour
@@ -78,7 +88,6 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       router.push('/dashboard')
     } catch (error) {
-      console.log(error)
       toast({
         variant: 'destructive',
         title: 'Erro interno',
@@ -92,8 +101,6 @@ export function AuthProvider({ children }: AuthContextProps) {
 
     if (token) {
       const tokenDecoded = jwtDecode(token as string)
-
-      console.log(tokenDecoded.payload)
 
       setUser(tokenDecoded.payload)
     }
