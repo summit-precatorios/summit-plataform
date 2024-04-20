@@ -3,7 +3,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { signInRequest } from '@/services/auth'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
-import { parseCookies, setCookie } from 'nookies'
+import { destroyCookie, parseCookies, setCookie } from 'nookies'
 import { ReactNode, createContext, useEffect, useState } from 'react'
 
 interface AuthContextProps {
@@ -25,6 +25,7 @@ type AuthContextType = {
   isAuthenticated: boolean
   user: User | null
   signIn: (data: SignInData) => Promise<void>
+  logout: () => Promise<void>
 }
 
 export const AuthContext = createContext({} as AuthContextType)
@@ -86,7 +87,13 @@ export function AuthProvider({ children }: AuthContextProps) {
         maxAge: 60 * 60 * 1, // expires in 1 hour
       })
 
-      router.push('/dashboard')
+      if (token) {
+        const tokenDecoded = jwtDecode(token as string)
+
+        setUser(tokenDecoded.payload)
+
+        router.push('/dashboard')
+      }
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -96,6 +103,14 @@ export function AuthProvider({ children }: AuthContextProps) {
     }
   }
 
+  async function logout() {
+    destroyCookie(null, 'summit.token')
+
+    setUser(null)
+
+    router.push('/signin')
+  }
+
   useEffect(() => {
     const { 'summit.token': token } = parseCookies()
 
@@ -103,11 +118,15 @@ export function AuthProvider({ children }: AuthContextProps) {
       const tokenDecoded = jwtDecode(token as string)
 
       setUser(tokenDecoded.payload)
+
+      router.push('/dashboard')
+    } else {
+      router.push('/signin')
     }
   }, [])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, signIn, user }}>
+    <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>
       {children}
     </AuthContext.Provider>
   )
