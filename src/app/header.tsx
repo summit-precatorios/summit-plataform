@@ -13,7 +13,7 @@ export function Header() {
           <Link href="/" className="flex gap-2 items-center text-xl text-black">
             <Image src="/logo.svg" width="100" height="100" alt="summit logo" />
           </Link>
-          <Link href="/dashboard">Dashboard</Link>
+          {/* <Link href="/dashboard">Dashboard</Link> */}
         </div>
         <div className="flex gap-12 items-center">
           {/* <Link href="/privacy">Aviso de Privacidade</Link> */}
