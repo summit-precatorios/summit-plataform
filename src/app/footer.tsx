@@ -2,26 +2,15 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <div className="bg-gray-100 mt-12 flex items-center h-40">
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="font-semibold">Summit Precatórios</div>
-
-        <Link
-          className="text-[#facc15] font-semibold transition-all  hover:text-black"
-          href="/privacy"
-        >
+    <div className="bg-[#0B1E2C] mt-12 flex items-center h-40">
+      <div className="container mx-auto flex justify-evenly items-center">
+        <Link className="text-[#facc15] font-semibold" href="/privacy">
           Aviso de Privacidade
         </Link>
-        <Link
-          className="text-[#facc15] font-semibold transition-all  hover:text-black"
-          href="/terms-of-service"
-        >
+        <Link className="text-[#facc15] font-semibold" href="/terms-of-service">
           Termos de Serviço
         </Link>
-        <Link
-          className="text-[#facc15] font-semibold transition-all  hover:text-black"
-          href="/about"
-        >
+        <Link className="text-[#facc15] font-semibold" href="/about">
           Sobre
         </Link>
       </div>

@@ -11,7 +11,8 @@ export function Header() {
           <Image src="/logo.svg" width="100" height="100" alt="summit logo" />
         </Link>
 
-        <div className="flex gap-2">
+        <div className="flex gap-12 items-center">
+          <Link href="/contact">Contato</Link>
           <Button type="submit" className=" h-11" asChild>
             <Link href="/signin">Entrar</Link>
           </Button>
