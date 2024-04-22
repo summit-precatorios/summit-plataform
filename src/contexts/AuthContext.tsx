@@ -88,7 +88,8 @@ export function AuthProvider({ children }: AuthContextProps) {
       })
 
       if (token) {
-        const tokenDecoded = jwtDecode(token as string)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tokenDecoded: any = jwtDecode(token as string)
 
         setUser(tokenDecoded.payload)
 
@@ -115,15 +116,14 @@ export function AuthProvider({ children }: AuthContextProps) {
     const { 'summit.token': token } = parseCookies()
 
     if (token) {
-      const tokenDecoded = jwtDecode(token as string)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tokenDecoded: any = jwtDecode(token as string)
 
       setUser(tokenDecoded.payload)
 
       router.push('/dashboard')
-    } else {
-      router.push('/signin')
     }
-  }, [])
+  }, [router])
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>
