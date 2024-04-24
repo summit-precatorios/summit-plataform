@@ -12,7 +12,7 @@ type RegisterRequestData = {
   password: string
 }
 
-export async function signInRequest(data: SignInRequestData) {
+export async function signInRequest({ document, password }: SignInRequestData) {
   try {
     return await api('signin', {
       method: 'POST',
@@ -20,7 +20,7 @@ export async function signInRequest(data: SignInRequestData) {
         'Content-Type': 'application/json',
         'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
       },
-      body: JSON.stringify(data, null, 2),
+      body: JSON.stringify({ document, password }, null, 2),
     })
   } catch (error) {}
 }

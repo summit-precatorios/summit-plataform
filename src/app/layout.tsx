@@ -17,8 +17,11 @@ export default function RootLayout({
     >
       <body>
         <Toaster />
-        <Header />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <Header />
+
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

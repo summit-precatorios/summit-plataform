@@ -17,7 +17,7 @@ type User = {
   document: string
 }
 
-type SignInData = {
+export type SignInData = {
   document: string
   password: string
 }
@@ -71,6 +71,8 @@ export function AuthProvider({ children }: AuthContextProps) {
       const tokenDecoded: any = jwtDecode(token as string)
 
       setUser(tokenDecoded.payload)
+
+      console.log(isAuthenticated)
 
       router.push('/dashboard')
     } catch (error) {

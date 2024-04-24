@@ -11,11 +11,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
+import { AuthContext } from '@/contexts/AuthContext'
 import { cpfMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
 import { registerRequest } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -38,6 +40,7 @@ const formSchema = z.object({
 
 export function RegisterForm() {
   const { toast } = useToast()
+  const { signIn } = useContext(AuthContext)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,6 +56,8 @@ export function RegisterForm() {
     try {
       const response = await registerRequest(data)
 
+      console.log(response)
+
       if (!response) {
         toast({
           variant: 'destructive',
@@ -63,7 +68,7 @@ export function RegisterForm() {
         return
       }
 
-      if (response && response.statusCode === 409) {
+      if (response.message === '409') {
         toast({
           variant: 'default',
           description:
@@ -76,16 +81,13 @@ export function RegisterForm() {
         })
       }
 
-      if (response && response.statusCode === 201) {
+      if (response.message === 'resource created') {
         toast({
           variant: 'default',
           description: 'Sua conta foi registrada com sucesso.',
-          action: (
-            <Button asChild>
-              <Link href="/signin">Entrar</Link>
-            </Button>
-          ),
         })
+
+        await signIn(data)
       }
 
       form.reset()

@@ -6,6 +6,7 @@ export async function api<ResponseType = any>(
   options: RequestInit = {},
 ) {
   const BASE_URL = `https://summitprecatorios.com.br/api/auth/${resource}`
+  // const BASE_URL = `http://localhost:4004/api/auth/${resource}`
 
   try {
     const result = await fetch(BASE_URL, {

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { UserNav } from '@/components/user-nav'
 import { AuthContext } from '@/contexts/AuthContext'
+import { MenuIcon } from 'lucide-react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -16,12 +17,11 @@ export function Header() {
       <Sheet>
         <SheetTrigger asChild>
           <Button className="lg:hidden" size="icon" variant="outline">
-            <Image src="/logo.svg" width="50" height="50" alt="summit logo" />
-            <span className="sr-only">Toggle navigation menu</span>
+            <MenuIcon className="h-6 w-6" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
-          <Link className="mr-6 hidden lg:flex" href="#">
+          <Link className="mr-6 hidden lg:flex" href="/">
             <Image src="/logo.svg" width="100" height="100" alt="summit logo" />
             <span className="sr-only">Summit</span>
           </Link>
@@ -51,7 +51,7 @@ export function Header() {
               Contato
             </Link>
             {!isAuthenticated ? (
-              <Button type="submit" className="h-11" asChild>
+              <Button variant={'default'} asChild>
                 <Link href="/signin">Entrar</Link>
               </Button>
             ) : (
@@ -90,12 +90,14 @@ export function Header() {
           Contato
         </Link>
         {!isAuthenticated ? (
-          <Link
-            className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-            href="/signin"
-          >
-            Entrar
-          </Link>
+          <Button variant={'default'} asChild>
+            <Link
+              className=" bg-[#EAAC2E] group inline-flex h-9 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors hover:opacity-80 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+              href="/signin"
+            >
+              Entrar
+            </Link>
+          </Button>
         ) : (
           <UserNav />
         )}

@@ -8,6 +8,6 @@
 
 export class HttpError extends Error {
   constructor(public response: Response) {
-    super(`Http error ${response.status}`)
+    super(`${response.status}`)
   }
 }
