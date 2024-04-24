@@ -17,10 +17,8 @@ export default function RootLayout({
     >
       <body>
         <Toaster />
-        <AuthProvider>
-          <Header />
-          {children}
-        </AuthProvider>
+        <Header />
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )
