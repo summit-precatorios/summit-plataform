@@ -51,26 +51,6 @@ export function AuthProvider({ children }: AuthContextProps) {
         return
       }
 
-      if (response && response.statusCode === 401) {
-        toast({
-          variant: 'destructive',
-          title: 'Falha de Autenticação',
-          description: 'Credenciais de acesso inválidas ou não registradas',
-        })
-
-        return
-      }
-
-      if (response && response.statusCode === 400) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro interno',
-          description: 'Não foi possível processar a sua requisição',
-        })
-
-        return
-      }
-
       const { accessToken: token } = response
 
       if (!token) {
@@ -87,13 +67,11 @@ export function AuthProvider({ children }: AuthContextProps) {
         maxAge: 60 * 60 * 1, // expires in 1 hour
       })
 
-      if (token) {
-        const tokenDecoded = jwtDecode(token as string)
+      const tokenDecoded = jwtDecode(token as string)
 
-        setUser(tokenDecoded.payload)
+      setUser(tokenDecoded.payload)
 
-        router.push('/dashboard')
-      }
+      router.push('/dashboard')
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -123,7 +101,7 @@ export function AuthProvider({ children }: AuthContextProps) {
     } else {
       router.push('/signin')
     }
-  }, [])
+  }, [router])
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>

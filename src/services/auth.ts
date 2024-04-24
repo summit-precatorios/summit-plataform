@@ -22,9 +22,6 @@ export async function signInRequest(data: SignInRequestData) {
       },
       body: JSON.stringify(data, null, 2),
     })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then(async (result: any) => await result.json())
-      .then((response) => response)
   } catch (error) {}
 }
 
@@ -38,8 +35,5 @@ export async function registerRequest(data: RegisterRequestData) {
       },
       body: JSON.stringify(data, null, 2),
     })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then(async (result: any) => await result.json())
-      .then((response) => response)
   } catch (error) {}
 }

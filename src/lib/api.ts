@@ -1,18 +1,20 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-export async function api(resource?: string, init?: RequestInit): Promise<any> {
-  const URL = `https://summitprecatorios.com.br/api/auth/${resource}`
-  const HTTP_TIMEOUT = 3000
+import { HttpError } from '@/exceptions/http-error.exceptions'
 
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), HTTP_TIMEOUT)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function api<ResponseType = any>(
+  resource?: string,
+  options: RequestInit = {},
+) {
+  const BASE_URL = `https://summitprecatorios.com.br/api/auth/${resource}`
 
   try {
-    return await fetch(URL, {
-      ...init,
-      signal: controller.signal,
+    const result = await fetch(BASE_URL, {
+      ...options,
+      signal: AbortSignal.timeout(3000),
     })
-  } catch (error) {
-  } finally {
-    clearTimeout(timeoutId)
-  }
+    if (!result.ok) {
+      return new HttpError(result)
+    }
+    return (await result.json()) as ResponseType
+  } catch (error) {}
 }
