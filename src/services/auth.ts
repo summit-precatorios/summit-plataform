@@ -12,6 +12,10 @@ type RegisterRequestData = {
   password: string
 }
 
+type ForgotPasswordRequestData = {
+  email: string
+}
+
 export async function signInRequest({ document, password }: SignInRequestData) {
   try {
     return await api('signin', {
@@ -28,6 +32,19 @@ export async function signInRequest({ document, password }: SignInRequestData) {
 export async function registerRequest(data: RegisterRequestData) {
   try {
     return await api('register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': `${process.env.API_KEY}`,
+      },
+      body: JSON.stringify(data, null, 2),
+    })
+  } catch (error) {}
+}
+
+export async function forgotPassword(data: ForgotPasswordRequestData) {
+  try {
+    return await api('forgot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

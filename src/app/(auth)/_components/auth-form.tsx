@@ -85,10 +85,7 @@ export function AuthForm() {
           <div className="flex justify-start w-96 mb-8">
             <p className="text-base font-normal">
               Esqueceu sua senha?{' '}
-              <Link
-                href="/forget-password"
-                className="text-[#EAAC2E] hover:opacity-80"
-              >
+              <Link href="/forgot" className="text-[#EAAC2E] hover:opacity-80">
                 Recuperar senha
               </Link>
             </p>
