@@ -1,4 +1,3 @@
-'use client'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -9,47 +8,94 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { forgotPassword } from '@/services/auth'
+import { InputPassword } from '@/components/ui/input-password'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { jwtDecode } from 'jwt-decode'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import * as z from 'zod'
-const formSchema = z.object({
-  email: z.string().email('Insira um endereço de e-mail válido.'),
-})
 
-export function ResetPasswordForm() {
+import { z } from 'zod'
+
+type Data = {
+  user: {
+    email: string
+    document: string
+  }
+}
+
+const formSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
+    confirm: z.string(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: 'A confirmação da senha não coincide',
+  })
+
+export function ResetPasswordForm({
+  params,
+}: {
+  params: { token: string | string[] }
+}) {
+  const [data, setData] = useState<Data | undefined>()
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tokenDecoded: Data = jwtDecode(params.token as string)
+
+    console.log(tokenDecoded)
+    setData(tokenDecoded)
+  }, [params.token])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      password: '',
+      confirm: '',
     },
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    await forgotPassword(data)
-    form.reset()
+    console.log(data, params.token)
   }
 
   return (
     <div className="flex flex-col justify-center max-w-lg h-[80vh] mx-auto mt-3 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
       <h1 className="text-3xl font-semibold mb-4">Redefinir senha</h1>
-      <span>
-        Enviaremos por e-mail instruções sobre como redefinir sua senha.
-      </span>
 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 mt-16"
         >
+          <FormItem>
+            <FormLabel>Endereço de email</FormLabel>
+            <Input value={data?.user.email} disabled />
+          </FormItem>
+
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Endereço de email</FormLabel>
+                <FormLabel>Senha</FormLabel>
                 <FormControl>
-                  <Input placeholder="exemplo@gmail.com" {...field} />
+                  <InputPassword type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirm"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirme sua senha</FormLabel>
+                <FormControl>
+                  <InputPassword type="password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -60,7 +106,7 @@ export function ResetPasswordForm() {
             className="h-12 w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? 'Enviando...' : 'Enviar'}
+            {form.formState.isSubmitting ? 'Enviando...' : 'Redefinir senha'}
           </Button>
         </form>
       </Form>

@@ -44,7 +44,7 @@ export async function registerRequest(data: RegisterRequestData) {
 
 export async function forgotPassword(data: ForgotPasswordRequestData) {
   try {
-    return await api('forgot', {
+    return await api('recovery/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
