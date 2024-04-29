@@ -11,7 +11,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { forgotPassword } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 const formSchema = z.object({
@@ -19,8 +18,6 @@ const formSchema = z.object({
 })
 
 export function RecoveryPasswordForm() {
-  const router = useRouter()
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,9 +26,7 @@ export function RecoveryPasswordForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    const { token } = await forgotPassword(data)
-
-    if (token) router.push(`password/${token}`)
+    await forgotPassword(data)
 
     form.reset()
   }

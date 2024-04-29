@@ -9,6 +9,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/api'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
@@ -43,6 +45,7 @@ export function ResetPasswordForm({
 }) {
   const [data, setData] = useState<Data | undefined>()
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,7 +69,34 @@ export function ResetPasswordForm({
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data, params.token)
+    const enrichmentData = {
+      ...data,
+      token: params.token,
+    }
+
+    const response = await api('reset-password', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': `${process.env.API_KEY}`,
+      },
+      body: JSON.stringify(enrichmentData, null, 2),
+    })
+
+    if (!response) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro interno',
+        description: 'Não foi possível processar a sua requisição',
+      })
+    }
+
+    if (response.ok) {
+      toast({
+        variant: 'default',
+        description: 'Sua senha foi alterada com sucesso.',
+      })
+    }
   }
 
   return (
