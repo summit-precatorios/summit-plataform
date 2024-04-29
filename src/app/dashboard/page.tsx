@@ -1,20 +1,26 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthContext } from '@/contexts/AuthContext'
 import { Tabs, TabsContent } from '@radix-ui/react-tabs'
-import { useRouter } from 'next/navigation'
-import { useContext, useEffect } from 'react'
+import Link from 'next/link'
+import { useContext } from 'react'
 
 export default function Dashboard() {
   const { isAuthenticated } = useContext(AuthContext)
-  const router = useRouter()
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/signin')
-    }
-  }, [router, isAuthenticated])
+  if (!isAuthenticated)
+    return (
+      <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
+        <h1 className="text-xl">
+          Você precisa estar autenticado para acessar esta página.
+        </h1>
+        <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
+          <Link href="/signin">Entrar</Link>
+        </Button>
+      </div>
+    )
 
   return (
     <>

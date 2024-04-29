@@ -101,7 +101,7 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="w-96 m-auto">
+    <div className="flex flex-col justify-center max-w-lg h-[80vh] mx-auto mt-3 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
       <h1 className="text-3xl font-semibold mb-4">Criar conta</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
