@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -40,13 +41,19 @@ export function ResetPasswordForm({
   params: { token: string | string[] }
 }) {
   const [data, setData] = useState<Data | undefined>()
+  const router = useRouter()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokenDecoded: Data = jwtDecode(params.token as string)
 
-    console.log(tokenDecoded)
-    setData(tokenDecoded)
+    try {
+      const tokenDecoded: Data = jwtDecode(params.token as string)
+      console.log(tokenDecoded)
+      setData(tokenDecoded)
+    } catch (error) {
+      console.log(error)
+      router.push('/reset/password')
+    }
   }, [params.token])
 
   const form = useForm<z.infer<typeof formSchema>>({
