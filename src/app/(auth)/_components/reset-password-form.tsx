@@ -33,6 +33,7 @@ const formSchema = z
   })
   .refine((data) => data.password === data.confirm, {
     message: 'A confirmação da senha não coincide',
+    path: ['confirm'],
   })
 
 export function ResetPasswordForm({
@@ -54,7 +55,7 @@ export function ResetPasswordForm({
       console.log(error)
       router.push('/reset/password')
     }
-  }, [params.token])
+  }, [router, params.token])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
