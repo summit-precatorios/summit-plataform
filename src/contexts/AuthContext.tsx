@@ -72,8 +72,6 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(tokenDecoded.payload)
 
-      console.log(isAuthenticated)
-
       router.push('/dashboard')
     } catch (error) {
       toast({

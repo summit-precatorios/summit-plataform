@@ -5,7 +5,6 @@ export async function api<ResponseType = any>(
   resource?: string,
   options: RequestInit = {},
 ) {
-  // const BASE_URL = `http://localhost:4004/api/auth/${resource}`
   const BASE_URL = `https://summitprecatorios.com.br/api/auth/${resource}`
 
   try {

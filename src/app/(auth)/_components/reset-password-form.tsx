@@ -52,10 +52,8 @@ export function ResetPasswordForm({
 
     try {
       const tokenDecoded: Data = jwtDecode(params.token as string)
-      console.log(tokenDecoded)
       setData(tokenDecoded)
     } catch (error) {
-      console.log(error)
       router.push('/reset/password')
     }
   }, [router, params.token])
@@ -85,20 +83,18 @@ export function ResetPasswordForm({
 
     if (!response) {
       toast({
-        variant: 'destructive',
-        title: 'Erro interno',
-        description: 'Não foi possível processar a sua requisição',
-      })
-    }
-
-    if (response.ok) {
-      toast({
         variant: 'default',
-        description: 'Sua senha foi alterada com sucesso.',
+        description: 'Sua senha foi alterada com sucesso',
+      })
+
+      form.reset()
+    } else {
+      toast({
+        variant: 'destructive',
+        description: 'Token inválido',
       })
     }
   }
-
   return (
     <div className="flex flex-col justify-center max-w-lg h-[80vh] mx-auto mt-3 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
       <h1 className="text-3xl font-semibold mb-4">Redefinir senha</h1>

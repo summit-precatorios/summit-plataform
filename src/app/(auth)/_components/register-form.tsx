@@ -56,8 +56,6 @@ export function RegisterForm() {
     try {
       const response = await registerRequest(data)
 
-      console.log(response)
-
       if (!response) {
         toast({
           variant: 'destructive',

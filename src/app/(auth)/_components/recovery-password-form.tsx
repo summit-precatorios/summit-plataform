@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/use-toast'
 import { forgotPassword } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -18,6 +19,8 @@ const formSchema = z.object({
 })
 
 export function RecoveryPasswordForm() {
+  const { toast } = useToast()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -26,9 +29,24 @@ export function RecoveryPasswordForm() {
   })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    await forgotPassword(data)
+    const response = await forgotPassword(data)
 
-    form.reset()
+    if (!response) {
+      toast({
+        variant: 'default',
+        description: 'Enviamos por e-mail o link de redefinição de senha!',
+      })
+
+      form.reset()
+    } else {
+      toast({
+        variant: 'default',
+        description:
+          'Se os detalhes inseridos fossem válidos, o e-mail de redefinição de senha foi enviado para o endereço de e-mail fornecido.',
+      })
+
+      form.reset()
+    }
   }
 
   return (
