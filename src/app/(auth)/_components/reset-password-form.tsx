@@ -72,7 +72,7 @@ export function ResetPasswordForm({
       token: params.token,
     }
 
-    const response = await api('reset-password', {
+    const response = await api('reset/password', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
