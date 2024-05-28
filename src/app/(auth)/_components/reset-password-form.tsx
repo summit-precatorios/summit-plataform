@@ -72,7 +72,7 @@ export function ResetPasswordForm({
       token: params.token,
     }
 
-    const response = await api('reset/password', {
+    const response = await api('auth/reset/password', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export function ResetPasswordForm({
       body: JSON.stringify(enrichmentData, null, 2),
     })
 
-    if (!response) {
+    if (response.statusCode === 200) {
       toast({
         variant: 'default',
         description: 'Sua senha foi alterada com sucesso',

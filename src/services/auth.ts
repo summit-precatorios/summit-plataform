@@ -1,24 +1,13 @@
 import { api } from '@/lib/api'
-
-type SignInRequestData = {
-  document: string
-  password: string
-}
-
-type RegisterRequestData = {
-  document: string
-  email: string
-  fullName: string
-  password: string
-}
-
-type ForgotPasswordRequestData = {
-  email: string
-}
+import {
+  ForgotPasswordRequestData,
+  RegisterRequestData,
+  SignInRequestData,
+} from '@/types'
 
 export async function signInRequest({ document, password }: SignInRequestData) {
   try {
-    return await api('signin', {
+    return await api('auth/signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,7 +20,7 @@ export async function signInRequest({ document, password }: SignInRequestData) {
 
 export async function registerRequest(data: RegisterRequestData) {
   try {
-    return await api('register', {
+    return await api('auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +33,7 @@ export async function registerRequest(data: RegisterRequestData) {
 
 export async function forgotPassword(data: ForgotPasswordRequestData) {
   try {
-    return await api('recovery/request', {
+    return await api('auth/recovery/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

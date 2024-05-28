@@ -20,10 +20,8 @@ export default function ActiveAccount() {
   //     })
   //   } catch (error) {}
 
-  console.log(token)
-
   return (
-    <div className=" flex flex-col justify-center, items-center">
+    <div className="flex flex-col justify-center items-center h-full">
       <Image
         src="/check-in.png"
         alt="check-in"
@@ -31,12 +29,12 @@ export default function ActiveAccount() {
         height="121"
         className="mb-10"
       />
-      <h1 className="text-2xl font-medium">
+      <h1 className="text-3xl font-medium w-96 text-wrap text-center">
         A sua conta foi ativada com sucesso!
       </h1>
 
-      <Button asChild className="mt-10">
-        <Link href="/signin">Acessar conta</Link>
+      <Button asChild className="mt-10 py-6 px-8">
+        <Link href="/signin">Acessar minha conta</Link>
       </Button>
     </div>
   )

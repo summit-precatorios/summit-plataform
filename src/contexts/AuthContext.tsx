@@ -1,8 +1,9 @@
 'use client'
+
 import { useToast } from '@/components/ui/use-toast'
 import { signInRequest } from '@/services/auth'
 import { jwtDecode } from 'jwt-decode'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
 import { ReactNode, createContext, useEffect, useState } from 'react'
 
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(tokenDecoded.payload)
 
-      router.push('/dashboard')
+      redirect('/dashboard')
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -99,7 +100,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(tokenDecoded.payload)
 
-      router.push('/dashboard')
+      redirect('/dashboard')
     }
   }, [router])
 
