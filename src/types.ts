@@ -13,3 +13,7 @@ export type RegisterRequestData = {
 export type ForgotPasswordRequestData = {
   email: string
 }
+
+export type ActiveAccountRequestData = {
+  token: string | string[]
+}

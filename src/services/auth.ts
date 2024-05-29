@@ -1,5 +1,6 @@
 import { api } from '@/lib/api'
 import {
+  ActiveAccountRequestData,
   ForgotPasswordRequestData,
   RegisterRequestData,
   SignInRequestData,
@@ -35,6 +36,19 @@ export async function forgotPassword(data: ForgotPasswordRequestData) {
   try {
     return await api('auth/recovery/request', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': `${process.env.API_KEY}`,
+      },
+      body: JSON.stringify(data, null, 2),
+    })
+  } catch (error) {}
+}
+
+export async function activeAccount(data: ActiveAccountRequestData) {
+  try {
+    return await api('auth/active/account', {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': `${process.env.API_KEY}`,

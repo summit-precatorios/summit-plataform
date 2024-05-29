@@ -3,7 +3,7 @@
 import { useToast } from '@/components/ui/use-toast'
 import { signInRequest } from '@/services/auth'
 import { jwtDecode } from 'jwt-decode'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
 import { ReactNode, createContext, useEffect, useState } from 'react'
 
@@ -32,7 +32,7 @@ type AuthContextType = {
 export const AuthContext = createContext({} as AuthContextType)
 
 export function AuthProvider({ children }: AuthContextProps) {
-  const router = useRouter() // Inicialize o useRouter
+  const router = useRouter()
   const { toast } = useToast()
   const [user, setUser] = useState<User | null>(null)
 
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(tokenDecoded.payload)
 
-      redirect('/dashboard')
+      router.push('/dashboard')
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(tokenDecoded.payload)
 
-      redirect('/dashboard')
+      router.push('/dashboard')
     }
   }, [router])
 
