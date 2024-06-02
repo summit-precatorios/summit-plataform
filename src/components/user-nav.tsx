@@ -1,5 +1,6 @@
 'use client'
 import { AuthContext } from '@/contexts/AuthContext'
+import Image from 'next/image'
 import { useContext } from 'react'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { Button } from './ui/button'
@@ -32,7 +33,21 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback>{getFallBack()}</AvatarFallback>
+            {user?.image ? (
+              <AvatarFallback>
+                <Image
+                  className="rounded-full"
+                  // TODO
+                  // ! Caso o usuário faça o upload de uma foto de perfil, a mesma não será atualizada em tela, pois as informações estão contidas no token e não em um objeto User
+                  src={user.image}
+                  width="25"
+                  height="25"
+                  alt="avatar"
+                />
+              </AvatarFallback>
+            ) : (
+              <AvatarFallback>{getFallBack()}</AvatarFallback>
+            )}
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

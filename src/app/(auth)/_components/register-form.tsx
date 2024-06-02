@@ -16,6 +16,7 @@ import { validate } from '@/lib/validate'
 import { registerRequest } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import router from 'next/router'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -91,6 +92,7 @@ export function RegisterForm() {
       }
 
       form.reset()
+      router.push('/signin')
     } catch (error) {
       toast({
         variant: 'destructive',

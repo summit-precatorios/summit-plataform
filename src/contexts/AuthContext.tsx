@@ -16,6 +16,7 @@ type User = {
   email: string
   image: string
   document: string
+  isActive: boolean
 }
 
 export type SignInData = {

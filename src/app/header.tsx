@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { useContext } from 'react'
 
 export function Header() {
-  const { isAuthenticated } = useContext(AuthContext)
+  const { isAuthenticated, user } = useContext(AuthContext)
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
       <Sheet>
@@ -80,7 +80,7 @@ export function Header() {
           className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50 max-lg:hidden"
           href="/dashboard"
         >
-          Dashboard
+          Precatórios
         </Link>
       )}
 
@@ -109,6 +109,18 @@ export function Header() {
         >
           Contato
         </Link>
+
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <Button size="icon" variant="ghost">
+              <BellIcon className="h-5 w-5" />
+              <span className="sr-only">Notifications</span>
+            </Button>
+            {!user?.isActive ? (
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
+            ) : null}
+          </div>
+        </div>
         {!isAuthenticated ? (
           <Button variant={'default'} asChild>
             <Link
@@ -124,4 +136,24 @@ export function Header() {
       </nav>
     </header>
   )
+
+  function BellIcon(props: { className: string }) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+    )
+  }
 }
