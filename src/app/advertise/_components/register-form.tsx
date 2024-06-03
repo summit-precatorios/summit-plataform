@@ -154,8 +154,8 @@ export function RegisterForm(props: {
         </div>
       </CardContent>
       <CardFooter className="justify-between space-x-2">
-        <Button variant="ghost">Cancel</Button>
-        <Button>Submit</Button>
+        <Button variant="ghost">Cancelar</Button>
+        <Button>Enviar</Button>
       </CardFooter>
     </Card>
   )
