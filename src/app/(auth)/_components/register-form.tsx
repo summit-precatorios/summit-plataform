@@ -16,7 +16,7 @@ import { validate } from '@/lib/validate'
 import { registerRequest } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import router from 'next/router'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -39,6 +39,7 @@ const formSchema = z.object({
 
 export function RegisterForm() {
   const { toast } = useToast()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
