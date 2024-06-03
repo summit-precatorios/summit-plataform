@@ -13,3 +13,11 @@ export function cpfMask(value: string) {
     ?.replace(/(\d{3})(\d{1,2})/, '$1-$2') // coloca hífen entre o décimo primeiro e o décimo segundo dígito
     ?.replace(/(-\d{2})\d+?$/, '$1') // garante que só terá no máximo 14 caracteres
 }
+
+export function processNumberMask(value: string) {
+  return value
+    ?.replace(/\D/g, '') // remove tudo que não é dígito
+    ?.replace(/(\d{8})(\d)/, '$1.$2')
+    ?.replace(/(\d{3})(\d{1,2})/, '$1-$2')
+    ?.replace(/(-\d{8})\d+?$/, '$1') // garante que só terá no máximo 14 caracteres
+}

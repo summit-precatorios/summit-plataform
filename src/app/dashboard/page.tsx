@@ -83,11 +83,11 @@ export default function Dashboard() {
             <div className="flex flex-col justify-center items-center h-full">
               <CircleOff width="121" height="121" color="#cecece" />
               <h1 className="text-3xl font-medium  text-center mt-4">
-                Você ainda não possui precatórios registrados
+                Você ainda não possui precatórios anunciados
               </h1>
 
               <Button asChild className="mt-10 py-6 px-8">
-                <Link href="/advertise">Registrar</Link>
+                <Link href="/advertise">Anunciar</Link>
               </Button>
             </div>
           )}
