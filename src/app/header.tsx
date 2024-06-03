@@ -110,17 +110,6 @@ export function Header() {
           Contato
         </Link>
 
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Button size="icon" variant="ghost">
-              <BellIcon className="h-5 w-5" />
-              <span className="sr-only">Notifications</span>
-            </Button>
-            {!user?.isActive ? (
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
-            ) : null}
-          </div>
-        </div>
         {!isAuthenticated ? (
           <Button variant={'default'} asChild>
             <Link
@@ -131,7 +120,20 @@ export function Header() {
             </Link>
           </Button>
         ) : (
-          <UserNav />
+          <>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Button size="icon" variant="ghost">
+                  <BellIcon className="h-5 w-5" />
+                  <span className="sr-only">Notifications</span>
+                </Button>
+                {!user?.isActive ? (
+                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
+                ) : null}
+              </div>
+            </div>
+            <UserNav />
+          </>
         )}
       </nav>
     </header>
