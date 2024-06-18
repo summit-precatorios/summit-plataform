@@ -85,7 +85,7 @@ export function RegisterForm(props: {
             </Select>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="security-level">Tribunal</Label>
             <Select defaultValue="default">
@@ -99,7 +99,7 @@ export function RegisterForm(props: {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-2 col-span-2">
             <Label htmlFor="subject">Número do Processo</Label>
             <Input
               id="subject"

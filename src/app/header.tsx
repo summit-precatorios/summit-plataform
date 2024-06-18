@@ -145,7 +145,7 @@ export function Header() {
       </header>
 
       <div className="container bg-red-400 rounded-sm p-6 flex justify-center items-center m-auto">
-        <h1 className="text-white text-2xl">Ambiente de Homologação</h1>
+        <h1 className="text-white text-lg">Ambiente de Homologação</h1>
       </div>
     </>
   )

@@ -15,9 +15,12 @@ export function cpfMask(value: string) {
 }
 
 export function processNumberMask(value: string) {
+  // 5003007-08.2015.8.09.0051
+
   return value
-    ?.replace(/\D/g, '') // remove tudo que não é dígito
-    ?.replace(/(\d{8})(\d)/, '$1.$2')
-    ?.replace(/(\d{3})(\d{1,2})/, '$1-$2')
-    ?.replace(/(-\d{8})\d+?$/, '$1') // garante que só terá no máximo 14 caracteres
+    .replace(/^(\d{7})(\d)/, '$1-$2.') // 5003007-0.
+    .replace(/^(\d{7}-\d{2})(\d)/, '$1.$2') // 5003007-08.2
+    .replace(/^(\d{7}-\d{2}.\d{4})(\d)/, '$1.$2') // 5003007-08.2015.8
+    .replace(/^(\d{7}-\d{2}.\d{4}.)(\d)/, '$1$2.') // 5003007-08.2015.8.
+    .replace(/^(\d{7}-\d{2}.\d{4}.8.\d{2})(\d)/, '$1.$2.')
 }
