@@ -33,6 +33,17 @@ export function RecoveryPasswordForm() {
 
     if (!response) {
       toast({
+        variant: 'destructive',
+        title: 'Erro interno',
+        description:
+          'Não foi possível processar a sua requisição. Tente novamente mais tarde.',
+      })
+
+      return
+    }
+
+    if (response && response.statusCode === 201) {
+      toast({
         variant: 'default',
         description: 'Enviamos por e-mail o link de redefinição de senha!',
       })
@@ -42,7 +53,7 @@ export function RecoveryPasswordForm() {
       toast({
         variant: 'default',
         description:
-          'Se os detalhes inseridos fossem válidos, o e-mail de redefinição de senha foi enviado para o endereço de e-mail fornecido.',
+          'Se os detalhes inseridos forem válidos, o e-mail de redefinição de senha foi enviado para o endereço de e-mail fornecido.',
       })
 
       form.reset()

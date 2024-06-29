@@ -24,7 +24,7 @@
 				"Jannchie.codetime"
 			]
 		}
-	},
+	}
 	// "mounts": [
 	// 	"type=bind,source=${localEnv:HOME}/.ssh/,target=/home/node/.ssh/,readonly"
 	// ]

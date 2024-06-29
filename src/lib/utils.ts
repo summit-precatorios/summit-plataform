@@ -6,6 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function cpfMask(value: string) {
+  console.log(value)
+
   return value
     ?.replace(/\D/g, '') // remove tudo que não é dígito
     ?.replace(/(\d{3})(\d)/, '$1.$2') // coloca ponto entre o terceiro e o quarto dígito
