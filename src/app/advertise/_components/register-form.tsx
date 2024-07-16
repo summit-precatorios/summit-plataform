@@ -135,7 +135,6 @@ export function RegisterForm(props: {
                           toast({
                             title: 'Dúvidas',
                             description: `Informe o valor que gostaria de vender o seu ${props.title}`,
-                            // variant: 'destructive',
                           })
                         }}
                       />
