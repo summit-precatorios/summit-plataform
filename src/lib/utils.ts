@@ -26,3 +26,21 @@ export function processNumberMask(value: string) {
     .replace(/^(\d{7}-\d{2}.\d{4}.)(\d)/, '$1$2.') // 5003007-08.2015.8.
     .replace(/^(\d{7}-\d{2}.\d{4}.8.\d{2})(\d)/, '$1.$2.')
 }
+
+export const currencyFormatter = Intl.NumberFormat('pt-BR', {
+  currency: 'BRL',
+  currencyDisplay: 'symbol',
+  currencySign: 'standard',
+  style: 'currency',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
+export function test(value: string) {
+  return value
+    .replace(/^(\d{7})(\d)/, '$1-$2.') // 5003007-0.
+    .replace(/^(\d{7}-\d{2})(\d)/, '$1.$2') // 5003007-08.2
+    .replace(/^(\d{7}-\d{2}.\d{4})(\d)/, '$1.$2') // 5003007-08.2015.8
+    .replace(/^(\d{7}-\d{2}.\d{4}.)(\d)/, '$1$2.') // 5003007-08.2015.8.
+    .replace(/^(\d{7}-\d{2}.\d{4}.8.\d{2})(\d)/, '$1.$2.')
+}

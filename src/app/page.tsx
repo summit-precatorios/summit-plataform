@@ -1,8 +1,13 @@
+'use client'
 import { Button } from '@/components/ui/button'
+import { AuthContext } from '@/contexts/AuthContext'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useContext } from 'react'
 
 export default function Page() {
+  const { isAuthenticated } = useContext(AuthContext)
+
   return (
     <div className="bg-white">
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -23,9 +28,12 @@ export default function Page() {
               Registre-se agora e inicie suas negociações.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button asChild className="h-12">
-                <Link href="/register">Crie sua conta</Link>
-              </Button>
+              {isAuthenticated ? null : (
+                <Button asChild className="h-12">
+                  <Link href="/register">Crie sua conta</Link>
+                </Button>
+              )}
+
               <a
                 href="#"
                 className="text-sm font-semibold leading-6 text-gray-900"

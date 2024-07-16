@@ -36,7 +36,7 @@ export default function Dashboard() {
       <div className="hidden flex-col md:flex">
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2 mb-36">
-            <h2 className="text-3xl font-bold tracking-tight">Precatórios</h2>
+            {/* <h2 className="text-3xl font-bold tracking-tight">Precatórios</h2> */}
           </div>
 
           {orders?.length > 0 ? (
@@ -83,7 +83,7 @@ export default function Dashboard() {
             <div className="flex flex-col justify-center items-center h-full">
               <CircleOff width="121" height="121" color="#cecece" />
               <h1 className="text-3xl font-medium  text-center mt-4">
-                Você ainda não possui precatórios anunciados
+                Você ainda não possui precatórios/RPVs anunciados
               </h1>
 
               <Button asChild className="mt-10 py-6 px-8">

@@ -10,8 +10,7 @@ export default function Page() {
   const [description, setDescription] = useState('')
 
   return (
-    // <div className="flex flex-col bg-red-300 justify-center max-w-lg h-[80vh] mx-auto mt-3 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
-    <div className="flex flex-col justify-start max-w-lg h-[80vh] mx-auto mt-20 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
+    <div className="flex flex-col justify-start max-w-7xl mx-auto mt-20 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
       <h1 className="text-3xl font-semibold mb-4">
         Olá, o que você quer anunciar?
       </h1>
