@@ -45,19 +45,11 @@ export function RecoveryPasswordForm() {
     if (response && response.statusCode === 201) {
       toast({
         variant: 'default',
-        description: 'Enviamos por e-mail o link de redefinição de senha!',
+        description: 'Caso este seja um email de usuário válido, você receberá um link no e-mail fornecido para recuperação da senha!',
       })
 
       form.reset()
-    } else {
-      toast({
-        variant: 'default',
-        description:
-          'Se os detalhes inseridos forem válidos, o e-mail de redefinição de senha foi enviado para o endereço de e-mail fornecido.',
-      })
-
-      form.reset()
-    }
+    } 
   }
 
   return (
