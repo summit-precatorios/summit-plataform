@@ -6,9 +6,8 @@ import { cn, currencyFormatter } from '@/lib/utils'
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string
+  onValueChange?: any
 }
-
-// Brazilian currency config
 
 const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {
@@ -40,10 +39,11 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
       dispatch(
         currencyFormatter.format(numericValue).replace(/^R\$/, '').trim(),
       )
-    }
-    // ! Usar esta função para os cálculos de desconto sobre os valores
-    const numericFormattedValue = parseFormattedValue(formattedValue)
 
+      if(props.onValueChange) props.onValueChange(currencyFormatter.format(numericValue).replace(/^R\$/, '').trim())
+
+    }
+  
     return (
       <div className="w-full relative">
         <input
@@ -60,7 +60,6 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-700/70">
           R$
         </span>
-        {/* {currencyFormatter.format(numericFormattedValue * 0.95)} */}
       </div>
     )
   },

@@ -13,13 +13,13 @@ import { Input } from '@/components/ui/input'
 import { InputCurrency } from '@/components/ui/input-currency'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { cpfMask, test } from '@/lib/utils'
+import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask, test } from '@/lib/utils'
 import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
 import { CircleHelp, Landmark } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -43,9 +43,15 @@ export function RegisterForm(props: {
   show: boolean
 }) {
   const [document, setDocument] = useState('')
-  const [mask, setMask] = useState('')
   const [processNumber, setProcessNumber] = useState('')
-  const [activeLabel, setActiveLabel] = useState<number>()
+  const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
+  const [salePrice, setSalePrice] = useState('')
+  const [liquidBalance, setLiquidBalance] = useState('');
+
+  const [pixKey, setPixKey] = useState('')
+  const [banckAccount, setBankAccount] = useState('')
+  const [bankAgency, setBankAgency] = useState('')
+  const [documentBankAccount, setDocumentBankAccount] = useState('')
 
   const { toast } = useToast()
 
@@ -59,6 +65,25 @@ export function RegisterForm(props: {
       processNumber: '',
     },
   })
+
+  useEffect(() => {
+    // Remover máscara e converter para número
+    const numericValue = parseFloat(salePrice.replace(/[^\d,-]/g, '').replace(',', '.'));
+    if (!isNaN(numericValue)) {
+      const calculatedBalance = (numericValue * 0.95).toFixed(2); // 95% do valor de venda
+      // Aplicar máscara de moeda BR no valor calculado
+
+      const formattedBalance = currencyFormatter.format(Number(calculatedBalance)).replace(/^R\$/, '').trim()
+
+      setLiquidBalance(formattedBalance);
+    } else {
+      setLiquidBalance('');
+    }
+  }, [salePrice])
+
+  const handleSalePriceChange = (value: string) => {
+    setSalePrice(value);
+  };
 
   return (
     <div className="w-full space-x-3 grid grid-cols-5">
@@ -81,7 +106,7 @@ export function RegisterForm(props: {
                     name="fullName"
                   />
                 </div>
-                <div className="grid gap-2 col-span-2 ">
+                <div className="grid gap-2 col-span-2">
                   <Label htmlFor="document">CPF</Label>
                   <Input
                     className="h-9"
@@ -146,37 +171,41 @@ export function RegisterForm(props: {
                     id="salePrice"
                     min={0}
                     className="h-9"
+                    value={salePrice}
+                    onValueChange={handleSalePriceChange}
+
                   />
                 </div>
                 <div className="grid gap-2 col-span2">
-                  <div className="grid gap-2 col-span2">
-                    <Label
-                      htmlFor="liquidBalance"
-                      className="flex justify-start items-center"
-                    >
-                      Saldo Líquido
-                      <span>
-                        <CircleHelp
-                          size={16}
-                          className="text-red-400 ml-1 cursor-pointer"
-                          onClick={() => {
-                            toast({
-                              title: 'Taxa de Manutenção',
-                              description: 'Explicação do valor líquido',
-                            })
-                          }}
-                        />
-                      </span>
-                    </Label>
 
-                    <InputCurrency
-                      type="text"
-                      id="liquidBalance"
-                      min={0}
-                      className="h-9"
-                      // value={}
-                    />
-                  </div>
+                  <Label
+                    htmlFor="liquidBalance"
+                    className="flex justify-start items-center"
+                  >
+                    Saldo Líquido
+                    <span>
+                      <CircleHelp
+                        size={16}
+                        className="text-red-400 ml-1 cursor-pointer"
+                        onClick={() => {
+                          toast({
+                            title: 'Taxa de Manutenção',
+                            description: 'Explicação do valor líquido',
+                          })
+                        }}
+                      />
+                    </span>
+                  </Label>
+
+                  <Input
+                    type="text"
+                    id="liquidBalance"
+                    min={0}
+                    className="h-9"
+                    disabled
+                    value={`R$ ${liquidBalance}`}
+                  />
+
                 </div>
               </div>
             </CardContent>
@@ -189,105 +218,163 @@ export function RegisterForm(props: {
       </Card>
 
       <Card className={`mt-16 ${props.show ? 'block' : 'hidden'} col-span-2`}>
-        <Form {...form}>
-          <form>
-            <CardHeader>
-              <CardTitle>Dados para Recebimento</CardTitle>
-              <CardDescription>
-                Para receber o valor do {props.title} vendido após uma
-                negociação bem-sucedida, por favor, informe o método de
-                recebimento desejado.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-6">
-              <RadioGroup
-                defaultValue="card"
-                className="grid grid-cols-2 gap-4 shad"
+
+        <CardHeader>
+          <CardTitle>Dados para Recebimento</CardTitle>
+          <CardDescription>
+            Para receber o valor do {props.title} vendido após uma
+            negociação bem-sucedida, por favor, informe o método de
+            recebimento desejado.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6">
+          <RadioGroup
+            defaultValue="card"
+            className="grid grid-cols-2 gap-4 shad"
+          >
+            <div>
+              <RadioGroupItem
+                value="card"
+                id="card"
+                className="peer sr-only"
+                aria-label="Card"
+              />
+              <Label
+                htmlFor="card"
+                className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 0 ? 'bg-gray-100' : ''}`}
+                onClick={() => {
+                  setActiveLabel(0)
+                }}
               >
-                <div>
-                  <RadioGroupItem
-                    value="card"
-                    id="card"
-                    className="peer sr-only"
-                    aria-label="Card"
-                  />
-                  <Label
-                    htmlFor="card"
-                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 0 ? 'bg-gray-100' : ''}`}
-                    onClick={() => {
-                      setActiveLabel(0)
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      x="0px"
-                      y="0px"
-                      width="100"
-                      height="100"
-                      viewBox="0 0 48 48"
-                      className="mb-3 h-8 w-8"
-                    >
-                      <path
-                        fill="#37c6d0"
-                        d="M19.262,44.037l-8.04-8.04L11,35l-1.777-1.003l-5.26-5.26c-2.617-2.617-2.617-6.859,0-9.475	l5.26-5.26L11,13l0.223-0.997l8.04-8.04c2.617-2.617,6.859-2.617,9.475,0l8.04,8.04L37,13l1.777,1.003l5.26,5.26	c2.617,2.617,2.617,6.859,0,9.475l-5.26,5.26L37,35l-0.223,0.997l-8.04,8.04C26.121,46.653,21.879,46.653,19.262,44.037z"
-                      ></path>
-                      <path
-                        d="M35.79,11.01c-1.76,0.07-3.4,0.79-4.63,2.04l-6.81,6.77c-0.09,0.1-0.22,0.15-0.35,0.15	s-0.25-0.05-0.35-0.15l-6.8-6.76c-1.24-1.26-2.88-1.98-4.64-2.05L8.22,15h3.68c0.8,0,1.55,0.31,2.12,0.88l6.8,6.78	c0.85,0.84,1.98,1.31,3.18,1.31s2.33-0.47,3.18-1.31l6.79-6.78C34.55,15.31,35.3,15,36.1,15h3.68L35.79,11.01z M36.1,33	c-0.8,0-1.55-0.31-2.12-0.88l-6.8-6.78c-0.85-0.84-1.98-1.31-3.18-1.31s-2.33,0.47-3.18,1.31l-6.79,6.78	C13.45,32.69,12.7,33,11.9,33H8.22l3.99,3.99c1.76-0.07,3.4-0.79,4.63-2.04l6.81-6.77c0.09-0.1,0.22-0.15,0.35-0.15	s0.25,0.05,0.35,0.15l6.8,6.76c1.24,1.26,2.88,1.98,4.64,2.05L39.78,33H36.1z"
-                        opacity=".05"
-                      ></path>
-                      <path
-                        d="M36.28,11.5H36.1c-1.74,0-3.38,0.68-4.59,1.91l-6.8,6.77c-0.19,0.19-0.45,0.29-0.71,0.29	s-0.52-0.1-0.71-0.29l-6.79-6.77c-1.22-1.23-2.86-1.91-4.6-1.91h-0.18l-3,3h3.18c0.93,0,1.81,0.36,2.48,1.02l6.8,6.78	c0.75,0.76,1.75,1.17,2.82,1.17s2.07-0.41,2.82-1.17l6.8-6.77c0.67-0.67,1.55-1.03,2.48-1.03h3.18L36.28,11.5z M36.1,33.5	c-0.93,0-1.81-0.36-2.48-1.02l-6.8-6.78c-0.75-0.76-1.75-1.17-2.82-1.17s-2.07,0.41-2.82,1.17l-6.8,6.77	c-0.67,0.67-1.55,1.03-2.48,1.03H8.72l3,3h0.18c1.74,0,3.38-0.68,4.59-1.91l6.8-6.77c0.19-0.19,0.45-0.29,0.71-0.29	s0.52,0.1,0.71,0.29l6.79,6.77c1.22,1.23,2.86,1.91,4.6,1.91h0.18l3-3H36.1z"
-                        opacity=".07"
-                      ></path>
-                      <path
-                        fill="#fff"
-                        d="M38.78,14H36.1c-1.07,0-2.07,0.42-2.83,1.17l-6.8,6.78c-0.68,0.68-1.58,1.02-2.47,1.02	s-1.79-0.34-2.47-1.02l-6.8-6.78C13.97,14.42,12.97,14,11.9,14H9.22l2-2h0.68c1.6,0,3.11,0.62,4.24,1.76l6.8,6.77	c0.59,0.59,1.53,0.59,2.12,0l6.8-6.77C32.99,12.62,34.5,12,36.1,12h0.68L38.78,14z M36.1,34c-1.07,0-2.07-0.42-2.83-1.17l-6.8-6.78	c-1.36-1.36-3.58-1.36-4.94,0l-6.8,6.78C13.97,33.58,12.97,34,11.9,34H9.22l2,2h0.68c1.6,0,3.11-0.62,4.24-1.76l6.8-6.77	c0.59-0.59,1.53-0.59,2.12,0l6.8,6.77C32.99,35.38,34.5,36,36.1,36h0.68l2-2H36.1z"
-                      ></path>
-                    </svg>
-                    Pix
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem
-                    value="card"
-                    id="card"
-                    className="peer sr-only"
-                    aria-label="Card"
-                  />
-                  <Label
-                    htmlFor="card"
-                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 1 ? 'bg-gray-100' : ''}`}
-                    onClick={() => {
-                      setActiveLabel(1)
-                    }}
-                  >
-                    <Landmark className="mb-3 h-8 w-8" />
-                    Transferência Bancária
-                  </Label>
-                </div>
-              </RadioGroup>
-              <div className="grid gap-2">
-                <Label htmlFor="pixKey">Chave Pix</Label>
-                <Input
-                  id="pixKey"
-                  placeholder="Informe a sua chave pix"
-                  className="h-9"
-                  value={mask}
-                  onChange={(e) => setMask(test(e.target.value))}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  x="0px"
+                  y="0px"
+                  width="100"
+                  height="100"
+                  viewBox="0 0 48 48"
+                  className="mb-3 h-8 w-8"
+                >
+                  <path
+                    fill="#37c6d0"
+                    d="M19.262,44.037l-8.04-8.04L11,35l-1.777-1.003l-5.26-5.26c-2.617-2.617-2.617-6.859,0-9.475	l5.26-5.26L11,13l0.223-0.997l8.04-8.04c2.617-2.617,6.859-2.617,9.475,0l8.04,8.04L37,13l1.777,1.003l5.26,5.26	c2.617,2.617,2.617,6.859,0,9.475l-5.26,5.26L37,35l-0.223,0.997l-8.04,8.04C26.121,46.653,21.879,46.653,19.262,44.037z"
+                  ></path>
+                  <path
+                    d="M35.79,11.01c-1.76,0.07-3.4,0.79-4.63,2.04l-6.81,6.77c-0.09,0.1-0.22,0.15-0.35,0.15	s-0.25-0.05-0.35-0.15l-6.8-6.76c-1.24-1.26-2.88-1.98-4.64-2.05L8.22,15h3.68c0.8,0,1.55,0.31,2.12,0.88l6.8,6.78	c0.85,0.84,1.98,1.31,3.18,1.31s2.33-0.47,3.18-1.31l6.79-6.78C34.55,15.31,35.3,15,36.1,15h3.68L35.79,11.01z M36.1,33	c-0.8,0-1.55-0.31-2.12-0.88l-6.8-6.78c-0.85-0.84-1.98-1.31-3.18-1.31s-2.33,0.47-3.18,1.31l-6.79,6.78	C13.45,32.69,12.7,33,11.9,33H8.22l3.99,3.99c1.76-0.07,3.4-0.79,4.63-2.04l6.81-6.77c0.09-0.1,0.22-0.15,0.35-0.15	s0.25,0.05,0.35,0.15l6.8,6.76c1.24,1.26,2.88,1.98,4.64,2.05L39.78,33H36.1z"
+                    opacity=".05"
+                  ></path>
+                  <path
+                    d="M36.28,11.5H36.1c-1.74,0-3.38,0.68-4.59,1.91l-6.8,6.77c-0.19,0.19-0.45,0.29-0.71,0.29	s-0.52-0.1-0.71-0.29l-6.79-6.77c-1.22-1.23-2.86-1.91-4.6-1.91h-0.18l-3,3h3.18c0.93,0,1.81,0.36,2.48,1.02l6.8,6.78	c0.75,0.76,1.75,1.17,2.82,1.17s2.07-0.41,2.82-1.17l6.8-6.77c0.67-0.67,1.55-1.03,2.48-1.03h3.18L36.28,11.5z M36.1,33.5	c-0.93,0-1.81-0.36-2.48-1.02l-6.8-6.78c-0.75-0.76-1.75-1.17-2.82-1.17s-2.07,0.41-2.82,1.17l-6.8,6.77	c-0.67,0.67-1.55,1.03-2.48,1.03H8.72l3,3h0.18c1.74,0,3.38-0.68,4.59-1.91l6.8-6.77c0.19-0.19,0.45-0.29,0.71-0.29	s0.52,0.1,0.71,0.29l6.79,6.77c1.22,1.23,2.86,1.91,4.6,1.91h0.18l3-3H36.1z"
+                    opacity=".07"
+                  ></path>
+                  <path
+                    fill="#fff"
+                    d="M38.78,14H36.1c-1.07,0-2.07,0.42-2.83,1.17l-6.8,6.78c-0.68,0.68-1.58,1.02-2.47,1.02	s-1.79-0.34-2.47-1.02l-6.8-6.78C13.97,14.42,12.97,14,11.9,14H9.22l2-2h0.68c1.6,0,3.11,0.62,4.24,1.76l6.8,6.77	c0.59,0.59,1.53,0.59,2.12,0l6.8-6.77C32.99,12.62,34.5,12,36.1,12h0.68L38.78,14z M36.1,34c-1.07,0-2.07-0.42-2.83-1.17l-6.8-6.78	c-1.36-1.36-3.58-1.36-4.94,0l-6.8,6.78C13.97,33.58,12.97,34,11.9,34H9.22l2,2h0.68c1.6,0,3.11-0.62,4.24-1.76l6.8-6.77	c0.59-0.59,1.53-0.59,2.12,0l6.8,6.77C32.99,35.38,34.5,36,36.1,36h0.68l2-2H36.1z"
+                  ></path>
+                </svg>
+                Pix
+              </Label>
+            </div>
+            <div>
+              <RadioGroupItem
+                value="card"
+                id="card"
+                className="peer sr-only"
+                aria-label="Card"
+              />
+              <Label
+                htmlFor="card"
+                className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 1 ? 'bg-gray-100' : ''}`}
+                onClick={() => {
+                  setActiveLabel(1)
+                }}
+              >
+                <Landmark className="mb-3 h-8 w-8" />
+                Transferência Bancária
+              </Label>
+            </div>
+          </RadioGroup>
+
+          {activeLabel === 0 ? (
+            <div className="grid gap-2">
+              <Label htmlFor="pixKey">Chave Pix</Label>
+              <Input
+                id="pixKey"
+                placeholder="Digite ou cole a sua chave"
+                className="h-9"
+                value={pixKey}
+                onChange={(e) => {
+                  setPixKey(pixKeysMask(e.target.value))
+
+
+                }}
+              />
+            </div>
+          ) : activeLabel === 1 ? (
+
+            <div className="grid grid-cols-4 gap-4">
+              <div className="grid gap-2 col-span-2">
+                <Label htmlFor='ownerBankAccount'>Titular da Conta</Label>
+                <Input id='ownerBankAccount' placeholder='Nome do favorecido'
+                  className='h-9' />
+              </div>
+              <div className="grid gap-2 col-span-2">
+                <Label htmlFor='documentBankAccount'>CPF/CNPJ</Label>
+                <Input id='documentBankAccount'
+                  className='h-9'
+                  value={documentBankAccount}
+                  onChange={(e) => {
+                    const clearValue = e.target.value.replace(/\D/g, '')
+
+
+                    if (clearValue.length <= 11) {
+                      setDocumentBankAccount(cpfMask(clearValue))
+                    } else {
+
+                      setDocumentBankAccount(cnpjMask(clearValue))
+                    }
+
+                  }}
+
                 />
               </div>
-              {/* <div className="grid gap-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" placeholder="" />
+
+              <div className="grid gap-2 col-span-2">
+                <Label htmlFor='bankAccount' >Conta</Label>
+                <Input id='bankAccount'
+                  className='h-9'
+                  value={banckAccount}
+                  onChange={(e) => {
+                    setBankAccount(e.target.value.replace(/\D/g, ''))
+                  }}
+                />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="number">Card number</Label>
-                <Input id="number" placeholder="" />
-              </div> */}
-            </CardContent>
-          </form>
-        </Form>
+              <div className="grid gap-2 col-span-2">
+                <Label htmlFor='agency' >Agência</Label>
+                <Input id='agency'
+                  className='h-9'
+                  value={bankAgency}
+                  placeholder='Sem dígito verificador'
+                  onChange={(e) => {
+                    setBankAgency(e.target.value.replace(/\D/g, ''))
+                  }}
+
+                />
+              </div>
+            </div>
+
+          ) : null}
+        </CardContent>
       </Card>
     </div>
   )
 }
+
+/**
+ * Dados para Transferência Bancária
+ * - CPF/CNPF
+ * - Titular da Conta
+ * - Agência
+ * - Conta
+ * - Tipo de Conta: Conta Corrente | Conta Poupança | Conta Pagamento
+ */
