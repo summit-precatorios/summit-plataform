@@ -305,8 +305,6 @@ export function RegisterForm(props: {
                 value={pixKey}
                 onChange={(e) => {
                   setPixKey(pixKeysMask(e.target.value))
-
-
                 }}
               />
             </div>

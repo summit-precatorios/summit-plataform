@@ -1,6 +1,6 @@
 import { validate } from '@/lib/validate';
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -17,43 +17,40 @@ export function cpfMask(value: string) {
 }
 
 export function cnpjMask(value: string) {
-  return value
-    ?.replace(/\D/g, '') // remove tudo que não é dígito
-    ?.replace(/(\d{2})(\d)/, '$1.$2') // coloca ponto entre o segundo e o terceiro dígito
-    ?.replace(/(\d{3})(\d)/, '$1.$2') // coloca ponto entre o quinto e o sexto dígito
-    ?.replace(/(\d{3})(\d)/, '$1/$2') // coloca barra entre o oitavo e o nono dígito
-    ?.replace(/(\d{4})(\d{1,2})/, '$1-$2') // coloca hífen entre o décimo terceiro e o décimo quarto dígito
+  return value.replace(/\D/g, '')
+    ?.replace(/(\d{2})(\d)/, '$1.$2')
+    ?.replace(/(\d{3})(\d)/, '$1.$2')
+    ?.replace(/(\d{3})(\d)/, '$1/$2')
+    ?.replace(/(\d{4})(\d)/, '$1-$2')
     ?.replace(/(-\d{2})\d+?$/, '$1');
 }
 
 export function pixKeysMask(value: string) {
-  const cleanValue = value.replace(/\s+/g, '')
+  const cleanValue = removeMask(value)
 
-  if (/\D/.test(cleanValue)) {
-    if (cleanValue.includes('@')) {
-      return cleanValue.trim()
-    } else {
-      return cleanValue.trim()
-    }
-  }
+  if (/\D/.test(cleanValue)) return cleanValue.trim();  // Mantém a entrada original se contiver caracteres não numéricos, incluindo e-mails
 
   if (cleanValue.length === 11) {
-    return cpfMask(cleanValue)
+    if (validate(cleanValue)) return cpfMask(cleanValue);  // Formata como CPF se válido
+
+    return phoneMask(cleanValue);  // Caso contrário, formata como telefone
   }
 
-  if (cleanValue.length === 14) {
-    return cnpjMask(cleanValue)
-  }
+  if (cleanValue.length === 14) return cnpjMask(cleanValue);  // Formata como CNPJ
 
-  if (cleanValue.length === 10 || cleanValue.length === 11) {
-    return cleanValue
-      .replace(/(\d{2})(\d)/, '($1) $2') // coloca parênteses entre o segundo e o terceiro dígito
-      .replace(/(\d{4})(\d)/, '$1-$2') // coloca hífen entre o oitavo e o nono dígito
-      .replace(/(-\d{4})\d+?$/, '$1'); // garante que só terá no máximo 14 caracteres
-  }
 
-  return cleanValue.trim();
+  return cleanValue  // Retorna o valor original se não corresponder a nenhum formato específico
 
+}
+
+function removeMask(value: string) {
+  return value.replace(/[\-\(\)\/\s]/g, '');
+}
+
+export function phoneMask(value: string) {
+  return value.replace(/\D/g, '')
+    ?.replace(/(\d{2})(\d)/, '($1) $2')
+    ?.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
 }
 
 export function processNumberMask(value: string) {
