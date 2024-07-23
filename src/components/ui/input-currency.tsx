@@ -6,6 +6,7 @@ import { cn, currencyFormatter } from '@/lib/utils'
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onValueChange?: any
 }
 
@@ -26,10 +27,6 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
       initialFormattedValue,
     )
 
-    const parseFormattedValue = (formattedValue: string): number => {
-      return parseFloat(formattedValue.replace(',', '.'))
-    }
-
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
       const inputValue = event.target.value
 
@@ -40,10 +37,12 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
         currencyFormatter.format(numericValue).replace(/^R\$/, '').trim(),
       )
 
-      if(props.onValueChange) props.onValueChange(currencyFormatter.format(numericValue).replace(/^R\$/, '').trim())
-
+      if (props.onValueChange)
+        props.onValueChange(
+          currencyFormatter.format(numericValue).replace(/^R\$/, '').trim(),
+        )
     }
-  
+
     return (
       <div className="w-full relative">
         <input

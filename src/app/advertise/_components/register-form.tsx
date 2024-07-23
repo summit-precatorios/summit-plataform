@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { InputCurrency } from '@/components/ui/input-currency'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask, test } from '@/lib/utils'
+import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
@@ -46,7 +46,7 @@ export function RegisterForm(props: {
   const [processNumber, setProcessNumber] = useState('')
   const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
   const [salePrice, setSalePrice] = useState('')
-  const [liquidBalance, setLiquidBalance] = useState('');
+  const [liquidBalance, setLiquidBalance] = useState('')
 
   const [pixKey, setPixKey] = useState('')
   const [banckAccount, setBankAccount] = useState('')
@@ -68,22 +68,27 @@ export function RegisterForm(props: {
 
   useEffect(() => {
     // Remover máscara e converter para número
-    const numericValue = parseFloat(salePrice.replace(/[^\d,-]/g, '').replace(',', '.'));
+    const numericValue = parseFloat(
+      salePrice.replace(/[^\d,-]/g, '').replace(',', '.'),
+    )
     if (!isNaN(numericValue)) {
-      const calculatedBalance = (numericValue * 0.95).toFixed(2); // 95% do valor de venda
+      const calculatedBalance = (numericValue * 0.95).toFixed(2) // 95% do valor de venda
       // Aplicar máscara de moeda BR no valor calculado
 
-      const formattedBalance = currencyFormatter.format(Number(calculatedBalance)).replace(/^R\$/, '').trim()
+      const formattedBalance = currencyFormatter
+        .format(Number(calculatedBalance))
+        .replace(/^R\$/, '')
+        .trim()
 
-      setLiquidBalance(formattedBalance);
+      setLiquidBalance(formattedBalance)
     } else {
-      setLiquidBalance('');
+      setLiquidBalance('')
     }
   }, [salePrice])
 
   const handleSalePriceChange = (value: string) => {
-    setSalePrice(value);
-  };
+    setSalePrice(value)
+  }
 
   return (
     <div className="w-full space-x-3 grid grid-cols-5">
@@ -173,11 +178,9 @@ export function RegisterForm(props: {
                     className="h-9"
                     value={salePrice}
                     onValueChange={handleSalePriceChange}
-
                   />
                 </div>
                 <div className="grid gap-2 col-span2">
-
                   <Label
                     htmlFor="liquidBalance"
                     className="flex justify-start items-center"
@@ -205,7 +208,6 @@ export function RegisterForm(props: {
                     disabled
                     value={`R$ ${liquidBalance}`}
                   />
-
                 </div>
               </div>
             </CardContent>
@@ -218,13 +220,11 @@ export function RegisterForm(props: {
       </Card>
 
       <Card className={`mt-16 ${props.show ? 'block' : 'hidden'} col-span-2`}>
-
         <CardHeader>
           <CardTitle>Dados para Recebimento</CardTitle>
           <CardDescription>
-            Para receber o valor do {props.title} vendido após uma
-            negociação bem-sucedida, por favor, informe o método de
-            recebimento desejado.
+            Para receber o valor do {props.title} vendido após uma negociação
+            bem-sucedida, por favor, informe o método de recebimento desejado.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
@@ -309,38 +309,38 @@ export function RegisterForm(props: {
               />
             </div>
           ) : activeLabel === 1 ? (
-
             <div className="grid grid-cols-4 gap-4">
               <div className="grid gap-2 col-span-2">
-                <Label htmlFor='ownerBankAccount'>Titular da Conta</Label>
-                <Input id='ownerBankAccount' placeholder='Nome do favorecido'
-                  className='h-9' />
+                <Label htmlFor="ownerBankAccount">Titular da Conta</Label>
+                <Input
+                  id="ownerBankAccount"
+                  placeholder="Nome do favorecido"
+                  className="h-9"
+                />
               </div>
               <div className="grid gap-2 col-span-2">
-                <Label htmlFor='documentBankAccount'>CPF/CNPJ</Label>
-                <Input id='documentBankAccount'
-                  className='h-9'
+                <Label htmlFor="documentBankAccount">CPF/CNPJ</Label>
+                <Input
+                  id="documentBankAccount"
+                  className="h-9"
                   value={documentBankAccount}
                   onChange={(e) => {
                     const clearValue = e.target.value.replace(/\D/g, '')
 
-
                     if (clearValue.length <= 11) {
                       setDocumentBankAccount(cpfMask(clearValue))
                     } else {
-
                       setDocumentBankAccount(cnpjMask(clearValue))
                     }
-
                   }}
-
                 />
               </div>
 
               <div className="grid gap-2 col-span-2">
-                <Label htmlFor='bankAccount' >Conta</Label>
-                <Input id='bankAccount'
-                  className='h-9'
+                <Label htmlFor="bankAccount">Conta</Label>
+                <Input
+                  id="bankAccount"
+                  className="h-9"
                   value={banckAccount}
                   onChange={(e) => {
                     setBankAccount(e.target.value.replace(/\D/g, ''))
@@ -348,19 +348,18 @@ export function RegisterForm(props: {
                 />
               </div>
               <div className="grid gap-2 col-span-2">
-                <Label htmlFor='agency' >Agência</Label>
-                <Input id='agency'
-                  className='h-9'
+                <Label htmlFor="agency">Agência</Label>
+                <Input
+                  id="agency"
+                  className="h-9"
                   value={bankAgency}
-                  placeholder='Sem dígito verificador'
+                  placeholder="Sem dígito verificador"
                   onChange={(e) => {
                     setBankAgency(e.target.value.replace(/\D/g, ''))
                   }}
-
                 />
               </div>
             </div>
-
           ) : null}
         </CardContent>
       </Card>

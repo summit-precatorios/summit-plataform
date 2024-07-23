@@ -45,11 +45,12 @@ export function RecoveryPasswordForm() {
     if (response && response.statusCode === 201) {
       toast({
         variant: 'default',
-        description: 'Caso este seja um email de usuário válido, você receberá um link no e-mail fornecido para recuperação da senha!',
+        description:
+          'Caso este seja um email de usuário válido, você receberá um link no e-mail fornecido para recuperação da senha!',
       })
 
       form.reset()
-    } 
+    }
   }
 
   return (
