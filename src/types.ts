@@ -17,3 +17,7 @@ export type ForgotPasswordRequestData = {
 export type ActiveAccountRequestData = {
   token: string | string[]
 }
+
+export type PaymentMethod = {
+  value: 'PIX' | 'TransferBank'
+}

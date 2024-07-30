@@ -1,4 +1,5 @@
 'use client'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -6,7 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Form } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { InputCurrency } from '@/components/ui/input-currency'
 import { Label } from '@/components/ui/label'
@@ -20,6 +27,7 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
+import { PaymentMethod } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
@@ -28,7 +36,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-const formSchema = z.object({
+const baseSchema = z.object({
   fullName: z
     .string()
     .min(3, 'Deve contar pelo menos 3 caracteres')
@@ -40,15 +48,52 @@ const formSchema = z.object({
     })
     .transform((value) => value.replace(/\D/g, '')),
   processNumber: z.string().transform((value) => value.replace(/\D/g, '')),
+  processOrigin: z.string(),
+  processCourt: z.string(),
+  paymantMethod: z.enum(['PIX', 'TransferBank']),
+  price: z.string(),
+  salePrice: z.string(),
+  liquidBalance: z.string(),
 })
+
+const pixSchema = baseSchema.extend({
+  pixKey: z.string().min(1, 'A chave pix é obrigatória'),
+})
+
+const transferSchema = baseSchema.extend({
+  ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
+  documentBankAccount: z
+    .string()
+    .transform((value) => value.replace(/\D/g, '')),
+  bankAccount: z
+    .string()
+    .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
+    .transform((value) => value.replace(/\D/g, ''))
+    .transform((value) => value.replace(/\D/g, '')), // TODO criar lógica para a verificação do número máximo de dígitos baseado na definição do banco
+  agencyBankAccount: z
+    .string()
+    .min(1, 'Agência obrigatória')
+    .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
+})
+
+const handleSchema = (paymentMethod: PaymentMethod) => {
+  switch (paymentMethod.value) {
+    case 'PIX':
+      return pixSchema
+    case 'TransferBank':
+      return transferSchema
+    default:
+      return baseSchema
+  }
+}
 
 export function RegisterForm(props: {
   title: string
   description: string
   show: boolean
 }) {
-  const [document, setDocument] = useState('')
-  const [processNumber, setProcessNumber] = useState('')
+  // const [document, setDocument] = useState('')
+  // const [processNumber, setProcessNumber] = useState('')
   const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
   const [salePrice, setSalePrice] = useState('')
   const [liquidBalance, setLiquidBalance] = useState('')
@@ -61,15 +106,14 @@ export function RegisterForm(props: {
   const { toast } = useToast()
 
   // ! definir formState baseado no  schema do formulário
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      document: '',
-      fullName: '',
-      processNumber: '',
-    },
+  const form = useForm<z.infer<typeof baseSchema>>({
+    resolver: zodResolver(handleSchema({ value: 'PIX' })),
   })
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function onSubmit(data: any) {
+    console.log(data)
+  }
 
   useEffect(() => {
     // Remover máscara e converter para número
@@ -98,7 +142,10 @@ export function RegisterForm(props: {
   return (
     <div className="w-full space-x-3 flex-col">
       <Form {...form}>
-        <form className="grid grid-cols-5 space-x-3 w-full">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="grid grid-cols-5 space-x-3 w-full"
+        >
           <Card
             className={`mt-16 ${props.show ? 'block' : 'hidden'} col-span-3`}
           >
@@ -109,148 +156,228 @@ export function RegisterForm(props: {
             <CardContent className="grid gap-6">
               <div className="grid grid-cols-5 gap-4">
                 <div className="grid gap-2 col-span-3">
-                  <Label htmlFor="fullName">Nome Completo</Label>
-                  <Input
-                    className="h-9"
-                    id="fullName"
-                    type="text"
-                    placeholder="ex: João da Silva"
+                  <FormField
+                    control={form.control}
                     name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome Completo</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-9"
+                            placeholder="ex: João da Silva"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
                 <div className="grid gap-2 col-span-2">
-                  <Label htmlFor="document">CPF</Label>
-                  <Input
-                    className="h-9"
-                    id="document"
-                    type="text"
-                    placeholder="Informe o seu CPF"
-                    value={document}
-                    onChange={(e) => setDocument(cpfMask(e.target.value))}
+                  <FormField
+                    control={form.control}
+                    name="document"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CPF</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-9"
+                            {...field}
+                            placeholder="Informe o seu CPF"
+                            onChange={(e) =>
+                              field.onChange(cpfMask(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-7 gap-4">
                 <div className="ggrid gap-2 col-span-3">
-                  <Label htmlFor="processNumber">Número do Processo</Label>
-                  <Input
-                    type="text"
-                    className="h-9"
-                    id="processNumber"
-                    placeholder={`Informe o número do seu ${props.title === 'RPV' ? 'RPV' : 'precatório'}`}
-                    value={processNumber}
-                    onChange={(e) =>
-                      setProcessNumber(e.target.value.replace(/\D/g, ''))
-                    }
+                  <FormField
+                    control={form.control}
+                    name="processNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Número do Processo</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="h-9"
+                            placeholder={`Informe o número do seu ${props.title === 'RPV' ? 'RPV' : 'precatório'}`}
+                            onChange={(e) =>
+                              field.onChange(e.target.value.replace(/\D/g, ''))
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
                 <div className="grid gap-2 col-span-2">
-                  <Label htmlFor="security-level">Origem</Label>
-                  <Select defaultValue="default">
-                    <SelectTrigger id="area">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="default">Selecione</SelectItem>
-                      <SelectItem value="federal">Federal</SelectItem>
-                      <SelectItem value="estadual">Estadual</SelectItem>
-                      <SelectItem value="municipal">Municipal</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormField
+                    control={form.control}
+                    name="processOrigin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="processOrigin">Origem</FormLabel>
+                        <FormControl>
+                          <Select
+                            {...field}
+                            defaultValue="default"
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger id="processOrigin">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="default">Selecione</SelectItem>
+                              <SelectItem value="federal">Federal</SelectItem>
+                              <SelectItem value="estadual">Estadual</SelectItem>
+                              <SelectItem value="municipal">
+                                Municipal
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 <div className="grid gap-2 col-span-2">
                   <div className="grid gap-2">
-                    <Label htmlFor="security-level">Tribunal</Label>
-                    <Select defaultValue="default">
-                      <SelectTrigger id="area">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="default">Selecione</SelectItem>
-                        <SelectItem value="1">TRF-1</SelectItem>
-                        <SelectItem value="2">TRF-4</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormField
+                      control={form.control}
+                      name="processCourt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="processCourt">Tribunal</FormLabel>
+                          <FormControl>
+                            <Select
+                              {...field}
+                              defaultValue="default"
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger id="processCourt">
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="default">
+                                  Selecione
+                                </SelectItem>
+                                <SelectItem value="federal">TRF-1</SelectItem>
+                                <SelectItem value="estadual">TRF-4</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="grid gap-2 col-span-1">
-                  <Label htmlFor="price">Valor Nominal {props.title}</Label>
-                  <InputCurrency
-                    type="text"
-                    id="price"
-                    min={0}
-                    className="h-9"
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="price">
+                          Valor Nominal do {props.title}
+                        </FormLabel>
+                        <FormControl>
+                          <InputCurrency
+                            id="price"
+                            min={0}
+                            className="h-9"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
                 <div className="grid gap-2 col-span-1">
-                  <Label
-                    htmlFor="salePrice"
-                    className="flex justify-start items-center"
-                  >
-                    Valor de Venda
-                    <span>
-                      <CircleHelp
-                        size={16}
-                        className="text-red-400 ml-1 cursor-pointer"
-                        onClick={() => {
-                          toast({
-                            title: 'Dúvidas',
-                            description: `Informe o valor que gostaria de vender o seu ${props.title}`,
-                          })
-                        }}
-                      />
-                    </span>
-                  </Label>
+                  <FormField
+                    control={form.control}
+                    name="salePrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex justify-start items-center">
+                          Valor de Venda
+                          <span>
+                            <CircleHelp
+                              size={16}
+                              className="text-red-400 ml-1 cursor-pointer"
+                              onClick={() => {
+                                toast({
+                                  title: 'Dúvidas',
+                                  description: `Informe o valor que gostaria de vender o seu ${props.title}`,
+                                })
+                              }}
+                            />
+                          </span>
+                        </FormLabel>
 
-                  <InputCurrency
-                    type="text"
-                    id="salePrice"
-                    min={0}
-                    className="h-9"
-                    value={salePrice}
-                    onValueChange={handleSalePriceChange}
+                        <FormControl>
+                          <InputCurrency
+                            id="salePrice"
+                            min={0}
+                            className="h-9"
+                            {...field}
+                            value={salePrice}
+                            onValueChange={handleSalePriceChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
                 <div className="grid gap-2 col-span-1">
-                  <Label
-                    htmlFor="liquidBalance"
-                    className="flex justify-start items-center"
-                  >
-                    Saldo Líquido
-                    <span>
-                      <CircleHelp
-                        size={16}
-                        className="text-red-400 ml-1 cursor-pointer"
-                        onClick={() => {
-                          toast({
-                            title: 'Taxa de Manutenção',
-                            description: 'Explicação do valor líquido',
-                          })
-                        }}
-                      />
-                    </span>
-                  </Label>
-
-                  <Input
-                    type="text"
-                    id="liquidBalance"
-                    min={0}
-                    className="h-9"
-                    disabled
-                    value={`R$ ${liquidBalance}`}
+                  <FormField
+                    control={form.control}
+                    name="liquidBalance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex justify-start items-center">
+                          Saldo Líquido
+                          <span>
+                            <CircleHelp
+                              size={16}
+                              className="text-red-400 ml-1 cursor-pointer"
+                              onClick={() => {
+                                toast({
+                                  title: 'Taxa de Manutenção',
+                                  description: 'Explicação do valor líquido',
+                                })
+                              }}
+                            />
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            id="liquidBalance"
+                            min={0}
+                            className="h-9"
+                            {...field}
+                            disabled
+                            value={`R$ ${liquidBalance}`}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                 </div>
               </div>
             </CardContent>
-            {/* <CardFooter className="justify-between space-x-2">
-              <Button variant="ghost">Cancelar</Button>
-              <Button>Anunciar {props.title}</Button>
-            </CardFooter> */}
           </Card>
 
           <Card
@@ -339,6 +466,7 @@ export function RegisterForm(props: {
                     id="pixKey"
                     placeholder="Digite ou cole a sua chave"
                     className="h-9"
+                    name="pixKey"
                     value={pixKey}
                     onChange={(e) => {
                       setPixKey(pixKeysMask(e.target.value))
@@ -353,6 +481,7 @@ export function RegisterForm(props: {
                       id="ownerBankAccount"
                       placeholder="Nome do favorecido"
                       className="h-9"
+                      name="ownerBankAccount"
                     />
                   </div>
                   <div className="grid gap-2 col-span-2">
@@ -360,6 +489,7 @@ export function RegisterForm(props: {
                     <Input
                       id="documentBankAccount"
                       className="h-9"
+                      name="documentBankAccount"
                       value={documentBankAccount}
                       onChange={(e) => {
                         const clearValue = e.target.value.replace(/\D/g, '')
@@ -378,6 +508,7 @@ export function RegisterForm(props: {
                     <Input
                       id="bankAccount"
                       className="h-9"
+                      name="bankAccount"
                       value={banckAccount}
                       onChange={(e) => {
                         setBankAccount(e.target.value.replace(/\D/g, ''))
@@ -389,6 +520,7 @@ export function RegisterForm(props: {
                     <Input
                       id="agency"
                       className="h-9"
+                      name="agencyBankAccount"
                       value={bankAgency}
                       placeholder="Sem dígito verificador"
                       onChange={(e) => {
@@ -400,6 +532,11 @@ export function RegisterForm(props: {
               ) : null}
             </CardContent>
           </Card>
+          <div className="flex w-full flex-col gap-5 items-center">
+            <Button type="submit" className="w-full h-12">
+              {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
