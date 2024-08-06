@@ -27,7 +27,6 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
 import { validate } from '@/lib/validate'
-import { PaymentMethod } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
@@ -50,7 +49,7 @@ const baseSchema = z.object({
   processNumber: z.string().transform((value) => value.replace(/\D/g, '')),
   processOrigin: z.string(),
   processCourt: z.string(),
-  paymantMethod: z.enum(['PIX', 'TransferBank']),
+  paymentMethod: z.enum(['PIX', 'TransferBank']),
   price: z.string(),
   salePrice: z.string(),
   liquidBalance: z.string(),
@@ -76,24 +75,13 @@ const transferSchema = baseSchema.extend({
     .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
 })
 
-const handleSchema = (paymentMethod: PaymentMethod) => {
-  switch (paymentMethod.value) {
-    case 'PIX':
-      return pixSchema
-    case 'TransferBank':
-      return transferSchema
-    default:
-      return baseSchema
-  }
-}
+type FormValues = z.infer<typeof baseSchema>
 
 export function RegisterForm(props: {
   title: string
   description: string
   show: boolean
 }) {
-  // const [document, setDocument] = useState('')
-  // const [processNumber, setProcessNumber] = useState('')
   const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
   const [salePrice, setSalePrice] = useState('')
   const [liquidBalance, setLiquidBalance] = useState('')
@@ -103,17 +91,36 @@ export function RegisterForm(props: {
   const [bankAgency, setBankAgency] = useState('')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
 
+  const [selectedSchema, setSelectedSchema] = useState(baseSchema)
+
   const { toast } = useToast()
 
-  // ! definir formState baseado no  schema do formulário
-  const form = useForm<z.infer<typeof baseSchema>>({
-    resolver: zodResolver(handleSchema({ value: 'PIX' })),
-  })
+  const handlePaymentMethodChange = (paymentMethod: 'PIX' | 'TransferBank') => {
+    const schema = paymentMethod === 'PIX' ? pixSchema : transferSchema
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function onSubmit(data: any) {
-    console.log(data)
+    console.log(schema)
+    setSelectedSchema(schema)
+    form.reset({
+      ...form.getValues(),
+      paymentMethod,
+    })
   }
+
+  // ! definir formState baseado no  schema do formulário
+  const form = useForm<FormValues>({
+    resolver: zodResolver(selectedSchema),
+    defaultValues: {
+      document: '',
+      fullName: '',
+      liquidBalance: '',
+      paymentMethod: 'PIX',
+      price: '',
+      processCourt: '',
+      processNumber: '',
+      processOrigin: '',
+      salePrice: '',
+    },
+  })
 
   useEffect(() => {
     // Remover máscara e converter para número
@@ -135,7 +142,12 @@ export function RegisterForm(props: {
     }
   }, [salePrice])
 
-  const handleSalePriceChange = (value: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function onSubmit(data: z.infer<typeof baseSchema>) {
+    console.log(data)
+  }
+
+  const handleSalePriceChange = (value: string): void => {
     setSalePrice(value)
   }
 
@@ -224,26 +236,25 @@ export function RegisterForm(props: {
                     name="processOrigin"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="processOrigin">Origem</FormLabel>
-                        <FormControl>
-                          <Select
-                            {...field}
-                            defaultValue="default"
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger id="processOrigin">
+                        <FormLabel>Origem</FormLabel>
+
+                        <Select
+                          {...field}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="default">Selecione</SelectItem>
-                              <SelectItem value="federal">Federal</SelectItem>
-                              <SelectItem value="estadual">Estadual</SelectItem>
-                              <SelectItem value="municipal">
-                                Municipal
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="default">Selecione</SelectItem>
+                            <SelectItem value="federal">Federal</SelectItem>
+                            <SelectItem value="estadual">Estadual</SelectItem>
+                            <SelectItem value="municipal">Municipal</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />
@@ -256,25 +267,23 @@ export function RegisterForm(props: {
                       name="processCourt"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="processCourt">Tribunal</FormLabel>
-                          <FormControl>
-                            <Select
-                              {...field}
-                              defaultValue="default"
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger id="processCourt">
+                          <FormLabel>Tribunal</FormLabel>
+
+                          <Select
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
                                 <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="default">
-                                  Selecione
-                                </SelectItem>
-                                <SelectItem value="federal">TRF-1</SelectItem>
-                                <SelectItem value="estadual">TRF-4</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="default">Selecione</SelectItem>
+                              <SelectItem value="federal">TRF-1</SelectItem>
+                              <SelectItem value="estadual">TRF-4</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </FormItem>
                       )}
                     />
@@ -289,13 +298,11 @@ export function RegisterForm(props: {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="price">
+                        <FormLabel className="flex justify-start items-center m-0.5">
                           Valor Nominal do {props.title}
                         </FormLabel>
                         <FormControl>
                           <InputCurrency
-                            id="price"
-                            min={0}
                             className="h-9"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value)}
@@ -329,7 +336,6 @@ export function RegisterForm(props: {
 
                         <FormControl>
                           <InputCurrency
-                            id="salePrice"
                             min={0}
                             className="h-9"
                             {...field}
@@ -408,6 +414,7 @@ export function RegisterForm(props: {
                     className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 0 ? 'bg-gray-100' : ''}`}
                     onClick={() => {
                       setActiveLabel(0)
+                      handlePaymentMethodChange('PIX')
                     }}
                   >
                     <svg
@@ -451,6 +458,7 @@ export function RegisterForm(props: {
                     className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 1 ? 'bg-gray-100' : ''}`}
                     onClick={() => {
                       setActiveLabel(1)
+                      handlePaymentMethodChange('TransferBank')
                     }}
                   >
                     <Landmark className="mb-3 h-8 w-8" />
