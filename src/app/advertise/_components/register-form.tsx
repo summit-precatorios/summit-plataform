@@ -35,6 +35,25 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+const pixSchema = z.object({
+  pixKey: z.string().min(1, 'A chave pix é obrigatória'),
+})
+
+const transferSchema = z.object({
+  ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
+  documentBankAccount: z
+    .string()
+    .transform((value) => value.replace(/\D/g, '')),
+  bankAccount: z
+    .string()
+    .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
+    .transform((value) => value.replace(/\D/g, ''))
+    .transform((value) => value.replace(/\D/g, '')), // TODO criar lógica para a verificação do número máximo de dígitos baseado na definição do banco
+  agencyBankAccount: z
+    .string()
+    .min(1, 'Agência obrigatória')
+    .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
+})
 const baseSchema = z.object({
   fullName: z
     .string()
@@ -53,26 +72,8 @@ const baseSchema = z.object({
   price: z.string(),
   salePrice: z.string(),
   liquidBalance: z.string(),
-})
-
-const pixSchema = baseSchema.extend({
-  pixKey: z.string().min(1, 'A chave pix é obrigatória'),
-})
-
-const transferSchema = baseSchema.extend({
-  ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
-  documentBankAccount: z
-    .string()
-    .transform((value) => value.replace(/\D/g, '')),
-  bankAccount: z
-    .string()
-    .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
-    .transform((value) => value.replace(/\D/g, ''))
-    .transform((value) => value.replace(/\D/g, '')), // TODO criar lógica para a verificação do número máximo de dígitos baseado na definição do banco
-  agencyBankAccount: z
-    .string()
-    .min(1, 'Agência obrigatória')
-    .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
+  pixSchema,
+  transferSchema,
 })
 
 type FormValues = z.infer<typeof baseSchema>
@@ -86,24 +87,28 @@ export function RegisterForm(props: {
   const [salePrice, setSalePrice] = useState('')
   const [liquidBalance, setLiquidBalance] = useState('')
 
-  const [pixKey, setPixKey] = useState('')
   const [banckAccount, setBankAccount] = useState('')
   const [bankAgency, setBankAgency] = useState('')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
 
-  const [selectedSchema, setSelectedSchema] = useState(baseSchema)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [selectedSchema, setSelectedSchema] = useState<any>(baseSchema)
 
   const { toast } = useToast()
 
   const handlePaymentMethodChange = (paymentMethod: 'PIX' | 'TransferBank') => {
-    const schema = paymentMethod === 'PIX' ? pixSchema : transferSchema
+    const schema =
+      paymentMethod === 'PIX'
+        ? baseSchema.merge(pixSchema)
+        : baseSchema.merge(transferSchema)
 
-    console.log(schema)
     setSelectedSchema(schema)
     form.reset({
       ...form.getValues(),
       paymentMethod,
     })
+
+    console.log(schema.shape)
   }
 
   // ! definir formState baseado no  schema do formulário
@@ -143,7 +148,7 @@ export function RegisterForm(props: {
   }, [salePrice])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function onSubmit(data: z.infer<typeof baseSchema>) {
+  async function onSubmit(data: z.infer<typeof selectedSchema>) {
     console.log(data)
   }
 
@@ -469,7 +474,27 @@ export function RegisterForm(props: {
 
               {activeLabel === 0 ? (
                 <div className="grid gap-2">
-                  <Label htmlFor="pixKey">Chave Pix</Label>
+                  <FormField
+                    control={form.control}
+                    name="pixSchema.pixKey"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel></FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Digite ou cole a sua chave"
+                            className="h-9"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(pixKeysMask(e.target.value))
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* <Label htmlFor="pixKey">Chave Pix</Label>
                   <Input
                     id="pixKey"
                     placeholder="Digite ou cole a sua chave"
@@ -479,7 +504,7 @@ export function RegisterForm(props: {
                     onChange={(e) => {
                       setPixKey(pixKeysMask(e.target.value))
                     }}
-                  />
+                  /> */}
                 </div>
               ) : activeLabel === 1 ? (
                 <div className="grid grid-cols-4 gap-4">
