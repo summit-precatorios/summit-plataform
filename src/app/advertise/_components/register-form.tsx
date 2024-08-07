@@ -41,9 +41,7 @@ const pixSchema = z.object({
 
 const transferSchema = z.object({
   ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
-  documentBankAccount: z
-    .string()
-    .transform((value) => value.replace(/\D/g, '')),
+  documentBankAccount: z.string(),
   bankAccount: z
     .string()
     .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
@@ -87,8 +85,6 @@ export function RegisterForm(props: {
   const [salePrice, setSalePrice] = useState('')
   const [liquidBalance, setLiquidBalance] = useState('')
 
-  const [banckAccount, setBankAccount] = useState('')
-  const [bankAgency, setBankAgency] = useState('')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,8 +103,6 @@ export function RegisterForm(props: {
       ...form.getValues(),
       paymentMethod,
     })
-
-    console.log(schema.shape)
   }
 
   // ! definir formState baseado no  schema do formulário
@@ -479,7 +473,7 @@ export function RegisterForm(props: {
                     name="pixSchema.pixKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel></FormLabel>
+                        <FormLabel>Chave pix</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Digite ou cole a sua chave"
@@ -493,72 +487,103 @@ export function RegisterForm(props: {
                       </FormItem>
                     )}
                   />
-
-                  {/* <Label htmlFor="pixKey">Chave Pix</Label>
-                  <Input
-                    id="pixKey"
-                    placeholder="Digite ou cole a sua chave"
-                    className="h-9"
-                    name="pixKey"
-                    value={pixKey}
-                    onChange={(e) => {
-                      setPixKey(pixKeysMask(e.target.value))
-                    }}
-                  /> */}
                 </div>
               ) : activeLabel === 1 ? (
                 <div className="grid grid-cols-4 gap-4">
                   <div className="grid gap-2 col-span-2">
-                    <Label htmlFor="ownerBankAccount">Titular da Conta</Label>
-                    <Input
-                      id="ownerBankAccount"
-                      placeholder="Nome do favorecido"
-                      className="h-9"
-                      name="ownerBankAccount"
+                    <FormField
+                      control={form.control}
+                      name="transferSchema.ownerBankAccount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Titular da Conta</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Nome do favorecido"
+                              className="h-9"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
                   </div>
                   <div className="grid gap-2 col-span-2">
-                    <Label htmlFor="documentBankAccount">CPF/CNPJ</Label>
-                    <Input
-                      id="documentBankAccount"
-                      className="h-9"
-                      name="documentBankAccount"
-                      value={documentBankAccount}
-                      onChange={(e) => {
-                        const clearValue = e.target.value.replace(/\D/g, '')
+                    <FormField
+                      control={form.control}
+                      name="transferSchema.documentBankAccount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CPF/CNPJ</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="h-9"
+                              value={documentBankAccount}
+                              onChange={(e) =>
+                                field.onChange(() => {
+                                  const clearValue = e.target.value.replace(
+                                    /\D/g,
+                                    '',
+                                  )
 
-                        if (clearValue.length <= 11) {
-                          setDocumentBankAccount(cpfMask(clearValue))
-                        } else {
-                          setDocumentBankAccount(cnpjMask(clearValue))
-                        }
-                      }}
+                                  if (clearValue.length <= 11) {
+                                    setDocumentBankAccount(cpfMask(clearValue))
+                                  } else {
+                                    setDocumentBankAccount(cnpjMask(clearValue))
+                                  }
+                                })
+                              }
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
                   </div>
 
                   <div className="grid gap-2 col-span-2">
-                    <Label htmlFor="bankAccount">Conta</Label>
-                    <Input
-                      id="bankAccount"
-                      className="h-9"
-                      name="bankAccount"
-                      value={banckAccount}
-                      onChange={(e) => {
-                        setBankAccount(e.target.value.replace(/\D/g, ''))
-                      }}
+                    <FormField
+                      control={form.control}
+                      name="transferSchema.bankAccount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Conta</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="h-9"
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, ''),
+                                )
+                              }
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
                   </div>
                   <div className="grid gap-2 col-span-2">
-                    <Label htmlFor="agency">Agência</Label>
-                    <Input
-                      id="agency"
-                      className="h-9"
-                      name="agencyBankAccount"
-                      value={bankAgency}
-                      placeholder="Sem dígito verificador"
-                      onChange={(e) => {
-                        setBankAgency(e.target.value.replace(/\D/g, ''))
-                      }}
+                    <FormField
+                      control={form.control}
+                      name="transferSchema.agencyBankAccount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Agência</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="h-9"
+                              placeholder="Sem dígito verificador"
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value.replace(/\D/g, ''),
+                                )
+                              }
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
                   </div>
                 </div>
