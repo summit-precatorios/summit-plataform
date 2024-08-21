@@ -95,10 +95,11 @@ export function RegisterForm(props: {
   const handlePaymentMethodChange = (paymentMethod: 'PIX' | 'TransferBank') => {
     const schema =
       paymentMethod === 'PIX'
-        ? baseSchema.merge(pixSchema)
-        : baseSchema.merge(transferSchema)
+        ? baseSchema.merge(pixSchema).omit({ transferSchema: true })
+        : baseSchema.merge(transferSchema).omit({ pixSchema: true })
 
     setSelectedSchema(schema)
+
     form.reset({
       ...form.getValues(),
       paymentMethod,
@@ -108,17 +109,6 @@ export function RegisterForm(props: {
   // ! definir formState baseado no  schema do formulário
   const form = useForm<FormValues>({
     resolver: zodResolver(selectedSchema),
-    defaultValues: {
-      document: '',
-      fullName: '',
-      liquidBalance: '',
-      paymentMethod: 'PIX',
-      price: '',
-      processCourt: '',
-      processNumber: '',
-      processOrigin: '',
-      salePrice: '',
-    },
   })
 
   useEffect(() => {
@@ -147,6 +137,7 @@ export function RegisterForm(props: {
   }
 
   const handleSalePriceChange = (value: string): void => {
+    console.log('Sale Price: ', value)
     setSalePrice(value)
   }
 
@@ -520,20 +511,22 @@ export function RegisterForm(props: {
                               {...field}
                               className="h-9"
                               value={documentBankAccount}
-                              onChange={(e) =>
-                                field.onChange(() => {
-                                  const clearValue = e.target.value.replace(
-                                    /\D/g,
-                                    '',
-                                  )
+                              onChange={(e) => {
+                                const clearValue = e.target.value.replace(
+                                  /\D/g,
+                                  '',
+                                )
 
-                                  if (clearValue.length <= 11) {
-                                    setDocumentBankAccount(cpfMask(clearValue))
-                                  } else {
-                                    setDocumentBankAccount(cnpjMask(clearValue))
-                                  }
-                                })
-                              }
+                                let maskedValue
+                                if (clearValue.length <= 11) {
+                                  maskedValue = cpfMask(clearValue)
+                                } else {
+                                  maskedValue = cnpjMask(clearValue)
+                                }
+
+                                setDocumentBankAccount(maskedValue)
+                                field.onChange(maskedValue)
+                              }}
                             />
                           </FormControl>
                         </FormItem>
@@ -593,6 +586,14 @@ export function RegisterForm(props: {
           <div className="flex w-full flex-col gap-5 items-center">
             <Button type="submit" className="w-full h-12">
               {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
+            </Button>
+            <Button
+              onClick={() => {
+                console.log(form.getValues())
+              }}
+              className="w-full h-12"
+            >
+              Pegar valores
             </Button>
           </div>
         </form>
