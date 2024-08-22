@@ -30,8 +30,6 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
       const inputValue = event.target.value
 
-      console.log(inputValue)
-
       const digits = inputValue.replace(/\D/g, '')
       const numericValue = Number(digits) / 100
 

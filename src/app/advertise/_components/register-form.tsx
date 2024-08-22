@@ -95,10 +95,11 @@ export function RegisterForm(props: {
   const handlePaymentMethodChange = (paymentMethod: 'PIX' | 'TransferBank') => {
     const schema =
       paymentMethod === 'PIX'
-        ? baseSchema.merge(pixSchema)
-        : baseSchema.merge(transferSchema)
+        ? baseSchema.merge(pixSchema).omit({ transferSchema: true })
+        : baseSchema.merge(transferSchema).omit({ pixSchema: true })
 
     setSelectedSchema(schema)
+
     form.reset({
       ...form.getValues(),
       paymentMethod,
@@ -108,17 +109,6 @@ export function RegisterForm(props: {
   // ! definir formState baseado no  schema do formulário
   const form = useForm<FormValues>({
     resolver: zodResolver(selectedSchema),
-    defaultValues: {
-      document: '',
-      fullName: '',
-      liquidBalance: '',
-      paymentMethod: 'PIX',
-      price: '',
-      processCourt: '',
-      processNumber: '',
-      processOrigin: '',
-      salePrice: '',
-    },
   })
 
   useEffect(() => {
@@ -147,6 +137,7 @@ export function RegisterForm(props: {
   }
 
   const handleSalePriceChange = (value: string): void => {
+    console.log('Sale Price: ', value)
     setSalePrice(value)
   }
 
