@@ -520,20 +520,28 @@ export function RegisterForm(props: {
                               {...field}
                               className="h-9"
                               value={documentBankAccount}
-                              onChange={(e) =>
-                                field.onChange(() => {
-                                  const clearValue = e.target.value.replace(
-                                    /\D/g,
-                                    '',
-                                  )
+                              onChange={(e) => {
+                                field.onChange(
+                                  (() => {
+                                    const clearValue = e.target.value.replace(
+                                      /\D/g,
+                                      '',
+                                    )
 
-                                  if (clearValue.length <= 11) {
-                                    setDocumentBankAccount(cpfMask(clearValue))
-                                  } else {
-                                    setDocumentBankAccount(cnpjMask(clearValue))
-                                  }
-                                })
-                              }
+                                    if (clearValue.length <= 11) {
+                                      setDocumentBankAccount(
+                                        cpfMask(clearValue),
+                                      )
+                                    } else {
+                                      setDocumentBankAccount(
+                                        cnpjMask(clearValue),
+                                      )
+                                    }
+
+                                    return clearValue
+                                  })(),
+                                )
+                              }}
                             />
                           </FormControl>
                         </FormItem>
@@ -593,6 +601,14 @@ export function RegisterForm(props: {
           <div className="flex w-full flex-col gap-5 items-center">
             <Button type="submit" className="w-full h-12">
               {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
+            </Button>
+            <Button
+              onClick={() => {
+                console.log(form.getValues())
+              }}
+              className="w-full h-12"
+            >
+              Test Form
             </Button>
           </div>
         </form>
