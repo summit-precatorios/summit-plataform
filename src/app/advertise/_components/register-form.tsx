@@ -512,20 +512,26 @@ export function RegisterForm(props: {
                               className="h-9"
                               value={documentBankAccount}
                               onChange={(e) => {
-                                const clearValue = e.target.value.replace(
-                                  /\D/g,
-                                  '',
+                                field.onChange(
+                                  (() => {
+                                    const clearValue = e.target.value.replace(
+                                      /\D/g,
+                                      '',
+                                    )
+
+                                    if (clearValue.length <= 11) {
+                                      setDocumentBankAccount(
+                                        cpfMask(clearValue),
+                                      )
+                                    } else {
+                                      setDocumentBankAccount(
+                                        cnpjMask(clearValue),
+                                      )
+                                    }
+
+                                    return clearValue
+                                  })(),
                                 )
-
-                                let maskedValue
-                                if (clearValue.length <= 11) {
-                                  maskedValue = cpfMask(clearValue)
-                                } else {
-                                  maskedValue = cnpjMask(clearValue)
-                                }
-
-                                setDocumentBankAccount(maskedValue)
-                                field.onChange(maskedValue)
                               }}
                             />
                           </FormControl>
@@ -593,7 +599,7 @@ export function RegisterForm(props: {
               }}
               className="w-full h-12"
             >
-              Pegar valores
+              Test Form
             </Button>
           </div>
         </form>
