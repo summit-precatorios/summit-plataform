@@ -26,23 +26,44 @@ export function cnpjMask(value: string) {
 }
 
 export function pixKeysMask(value: string) {
-  const cleanValue = removeMask(value)
+  // debugger
 
-  if (/\D/.test(cleanValue)) return cleanValue.trim() // Mantém a entrada original se contiver caracteres não numéricos, incluindo e-mails
+  const cleanValue = removeMask(value).trim() // Remove máscara e espaços em branco
+
+  // Verifica se contém caracteres não numéricos (para e-mails e chaves aleatórias)
+  // if (/\D/.test(cleanValue)) {
+  //   return value.trim() // Retorna a entrada original, já que pode ser um e-mail ou chave aleatória
+  // }
+
+  let formattedValue
+
+  console.log(cleanValue)
 
   if (cleanValue.length === 11) {
-    if (validate(cleanValue)) return cpfMask(cleanValue) // Formata como CPF se válido
-
-    return phoneMask(cleanValue) // Caso contrário, formata como telefone
+    if (validate(cleanValue)) {
+      formattedValue = cpfMask(cleanValue)
+    } else {
+      formattedValue = phoneMask(cleanValue)
+    }
+  } else if (cleanValue.length === 14) {
+    formattedValue = cnpjMask(cleanValue)
+  } else {
+    formattedValue = cleanValue
   }
 
-  if (cleanValue.length === 14) return cnpjMask(cleanValue) // Formata como CNPJ
-
-  return cleanValue // Retorna o valor original se não corresponder a nenhum formato específico
+  return formattedValue
 }
 
 function removeMask(value: string) {
-  return value.replace(/[/\s]/g, '')
+  if (/[a-zA-Z]/.test(value)) {
+    // Se contém uma letra, aplica o regex para remover caracteres especiais
+    console.log(value.replace(/[/\s]/g, ''))
+    return value.replace(/[/\s]/g, '')
+  } else {
+    // Caso contrário, aplica outro regex ou processamento
+    console.log(value.replace(/[()\-\s]/g, ''))
+    return value.replace(/[()\-\s]/g, '')
+  }
 }
 
 export function phoneMask(value: string) {
@@ -55,15 +76,6 @@ export function phoneMask(value: string) {
 export function processNumberMask(value: string) {
   // 5003007-08.2015.8.09.0051
 
-  return value
-    .replace(/^(\d{7})(\d)/, '$1-$2.') // 5003007-0.
-    .replace(/^(\d{7}-\d{2})(\d)/, '$1.$2') // 5003007-08.2
-    .replace(/^(\d{7}-\d{2}.\d{4})(\d)/, '$1.$2') // 5003007-08.2015.8
-    .replace(/^(\d{7}-\d{2}.\d{4}.)(\d)/, '$1$2.') // 5003007-08.2015.8.
-    .replace(/^(\d{7}-\d{2}.\d{4}.8.\d{2})(\d)/, '$1.$2.')
-}
-
-export function test(value: string) {
   return value
     .replace(/^(\d{7})(\d)/, '$1-$2.') // 5003007-0.
     .replace(/^(\d{7}-\d{2})(\d)/, '$1.$2') // 5003007-08.2
