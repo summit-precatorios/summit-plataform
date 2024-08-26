@@ -16,31 +16,33 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
       ? currencyFormatter.format(Number(props.value))
       : '0,00'
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [formattedValue, dispatch] = React.useReducer(
-      (_: string, next: string) => {
-        const digits = next.replace(/\D/g, '')
-        const newValue = Number(digits) / 100
-
-        return currencyFormatter.format(newValue).replace(/^R\$/, '').trim()
-      },
+      reducer,
       initialFormattedValue,
     )
 
+    function reducer(state: string, action: string): string {
+      const digits = action.replace(/\D/g, '')
+      const value = Number(digits) / 100
+
+      return currencyFormatter.format(value).replace(/^R\$/, '').trim()
+    }
+
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
       const inputValue = event.target.value
-
       const digits = inputValue.replace(/\D/g, '')
-      const numericValue = Number(digits) / 100
 
-      dispatch(
-        currencyFormatter.format(numericValue).replace(/^R\$/, '').trim(),
-      )
+      dispatch(inputValue)
 
-      if (props.onValueChange)
-        props.onValueChange(
-          currencyFormatter.format(numericValue).replace(/^R\$/, '').trim(),
+      if (props.onValueChange) {
+        const value = Number(digits) / 100
+
+        return props.onValueChange(
+          currencyFormatter.format(Number(value)).replace(/^R\$/, '').trim(),
         )
+      }
+
+      console.log('Valor do input: ', inputValue)
     }
 
     return (

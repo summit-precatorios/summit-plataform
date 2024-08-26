@@ -37,8 +37,6 @@ export function pixKeysMask(value: string) {
 
   let formattedValue
 
-  console.log(cleanValue)
-
   if (cleanValue.length === 11) {
     if (validate(cleanValue)) {
       formattedValue = cpfMask(cleanValue)
@@ -57,11 +55,9 @@ export function pixKeysMask(value: string) {
 function removeMask(value: string) {
   if (/[a-zA-Z]/.test(value)) {
     // Se contém uma letra, aplica o regex para remover caracteres especiais
-    console.log(value.replace(/[/\s]/g, ''))
     return value.replace(/[/\s]/g, '')
   } else {
     // Caso contrário, aplica outro regex ou processamento
-    console.log(value.replace(/[()\-\s]/g, ''))
     return value.replace(/[()\-\s]/g, '')
   }
 }

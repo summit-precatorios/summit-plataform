@@ -36,7 +36,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 const pixSchema = z.object({
-  pixKey: z.string().min(1, 'A chave pix é obrigatória'),
+  key: z.string().min(1, 'A chave pix é obrigatória'),
 })
 
 const transferSchema = z.object({
@@ -52,7 +52,7 @@ const transferSchema = z.object({
     .min(1, 'Agência obrigatória')
     .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
 })
-const baseSchema = z.object({
+const createAnnouncementSchema = z.object({
   fullName: z
     .string()
     .min(3, 'Deve contar pelo menos 3 caracteres')
@@ -66,7 +66,7 @@ const baseSchema = z.object({
   processNumber: z.string().transform((value) => value.replace(/\D/g, '')),
   processOrigin: z.string(),
   processCourt: z.string(),
-  paymentMethod: z.enum(['PIX', 'TransferBank']),
+  paymentReceivingOption: z.enum(['PIX', 'TRANSFER_BANK']),
   price: z.string(),
   salePrice: z.string(),
   liquidBalance: z.string(),
@@ -74,7 +74,7 @@ const baseSchema = z.object({
   transferSchema,
 })
 
-type FormValues = z.infer<typeof baseSchema>
+type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
 
 export function RegisterForm(props: {
   title: string
@@ -88,26 +88,33 @@ export function RegisterForm(props: {
   const [documentBankAccount, setDocumentBankAccount] = useState('')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedSchema, setSelectedSchema] = useState<any>(baseSchema)
+  const [selectedSchema, setSelectedSchema] = useState<any>(
+    createAnnouncementSchema,
+  )
 
   const { toast } = useToast()
 
-  const handlePaymentMethodChange = (paymentMethod: 'PIX' | 'TransferBank') => {
-    const schema =
-      paymentMethod === 'PIX'
-        ? baseSchema.merge(pixSchema).omit({ transferSchema: true })
-        : baseSchema.merge(transferSchema).omit({ pixSchema: true })
-
-    setSelectedSchema(schema)
+  function handlePaymentReceivingOption(
+    paymentReceivingOption: 'PIX' | 'TRANSFER_BANK',
+  ) {
+    switch (paymentReceivingOption) {
+      case 'PIX':
+        createAnnouncementSchema.merge(pixSchema)
+        setSelectedSchema(createAnnouncementSchema)
+        break
+      case 'TRANSFER_BANK':
+        createAnnouncementSchema.merge(transferSchema)
+        setSelectedSchema(createAnnouncementSchema)
+    }
 
     form.reset({
       ...form.getValues(),
-      paymentMethod,
+      paymentReceivingOption,
     })
   }
 
   // ! definir formState baseado no  schema do formulário
-  const form = useForm<FormValues>({
+  const form = useForm<CreateAnnouncementSchema>({
     resolver: zodResolver(selectedSchema),
   })
 
@@ -137,9 +144,10 @@ export function RegisterForm(props: {
   }
 
   const handleSalePriceChange = (value: string): void => {
-    console.log('Sale Price: ', value)
     setSalePrice(value)
   }
+
+  console.log('Watch: ', form.watch('salePrice'))
 
   return (
     <div className="w-full space-x-3 flex-col">
@@ -295,7 +303,9 @@ export function RegisterForm(props: {
                           <InputCurrency
                             className="h-9"
                             {...field}
-                            onChange={(e) => field.onChange(e.target.value)}
+                            onChange={(e) => {
+                              field.onChange(e.target.value)
+                            }}
                           />
                         </FormControl>
                       </FormItem>
@@ -404,7 +414,7 @@ export function RegisterForm(props: {
                     className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 0 ? 'bg-gray-100' : ''}`}
                     onClick={() => {
                       setActiveLabel(0)
-                      handlePaymentMethodChange('PIX')
+                      handlePaymentReceivingOption('PIX')
                     }}
                   >
                     <svg
@@ -448,7 +458,7 @@ export function RegisterForm(props: {
                     className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 1 ? 'bg-gray-100' : ''}`}
                     onClick={() => {
                       setActiveLabel(1)
-                      handlePaymentMethodChange('TransferBank')
+                      handlePaymentReceivingOption('TRANSFER_BANK')
                     }}
                   >
                     <Landmark className="mb-3 h-8 w-8" />
@@ -461,7 +471,7 @@ export function RegisterForm(props: {
                 <div className="grid gap-2">
                   <FormField
                     control={form.control}
-                    name="pixSchema.pixKey"
+                    name="pixSchema.key"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Chave pix</FormLabel>

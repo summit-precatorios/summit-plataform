@@ -4,10 +4,18 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useState } from 'react'
 import { RegisterForm } from './_components/register-form'
 
+type AnnouncementType = {
+  label: 'RPV' | 'PRECATORIO' | null
+  isActive: boolean
+  description: string
+}
+
 export default function Page() {
-  const [activeForm, setActiveForm] = useState('')
-  const [show, setShow] = useState(false)
-  const [description, setDescription] = useState('')
+  const [announcementType, setAnnouncementType] = useState<AnnouncementType>({
+    description: '',
+    isActive: false,
+    label: null,
+  })
 
   return (
     <div className="flex flex-col justify-start max-w-7xl mx-auto mt-20 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
@@ -16,11 +24,13 @@ export default function Page() {
       </h1>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 mt-3">
         <Card
-          className={`cursor-pointer ${activeForm === 'RPV' ? 'bg-gray-100' : ''}`}
+          className={`cursor-pointer ${announcementType.label === 'RPV' ? 'bg-gray-100' : ''}`}
           onClick={() => {
-            setActiveForm('RPV')
-            setShow(true)
-            setDescription('Descrição sobre RPV')
+            setAnnouncementType({
+              description: 'Descrição sobre RPV',
+              isActive: true,
+              label: 'RPV',
+            })
           }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"></CardHeader>
@@ -32,11 +42,13 @@ export default function Page() {
           </CardContent>
         </Card>
         <Card
-          className={`cursor-pointer ${activeForm === 'Precatório' ? 'bg-gray-100' : ''}`}
+          className={`cursor-pointer ${announcementType.label === 'PRECATORIO' ? 'bg-gray-100' : ''}`}
           onClick={() => {
-            setActiveForm('Precatório')
-            setShow(true)
-            setDescription('Descrição sobre Precatório')
+            setAnnouncementType({
+              description: 'Descrição sobre Precatório',
+              isActive: true,
+              label: 'PRECATORIO',
+            })
           }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"></CardHeader>
@@ -49,7 +61,11 @@ export default function Page() {
         </Card>
       </div>
 
-      <RegisterForm title={activeForm} description={description} show={show} />
+      <RegisterForm
+        title={announcementType.label === 'RPV' ? 'RPV' : 'Precatório'}
+        description={announcementType.description}
+        show={announcementType.isActive}
+      />
     </div>
   )
 }
