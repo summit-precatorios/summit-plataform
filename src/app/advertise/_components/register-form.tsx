@@ -76,6 +76,24 @@ const createAnnouncementSchema = z.object({
 
 type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
 
+const handleSalePriceChange = (value: string): string => {
+  const numericValue = parseFloat(
+    value.replace(/[^\d,-]/g, '').replace(',', '.'),
+  )
+  if (!isNaN(numericValue)) {
+    const calculatedBalance = (numericValue * 0.95).toFixed(2) // 95% do valor de venda
+    // Aplicar máscara de moeda BR no valor calculado
+
+    const formattedBalance = currencyFormatter
+      .format(Number(calculatedBalance))
+      .replace(/^R\$/, '')
+      .trim()
+    return formattedBalance
+  }
+
+  return ''
+}
+
 export function RegisterForm(props: {
   title: string
   description: string
@@ -83,30 +101,50 @@ export function RegisterForm(props: {
 }) {
   const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
   const [salePrice, setSalePrice] = useState('')
-  const [liquidBalance, setLiquidBalance] = useState('')
+  // const [liquidBalance, setLiquidBalance] = useState('')
 
   const [documentBankAccount, setDocumentBankAccount] = useState('')
+
+  const [formValues, setFormValues] = useState({})
+
+  const showFormValues = () => {
+    const values = form.getValues()
+
+    setFormValues(values)
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedSchema, setSelectedSchema] = useState<any>(
     createAnnouncementSchema,
   )
 
-  // const [formattedValue, setFormattedValue] = useReducer(reducer, '0,00')
-
   const [formattedPrice, setFormattedPrice] = useState('0,00')
 
   function handlePaymentReceivingOption(
     paymentReceivingOption: 'PIX' | 'TRANSFER_BANK',
   ) {
+    let newSchema
     switch (paymentReceivingOption) {
       case 'PIX':
-        createAnnouncementSchema.merge(pixSchema)
-        setSelectedSchema(createAnnouncementSchema)
+        newSchema = createAnnouncementSchema
+          .merge(pixSchema)
+          .omit({ transferSchema: true })
+
+        form.reset()
+
+        setSelectedSchema(newSchema)
         break
       case 'TRANSFER_BANK':
-        createAnnouncementSchema.merge(transferSchema)
-        setSelectedSchema(createAnnouncementSchema)
+        newSchema = createAnnouncementSchema
+          .merge(transferSchema)
+          .omit({ pixSchema: true })
+
+        form.reset()
+
+        setSelectedSchema(newSchema)
+        break
+      default:
+        newSchema = createAnnouncementSchema
     }
 
     form.reset({
@@ -122,35 +160,18 @@ export function RegisterForm(props: {
   })
 
   useEffect(() => {
-    // Remover máscara e converter para número
-    const numericValue = parseFloat(
-      salePrice.replace(/[^\d,-]/g, '').replace(',', '.'),
-    )
-    if (!isNaN(numericValue)) {
-      const calculatedBalance = (numericValue * 0.95).toFixed(2) // 95% do valor de venda
-      // Aplicar máscara de moeda BR no valor calculado
+    const salePrice = form.watch('salePrice')
+    const liquidBalance = handleSalePriceChange(salePrice)
 
-      const formattedBalance = currencyFormatter
-        .format(Number(calculatedBalance))
-        .replace(/^R\$/, '')
-        .trim()
-
-      setLiquidBalance(formattedBalance)
-    } else {
-      setLiquidBalance('')
-    }
-  }, [salePrice])
+    form.setValue('salePrice', `R$ ${liquidBalance}`)
+  }, [form.watch('salePrice'), form])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function onSubmit(data: z.infer<typeof selectedSchema>) {
     console.log(data)
   }
 
-  const handleSalePriceChange = (value: string): void => {
-    setSalePrice(value)
-  }
-
-  const salePricee = form.watch('salePrice')
+  const salePricee = handleSalePriceChange(form.watch('salePrice'))
 
   return (
     <div className="w-full space-x-3 flex-col">
@@ -359,7 +380,24 @@ export function RegisterForm(props: {
                             className="h-9"
                             {...field}
                             value={salePrice}
-                            onValueChange={handleSalePriceChange}
+                            onChange={(e) => {
+                              field.onChange(() => {
+                                const value = e.target.value.replace(/\D/g, '')
+                                setSalePrice(
+                                  currencyFormatter
+                                    .format(Number(value) / 100)
+                                    .replace(/^R\$/, '')
+                                    .trim(),
+                                )
+
+                                field.onChange(
+                                  currencyFormatter
+                                    .format(Number(value) / 100)
+                                    .replace(/^R\$/, '')
+                                    .trim(),
+                                )
+                              })
+                            }}
                           />
                         </FormControl>
                       </FormItem>
@@ -389,7 +427,6 @@ export function RegisterForm(props: {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            id="liquidBalance"
                             min={0}
                             className="h-9"
                             {...field}
@@ -622,17 +659,14 @@ export function RegisterForm(props: {
             <Button type="submit" className="w-full h-12">
               {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
             </Button>
-            <Button
-              onClick={() => {
-                console.log(form.getValues())
-              }}
-              className="w-full h-12"
-            >
+            <Button onClick={showFormValues} className="w-full h-12">
               Test Form
             </Button>
           </div>
         </form>
       </Form>
+
+      <pre>{JSON.stringify(formValues, null, 2)}</pre>
     </div>
   )
 }
