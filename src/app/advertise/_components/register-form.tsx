@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
 import { CircleHelp, Landmark } from 'lucide-react'
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -94,20 +94,7 @@ export function RegisterForm(props: {
 
   // const [formattedValue, setFormattedValue] = useReducer(reducer, '0,00')
 
-  const [test, setTest] = useState('0')
-
-  // function reducer(state: string, action: string): string {
-  //   const value: number = parseInt(action.replace(/\D/g, '')) / 100
-
-  //   console.log(
-  //     value,
-  //     state,
-  //     action,
-  //     currencyFormatter.format(value).replace(/^R\$/, '').trim(),
-  //   )
-
-  //   return currencyFormatter.format(value).replace(/^R\$/, '').trim()
-  // }
+  const [formattedPrice, setFormattedPrice] = useState('0,00')
 
   function handlePaymentReceivingOption(
     paymentReceivingOption: 'PIX' | 'TRANSFER_BANK',
@@ -163,7 +150,7 @@ export function RegisterForm(props: {
     setSalePrice(value)
   }
 
-  console.log('Watch: ', form.watch('price'))
+  const salePricee = form.watch('salePrice')
 
   return (
     <div className="w-full space-x-3 flex-col">
@@ -221,8 +208,6 @@ export function RegisterForm(props: {
                   />
                 </div>
               </div>
-
-              <h1>{test}</h1>
 
               <div className="grid grid-cols-7 gap-4">
                 <div className="ggrid gap-2 col-span-3">
@@ -321,43 +306,24 @@ export function RegisterForm(props: {
                           <InputCurrency
                             className="h-9"
                             {...field}
-                            value={test}
+                            value={formattedPrice}
                             onChange={(e) => {
                               field.onChange(() => {
-                                const newValue = e.target.value.replace(
-                                  /\D/g,
-                                  '',
-                                )
-                                setTest(
+                                const value = e.target.value.replace(/\D/g, '')
+                                setFormattedPrice(
                                   currencyFormatter
-                                    .format(Number(newValue) / 100)
+                                    .format(Number(value) / 100)
                                     .replace(/^R\$/, '')
                                     .trim(),
                                 )
 
                                 field.onChange(
                                   currencyFormatter
-                                    .format(Number(newValue) / 100)
+                                    .format(Number(value) / 100)
                                     .replace(/^R\$/, '')
                                     .trim(),
                                 )
                               })
-
-                              // field.onChange(
-                              //   (() => {
-                              //     const inputValue = e.target.value.replace(
-                              //       /\D/g,
-                              //       '',
-                              //     )
-                              //     setFormattedValue(
-                              //       currencyFormatter
-                              //         .format(Number(inputValue) / 100)
-                              //         .replace(/^R\$/, '')
-                              //         .trim(),
-                              //     )
-                              //     return e.target.value
-                              //   })(),
-                              // )
                             }}
                           />
                         </FormControl>
@@ -428,7 +394,7 @@ export function RegisterForm(props: {
                             className="h-9"
                             {...field}
                             disabled
-                            value={`R$ ${liquidBalance}`}
+                            value={`R$ ${salePricee}`}
                           />
                         </FormControl>
                       </FormItem>
