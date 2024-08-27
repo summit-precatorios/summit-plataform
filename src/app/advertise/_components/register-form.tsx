@@ -31,7 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
 import { CircleHelp, Landmark } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -92,7 +92,22 @@ export function RegisterForm(props: {
     createAnnouncementSchema,
   )
 
-  const { toast } = useToast()
+  // const [formattedValue, setFormattedValue] = useReducer(reducer, '0,00')
+
+  const [test, setTest] = useState('0')
+
+  // function reducer(state: string, action: string): string {
+  //   const value: number = parseInt(action.replace(/\D/g, '')) / 100
+
+  //   console.log(
+  //     value,
+  //     state,
+  //     action,
+  //     currencyFormatter.format(value).replace(/^R\$/, '').trim(),
+  //   )
+
+  //   return currencyFormatter.format(value).replace(/^R\$/, '').trim()
+  // }
 
   function handlePaymentReceivingOption(
     paymentReceivingOption: 'PIX' | 'TRANSFER_BANK',
@@ -113,6 +128,7 @@ export function RegisterForm(props: {
     })
   }
 
+  const { toast } = useToast()
   // ! definir formState baseado no  schema do formulário
   const form = useForm<CreateAnnouncementSchema>({
     resolver: zodResolver(selectedSchema),
@@ -147,7 +163,7 @@ export function RegisterForm(props: {
     setSalePrice(value)
   }
 
-  console.log('Watch: ', form.watch('salePrice'))
+  console.log('Watch: ', form.watch('price'))
 
   return (
     <div className="w-full space-x-3 flex-col">
@@ -205,6 +221,8 @@ export function RegisterForm(props: {
                   />
                 </div>
               </div>
+
+              <h1>{test}</h1>
 
               <div className="grid grid-cols-7 gap-4">
                 <div className="ggrid gap-2 col-span-3">
@@ -303,8 +321,43 @@ export function RegisterForm(props: {
                           <InputCurrency
                             className="h-9"
                             {...field}
+                            value={test}
                             onChange={(e) => {
-                              field.onChange(e.target.value)
+                              field.onChange(() => {
+                                const newValue = e.target.value.replace(
+                                  /\D/g,
+                                  '',
+                                )
+                                setTest(
+                                  currencyFormatter
+                                    .format(Number(newValue) / 100)
+                                    .replace(/^R\$/, '')
+                                    .trim(),
+                                )
+
+                                field.onChange(
+                                  currencyFormatter
+                                    .format(Number(newValue) / 100)
+                                    .replace(/^R\$/, '')
+                                    .trim(),
+                                )
+                              })
+
+                              // field.onChange(
+                              //   (() => {
+                              //     const inputValue = e.target.value.replace(
+                              //       /\D/g,
+                              //       '',
+                              //     )
+                              //     setFormattedValue(
+                              //       currencyFormatter
+                              //         .format(Number(inputValue) / 100)
+                              //         .replace(/^R\$/, '')
+                              //         .trim(),
+                              //     )
+                              //     return e.target.value
+                              //   })(),
+                              // )
                             }}
                           />
                         </FormControl>

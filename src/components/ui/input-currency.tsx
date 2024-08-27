@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 
-import { cn, currencyFormatter } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -12,38 +12,38 @@ export interface InputProps
 
 const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
-    const initialFormattedValue = props.value
-      ? currencyFormatter.format(Number(props.value))
-      : '0,00'
+    // const initialFormattedValue = props.value
+    //   ? currencyFormatter.format(Number(props.value))
+    //   : '0,00'
 
-    const [formattedValue, dispatch] = React.useReducer(
-      reducer,
-      initialFormattedValue,
-    )
+    // const [formattedValue, dispatch] = React.useReducer(
+    //   reducer,
+    //   initialFormattedValue,
+    // )
 
-    function reducer(state: string, action: string): string {
-      const digits = action.replace(/\D/g, '')
-      const value = Number(digits) / 100
+    // function reducer(state: string, action: string): string {
+    //   const digits = action.replace(/\D/g, '')
+    //   const value = Number(digits) / 100
 
-      return currencyFormatter.format(value).replace(/^R\$/, '').trim()
-    }
+    //   return currencyFormatter.format(value).replace(/^R\$/, '').trim()
+    // }
 
-    function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-      const inputValue = event.target.value
-      const digits = inputValue.replace(/\D/g, '')
+    // function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    //   const inputValue = event.target.value
+    //   const digits = inputValue.replace(/\D/g, '')
 
-      dispatch(inputValue)
+    //   dispatch(inputValue)
 
-      if (props.onValueChange) {
-        const value = Number(digits) / 100
+    //   if (props.onValueChange) {
+    //     const value = Number(digits) / 100
 
-        return props.onValueChange(
-          currencyFormatter.format(Number(value)).replace(/^R\$/, '').trim(),
-        )
-      }
+    //     return props.onValueChange(
+    //       currencyFormatter.format(Number(value)).replace(/^R\$/, '').trim(),
+    //     )
+    //   }
 
-      console.log('Valor do input: ', inputValue)
-    }
+    //   console.log('Valor do input: ', inputValue)
+    // }
 
     return (
       <div className="w-full relative">
@@ -55,8 +55,8 @@ const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           ref={ref}
           {...props}
-          value={formattedValue}
-          onChange={handleChange}
+          // value={}
+          // onChange={handleChange}
         />
         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-700/70">
           R$
