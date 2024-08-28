@@ -76,18 +76,24 @@ const createAnnouncementSchema = z.object({
 
 type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
 
-const handleSalePriceChange = (value: string): string => {
+function handleSalePriceChange(value: string | number): string {
+  if (!value) return ''
+
+  // Garantir que o valor seja uma string
+  const valueStr = String(value)
+
   const numericValue = parseFloat(
-    value.replace(/[^\d,-]/g, '').replace(',', '.'),
+    valueStr.replace(/[^\d,-]/g, '').replace(',', '.'),
   )
+
   if (!isNaN(numericValue)) {
     const calculatedBalance = (numericValue * 0.95).toFixed(2) // 95% do valor de venda
-    // Aplicar máscara de moeda BR no valor calculado
 
     const formattedBalance = currencyFormatter
       .format(Number(calculatedBalance))
       .replace(/^R\$/, '')
       .trim()
+
     return formattedBalance
   }
 
@@ -100,11 +106,8 @@ export function RegisterForm(props: {
   show: boolean
 }) {
   const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
-  const [salePrice, setSalePrice] = useState('')
-  // const [liquidBalance, setLiquidBalance] = useState('')
-
+  const [salePrice, setSalePrice] = useState('0,00')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
-
   const [formValues, setFormValues] = useState({})
 
   const showFormValues = () => {
@@ -130,7 +133,15 @@ export function RegisterForm(props: {
           .merge(pixSchema)
           .omit({ transferSchema: true })
 
-        form.reset()
+        form.reset(
+          {
+            ...form.getValues(),
+            paymentReceivingOption,
+          },
+          {
+            keepDefaultValues: true,
+          },
+        )
 
         setSelectedSchema(newSchema)
         break
@@ -139,7 +150,15 @@ export function RegisterForm(props: {
           .merge(transferSchema)
           .omit({ pixSchema: true })
 
-        form.reset()
+        form.reset(
+          {
+            ...form.getValues(),
+            paymentReceivingOption,
+          },
+          {
+            keepDefaultValues: true,
+          },
+        )
 
         setSelectedSchema(newSchema)
         break
@@ -147,10 +166,10 @@ export function RegisterForm(props: {
         newSchema = createAnnouncementSchema
     }
 
-    form.reset({
-      ...form.getValues(),
-      paymentReceivingOption,
-    })
+    // form.reset({
+    //   ...form.getValues(),
+    //   paymentReceivingOption,
+    // })
   }
 
   const { toast } = useToast()
@@ -159,19 +178,18 @@ export function RegisterForm(props: {
     resolver: zodResolver(selectedSchema),
   })
 
-  useEffect(() => {
-    const salePrice = form.watch('salePrice')
-    const liquidBalance = handleSalePriceChange(salePrice)
-
-    form.setValue('salePrice', `R$ ${liquidBalance}`)
-  }, [form.watch('salePrice'), form])
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function onSubmit(data: z.infer<typeof selectedSchema>) {
+    alert('ok')
     console.log(data)
   }
 
-  const salePricee = handleSalePriceChange(form.watch('salePrice'))
+  // const salePricee = handleSalePriceChange(form.watch('salePrice'))
+  const calculatedBalance = handleSalePriceChange(form.watch('salePrice'))
+
+  useEffect(() => {
+    form.setValue('liquidBalance', calculatedBalance)
+  }, [salePrice, calculatedBalance, form])
 
   return (
     <div className="w-full space-x-3 flex-col">
@@ -431,7 +449,7 @@ export function RegisterForm(props: {
                             className="h-9"
                             {...field}
                             disabled
-                            value={`R$ ${salePricee}`}
+                            value={`R$ ${field.value}`}
                           />
                         </FormControl>
                       </FormItem>
