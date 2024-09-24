@@ -35,23 +35,6 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-const pixSchema = z.object({
-  key: z.string().min(1, 'A chave pix é obrigatória'),
-})
-
-const transferSchema = z.object({
-  ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
-  documentBankAccount: z.string(),
-  bankAccount: z
-    .string()
-    .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
-    .transform((value) => value.replace(/\D/g, ''))
-    .transform((value) => value.replace(/\D/g, '')), // TODO criar lógica para a verificação do número máximo de dígitos baseado na definição do banco
-  agencyBankAccount: z
-    .string()
-    .min(1, 'Agência obrigatória')
-    .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
-})
 const createAnnouncementSchema = z.object({
   fullName: z
     .string()
@@ -66,12 +49,22 @@ const createAnnouncementSchema = z.object({
   processNumber: z.string().transform((value) => value.replace(/\D/g, '')),
   processOrigin: z.string(),
   processCourt: z.string(),
-  paymentReceivingOption: z.enum(['PIX', 'TRANSFER_BANK']),
   price: z.string(),
   salePrice: z.string(),
   liquidBalance: z.string(),
-  pixSchema,
-  transferSchema,
+  paymentReceivingOption: z.string(),
+  ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
+  documentBankAccount: z.string(),
+  bankAccount: z
+    .string()
+    .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
+    .transform((value) => value.replace(/\D/g, ''))
+    .transform((value) => value.replace(/\D/g, '')), // TODO criar lógica para a verificação do número máximo de dígitos baseado na definição do banco
+  agencyBankAccount: z
+    .string()
+    .min(1, 'Agência obrigatória')
+    .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
+  key: z.string().min(1, 'A chave pix é obrigatória'),
 })
 
 type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
@@ -105,10 +98,10 @@ export function RegisterForm(props: {
   description: string
   show: boolean
 }) {
-  const [activeLabel, setActiveLabel] = useState<number>(0) // 0: PIX | 1 - Transferência Bancária
   const [salePrice, setSalePrice] = useState('0,00')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
   const [formValues, setFormValues] = useState({})
+  const [selectedOption, setSelectedOption] = useState('')
 
   const showFormValues = () => {
     const values = form.getValues()
@@ -116,70 +109,23 @@ export function RegisterForm(props: {
     setFormValues(values)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedSchema, setSelectedSchema] = useState<any>(
-    createAnnouncementSchema,
-  )
-
   const [formattedPrice, setFormattedPrice] = useState('0,00')
 
-  function handlePaymentReceivingOption(
-    paymentReceivingOption: 'PIX' | 'TRANSFER_BANK',
-  ) {
-    let newSchema
-    switch (paymentReceivingOption) {
-      case 'PIX':
-        newSchema = createAnnouncementSchema
-          .merge(pixSchema)
-          .omit({ transferSchema: true })
+  const handlePaymentReceivingOption = (option: string) => {
+    console.log(option)
+    setSelectedOption(option)
 
-        form.reset(
-          {
-            ...form.getValues(),
-            paymentReceivingOption,
-          },
-          {
-            keepDefaultValues: true,
-          },
-        )
-
-        setSelectedSchema(newSchema)
-        break
-      case 'TRANSFER_BANK':
-        newSchema = createAnnouncementSchema
-          .merge(transferSchema)
-          .omit({ pixSchema: true })
-
-        form.reset(
-          {
-            ...form.getValues(),
-            paymentReceivingOption,
-          },
-          {
-            keepDefaultValues: true,
-          },
-        )
-
-        setSelectedSchema(newSchema)
-        break
-      default:
-        newSchema = createAnnouncementSchema
-    }
-
-    // form.reset({
-    //   ...form.getValues(),
-    //   paymentReceivingOption,
-    // })
+    form.setValue('paymentReceivingOption', option)
   }
 
   const { toast } = useToast()
   // ! definir formState baseado no  schema do formulário
   const form = useForm<CreateAnnouncementSchema>({
-    resolver: zodResolver(selectedSchema),
+    resolver: zodResolver(createAnnouncementSchema),
   })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function onSubmit(data: z.infer<typeof selectedSchema>) {
+  async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
     alert('ok')
     console.log(data)
   }
@@ -189,7 +135,17 @@ export function RegisterForm(props: {
 
   useEffect(() => {
     form.setValue('liquidBalance', calculatedBalance)
-  }, [salePrice, calculatedBalance, form])
+  }, [calculatedBalance, form])
+
+  // Ensure salePrice is updated correctly
+  useEffect(() => {
+    const newCalculatedBalance = handleSalePriceChange(salePrice)
+    form.setValue('liquidBalance', newCalculatedBalance)
+  }, [salePrice, form])
+
+  useEffect(() => {
+    console.log('Erros do formulário:', form.formState.errors)
+  })
 
   return (
     <div className="w-full space-x-3 flex-col">
@@ -473,23 +429,23 @@ export function RegisterForm(props: {
             </CardHeader>
             <CardContent className="grid gap-6">
               <RadioGroup
-                defaultValue="card"
+                value={selectedOption}
+                onValueChange={(value) => handlePaymentReceivingOption(value)}
                 className="grid grid-cols-2 gap-4 shad"
               >
                 <div>
                   <RadioGroupItem
-                    value="card"
-                    id="card"
+                    value="PIX"
+                    id="pix"
                     className="peer sr-only"
                     aria-label="Card"
                   />
                   <Label
-                    htmlFor="card"
-                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 0 ? 'bg-gray-100' : ''}`}
-                    onClick={() => {
-                      setActiveLabel(0)
-                      handlePaymentReceivingOption('PIX')
-                    }}
+                    htmlFor="pix"
+                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${selectedOption === 'PIX' ? 'bg-gray-100' : ''}`}
+                    // onClick={() => {
+                    //   handlePaymentReceivingOption('PIX')
+                    // }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -522,18 +478,17 @@ export function RegisterForm(props: {
                 </div>
                 <div>
                   <RadioGroupItem
-                    value="card"
-                    id="card"
+                    value="TRANSFER_BANK"
+                    id="transfer_bank"
                     className="peer sr-only"
                     aria-label="Card"
                   />
                   <Label
-                    htmlFor="card"
-                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${activeLabel === 1 ? 'bg-gray-100' : ''}`}
-                    onClick={() => {
-                      setActiveLabel(1)
-                      handlePaymentReceivingOption('TRANSFER_BANK')
-                    }}
+                    htmlFor="transfer_bank"
+                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${selectedOption === 'TRANSFER_BANK' ? 'bg-gray-100' : ''}`}
+                    // onClick={() => {
+                    //   handlePaymentReceivingOption('TRANSFER_BANK')
+                    // }}
                   >
                     <Landmark className="mb-3 h-8 w-8" />
                     Transferência Bancária
@@ -541,11 +496,11 @@ export function RegisterForm(props: {
                 </div>
               </RadioGroup>
 
-              {activeLabel === 0 ? (
+              {selectedOption === 'PIX' ? (
                 <div className="grid gap-2">
                   <FormField
                     control={form.control}
-                    name="pixSchema.key"
+                    name="key"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Chave pix</FormLabel>
@@ -563,12 +518,12 @@ export function RegisterForm(props: {
                     )}
                   />
                 </div>
-              ) : activeLabel === 1 ? (
+              ) : selectedOption === 'TRANSFER_BANK' ? (
                 <div className="grid grid-cols-4 gap-4">
                   <div className="grid gap-2 col-span-2">
                     <FormField
                       control={form.control}
-                      name="transferSchema.ownerBankAccount"
+                      name="ownerBankAccount"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Titular da Conta</FormLabel>
@@ -586,7 +541,7 @@ export function RegisterForm(props: {
                   <div className="grid gap-2 col-span-2">
                     <FormField
                       control={form.control}
-                      name="transferSchema.documentBankAccount"
+                      name="documentBankAccount"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>CPF/CNPJ</FormLabel>
@@ -627,7 +582,7 @@ export function RegisterForm(props: {
                   <div className="grid gap-2 col-span-2">
                     <FormField
                       control={form.control}
-                      name="transferSchema.bankAccount"
+                      name="bankAccount"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Conta</FormLabel>
@@ -649,7 +604,7 @@ export function RegisterForm(props: {
                   <div className="grid gap-2 col-span-2">
                     <FormField
                       control={form.control}
-                      name="transferSchema.agencyBankAccount"
+                      name="agencyBankAccount"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Agência</FormLabel>
@@ -685,6 +640,7 @@ export function RegisterForm(props: {
       </Form>
 
       <pre>{JSON.stringify(formValues, null, 2)}</pre>
+      <pre>{`Tipo de Pagamento:${selectedOption}`}</pre>
     </div>
   )
 }
