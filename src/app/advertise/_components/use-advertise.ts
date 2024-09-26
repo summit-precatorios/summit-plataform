@@ -1,4 +1,4 @@
-import { validate } from '@/lib/validate'
+import { isCPFValid } from '@/lib/isCPFValid'
 import { z } from 'zod'
 
 export const useAdvertise = () => {
@@ -10,7 +10,7 @@ export const useAdvertise = () => {
       .max(200, 'Deve conter no máximo 200 caracteres'),
     document: z
       .string()
-      .refine((value) => validate(value), {
+      .refine((value) => isCPFValid(value), {
         message: 'CPF inválido',
       })
       .transform((value) => value.replace(/\D/g, '')),

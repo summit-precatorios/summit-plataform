@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
 import { cpfMask } from '@/lib/utils'
-import { validate } from '@/lib/validate'
+import { isCPFValid } from '@/lib/isCPFValid'
 import { registerRequest } from '@/services/auth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
@@ -28,7 +28,7 @@ const formSchema = z.object({
   email: z.string().email('Insira um endereço de e-mail válido.'),
   document: z
     .string()
-    .refine((document) => validate(document), {
+    .refine((document) => isCPFValid(document), {
       message: 'CPF inválido',
     })
     .transform((value) => value.replace(/\D/g, '')),

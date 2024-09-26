@@ -1,4 +1,4 @@
-import { validate } from '@/lib/validate'
+import { isCPFValid } from '@/lib/isCPFValid'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -38,7 +38,7 @@ export function pixKeysMask(value: string) {
   let formattedValue
 
   if (cleanValue.length === 11) {
-    if (validate(cleanValue)) {
+    if (isCPFValid(cleanValue)) {
       formattedValue = cpfMask(cleanValue)
     } else {
       formattedValue = phoneMask(cleanValue)
