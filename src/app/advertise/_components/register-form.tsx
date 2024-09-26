@@ -1,4 +1,5 @@
 'use client'
+import { useAdvertise } from '@/app/advertise/_components/use-advertise'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -26,7 +27,6 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
 import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
-import { validate } from '@/lib/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
@@ -34,40 +34,6 @@ import { CircleHelp, Landmark } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-
-const createAnnouncementSchema = z.object({
-  fullName: z
-    .string()
-    .min(3, 'Deve contar pelo menos 3 caracteres')
-    .max(200, 'Deve conter no máximo 200 caracteres'),
-  document: z
-    .string()
-    .refine((value) => validate(value), {
-      message: 'CPF inválido',
-    })
-    .transform((value) => value.replace(/\D/g, '')),
-  processNumber: z.string().transform((value) => value.replace(/\D/g, '')),
-  processOrigin: z.string(),
-  processCourt: z.string(),
-  price: z.string(),
-  salePrice: z.string(),
-  liquidBalance: z.string(),
-  paymentReceivingOption: z.string(),
-  ownerBankAccount: z.string().min(3, 'O titular da conta é obrigatório'),
-  documentBankAccount: z.string(),
-  bankAccount: z
-    .string()
-    .min(4, 'A conta bancária deve ter no mínimo 4 dígitos')
-    .transform((value) => value.replace(/\D/g, ''))
-    .transform((value) => value.replace(/\D/g, '')), // TODO criar lógica para a verificação do número máximo de dígitos baseado na definição do banco
-  agencyBankAccount: z
-    .string()
-    .min(1, 'Agência obrigatória')
-    .max(4, 'A agência bancária deve ter no máximo 4 dígitos'),
-  key: z.string().min(1, 'A chave pix é obrigatória'),
-})
-
-type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
 
 function handleSalePriceChange(value: string | number): string {
   if (!value) return ''
@@ -100,19 +66,23 @@ export function RegisterForm(props: {
 }) {
   const [salePrice, setSalePrice] = useState('0,00')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
-  const [formValues, setFormValues] = useState({})
-  const [selectedOption, setSelectedOption] = useState('')
-
-  const showFormValues = () => {
-    const values = form.getValues()
-
-    setFormValues(values)
-  }
+  const [selectedOption, setSelectedOption] = useState<'PIX' | 'TRANSFER_BANK'>(
+    'PIX',
+  )
 
   const [formattedPrice, setFormattedPrice] = useState('0,00')
 
-  const handlePaymentReceivingOption = (option: string) => {
-    console.log(option)
+  const { createAnnouncementSchema } = useAdvertise()
+
+  type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
+
+  const form = useForm<CreateAnnouncementSchema>({
+    resolver: zodResolver(createAnnouncementSchema),
+    defaultValues: {
+      paymentReceivingOption: 'PIX',
+    },
+  })
+  const handlePaymentReceivingOption = (option: 'PIX' | 'TRANSFER_BANK') => {
     setSelectedOption(option)
 
     form.setValue('paymentReceivingOption', option)
@@ -120,14 +90,20 @@ export function RegisterForm(props: {
 
   const { toast } = useToast()
   // ! definir formState baseado no  schema do formulário
-  const form = useForm<CreateAnnouncementSchema>({
-    resolver: zodResolver(createAnnouncementSchema),
-  })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
-    alert('ok')
-    console.log(data)
+    // return promise that resolves after 2 seconds
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(
+          toast({
+            title: 'Registro',
+            description: `Seu ${props.title} foi registrado com sucesso.`,
+          }),
+        )
+      }, 2000)
+    })
   }
 
   // const salePricee = handleSalePriceChange(form.watch('salePrice'))
@@ -430,7 +406,9 @@ export function RegisterForm(props: {
             <CardContent className="grid gap-6">
               <RadioGroup
                 value={selectedOption}
-                onValueChange={(value) => handlePaymentReceivingOption(value)}
+                onValueChange={(value: 'PIX' | 'TRANSFER_BANK') =>
+                  handlePaymentReceivingOption(value)
+                }
                 className="grid grid-cols-2 gap-4 shad"
               >
                 <div>
@@ -628,19 +606,11 @@ export function RegisterForm(props: {
               ) : null}
             </CardContent>
           </Card>
-          <div className="flex w-full flex-col gap-5 items-center">
-            <Button type="submit" className="w-full h-12">
-              {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
-            </Button>
-            <Button onClick={showFormValues} className="w-full h-12">
-              Test Form
-            </Button>
-          </div>
+          <Button type="submit" className="w-full h-12 mt-4">
+            {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
+          </Button>
         </form>
       </Form>
-
-      <pre>{JSON.stringify(formValues, null, 2)}</pre>
-      <pre>{`Tipo de Pagamento:${selectedOption}`}</pre>
     </div>
   )
 }
