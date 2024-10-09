@@ -627,14 +627,6 @@ export function RegisterForm(props: {
           <Button type="submit" className="w-full h-12 mt-4">
             {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
           </Button>
-          <Button
-            type="submit"
-            className="w-full h-12 mt-4"
-            onClick={() => setShowFormValues(form.getValues())}
-          >
-            Show Form Values
-          </Button>
-          <pre>{JSON.stringify(showFormValues, null, 2)}</pre>
         </form>
       </Form>
     </div>
