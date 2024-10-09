@@ -73,7 +73,6 @@ export function RegisterForm(props: {
   )
 
   const [formattedPrice, setFormattedPrice] = useState('0,00')
-  const [showFormValues, setShowFormValues] = useState({})
   const { createAnnouncementSchema } = useAdvertise()
 
   type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
