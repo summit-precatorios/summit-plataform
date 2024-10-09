@@ -8,7 +8,7 @@ export async function api<ResponseType = any>(
   try {
     const result = await fetch(BASE_URL, {
       ...options,
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(1 * 60 * 1000), // 1 minute
     })
 
     return (await result.json()) as ResponseType
