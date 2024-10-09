@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
 import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
+import { createAnnouncementRequest } from '@/services/announcement.service'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
@@ -63,6 +64,7 @@ export function RegisterForm(props: {
   title: string
   description: string
   show: boolean
+  announcementType: 'RPV' | 'PRECATORIO'
 }) {
   const [salePrice, setSalePrice] = useState('0,00')
   const [documentBankAccount, setDocumentBankAccount] = useState('')
@@ -71,7 +73,7 @@ export function RegisterForm(props: {
   )
 
   const [formattedPrice, setFormattedPrice] = useState('0,00')
-
+  const [showFormValues, setShowFormValues] = useState({})
   const { createAnnouncementSchema } = useAdvertise()
 
   type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
@@ -79,13 +81,13 @@ export function RegisterForm(props: {
   const form = useForm<CreateAnnouncementSchema>({
     resolver: zodResolver(createAnnouncementSchema),
     defaultValues: {
-      paymentReceivingOption: 'PIX',
+      paymentOption: 'PIX',
     },
   })
   const handlePaymentReceivingOption = (option: 'PIX' | 'TRANSFER_BANK') => {
     setSelectedOption(option)
 
-    form.setValue('paymentReceivingOption', option)
+    form.setValue('paymentOption', option)
   }
 
   const { toast } = useToast()
@@ -93,17 +95,32 @@ export function RegisterForm(props: {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
-    // return promise that resolves after 2 seconds
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(
-          toast({
-            title: 'Registro',
-            description: `Seu ${props.title} foi registrado com sucesso.`,
-          }),
-        )
-      }, 2000)
-    })
+    try {
+      const response = await createAnnouncementRequest(data)
+
+      if (!response) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro interno',
+          description: 'Não foi possível processar a sua requisição',
+        })
+      }
+
+      if (response.statusCode === 201) {
+        toast({
+          variant: 'default',
+          title: `Seu ${props.title} foi registrado com sucesso!`,
+          description:
+            'Encaminhamos para o seu email os detalhes sobre o seu anúncio',
+        })
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro interno',
+        description: 'Não foi possível processar a sua requisição',
+      })
+    }
   }
 
   // const salePricee = handleSalePriceChange(form.watch('salePrice'))
@@ -123,6 +140,11 @@ export function RegisterForm(props: {
     console.log('Erros do formulário:', form.formState.errors)
   })
 
+  useEffect(() => {
+    // Atualiza o valor do input oculto quando props.title mudar
+    form.setValue('type', props.announcementType)
+  }, [props.announcementType, form])
+
   return (
     <div className="w-full space-x-3 flex-col">
       <Form {...form}>
@@ -130,6 +152,8 @@ export function RegisterForm(props: {
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid grid-cols-5 space-x-3 w-full"
         >
+          <input type="hidden" {...form.register('type')} value={props.title} />
+
           <Card
             className={`mt-16 ${props.show ? 'block' : 'hidden'} col-span-3`}
           >
@@ -142,7 +166,7 @@ export function RegisterForm(props: {
                 <div className="grid gap-2 col-span-3">
                   <FormField
                     control={form.control}
-                    name="fullName"
+                    name="ownerFullName"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nome Completo</FormLabel>
@@ -160,7 +184,7 @@ export function RegisterForm(props: {
                 <div className="grid gap-2 col-span-2">
                   <FormField
                     control={form.control}
-                    name="document"
+                    name="ownerDocument"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>CPF</FormLabel>
@@ -184,7 +208,7 @@ export function RegisterForm(props: {
                 <div className="ggrid gap-2 col-span-3">
                   <FormField
                     control={form.control}
-                    name="processNumber"
+                    name="lawSuit"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Número do Processo</FormLabel>
@@ -205,7 +229,7 @@ export function RegisterForm(props: {
                 <div className="grid gap-2 col-span-2">
                   <FormField
                     control={form.control}
-                    name="processOrigin"
+                    name="origin"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Origem</FormLabel>
@@ -236,7 +260,7 @@ export function RegisterForm(props: {
                   <div className="grid gap-2">
                     <FormField
                       control={form.control}
-                      name="processCourt"
+                      name="court"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Tribunal</FormLabel>
@@ -421,9 +445,6 @@ export function RegisterForm(props: {
                   <Label
                     htmlFor="pix"
                     className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${selectedOption === 'PIX' ? 'bg-gray-100' : ''}`}
-                    // onClick={() => {
-                    //   handlePaymentReceivingOption('PIX')
-                    // }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -464,9 +485,6 @@ export function RegisterForm(props: {
                   <Label
                     htmlFor="transfer_bank"
                     className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${selectedOption === 'TRANSFER_BANK' ? 'bg-gray-100' : ''}`}
-                    // onClick={() => {
-                    //   handlePaymentReceivingOption('TRANSFER_BANK')
-                    // }}
                   >
                     <Landmark className="mb-3 h-8 w-8" />
                     Transferência Bancária
@@ -478,7 +496,7 @@ export function RegisterForm(props: {
                 <div className="grid gap-2">
                   <FormField
                     control={form.control}
-                    name="key"
+                    name="pixKey"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Chave pix</FormLabel>
@@ -609,6 +627,14 @@ export function RegisterForm(props: {
           <Button type="submit" className="w-full h-12 mt-4">
             {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
           </Button>
+          <Button
+            type="submit"
+            className="w-full h-12 mt-4"
+            onClick={() => setShowFormValues(form.getValues())}
+          >
+            Show Form Values
+          </Button>
+          <pre>{JSON.stringify(showFormValues, null, 2)}</pre>
         </form>
       </Form>
     </div>

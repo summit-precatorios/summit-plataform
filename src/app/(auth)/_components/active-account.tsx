@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { activeAccount } from '@/services/auth'
+import { activeAccount } from '@/services/auth.service'
 import { ActiveAccountRequestData } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'

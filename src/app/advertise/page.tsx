@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { RegisterForm } from './_components/register-form'
 
 type AnnouncementType = {
-  label: 'RPV' | 'PRECATORIO' | null
+  label: 'RPV' | 'PRECATORIO'
   isActive: boolean
   description: string
 }
@@ -14,7 +14,7 @@ export default function Page() {
   const [announcementType, setAnnouncementType] = useState<AnnouncementType>({
     description: '',
     isActive: false,
-    label: null,
+    label: 'PRECATORIO',
   })
 
   return (
@@ -62,6 +62,7 @@ export default function Page() {
       </div>
 
       <RegisterForm
+        announcementType={announcementType.label}
         title={announcementType.label === 'RPV' ? 'RPV' : 'Precatório'}
         description={announcementType.description}
         show={announcementType.isActive}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useToast } from '@/components/ui/use-toast'
-import { signInRequest } from '@/services/auth'
+import { signInRequest } from '@/services/auth.service'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
 import { destroyCookie, parseCookies, setCookie } from 'nookies'

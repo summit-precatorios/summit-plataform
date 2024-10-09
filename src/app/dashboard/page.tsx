@@ -65,7 +65,7 @@ export default function Dashboard() {
                       <CardTitle className="text-2xl font-bold">
                         Aguardando Aprovação
                       </CardTitle>
-                      1
+                      {orders.length}
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm font-medium mb-4">
@@ -78,6 +78,9 @@ export default function Dashboard() {
                   </Card>
                 </div>
               </TabsContent>
+              <Button asChild className="mt-10 py-6 px-8">
+                <Link href="/advertise">Criar novo Anúncio</Link>
+              </Button>
             </Tabs>
           ) : (
             <div className="flex flex-col justify-center items-center h-full">
