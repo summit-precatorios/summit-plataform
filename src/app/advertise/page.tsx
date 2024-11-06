@@ -1,13 +1,24 @@
 'use client'
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { RegisterForm } from './_components/register-form'
+import { AuthContext } from '@/contexts/AuthContext'
 
 type AnnouncementType = {
   label: 'RPV' | 'PRECATORIO'
   isActive: boolean
   description: string
+}
+
+const ProtectedResource = () => {
+  const { user } = useContext(AuthContext)
+
+  if (!user || !user.roles.includes('commom-user')) {
+    return <div>É necessário ter a conta ativada para poder anunciar.</div>
+  }
+
+  return <div>Bem-vindo ao recurso protegido!</div>
 }
 
 export default function Page() {

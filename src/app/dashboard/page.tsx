@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [orders, setOrders] = useState<Array<any>>([])
 
   useEffect(() => {
-    setOrders([])
+    setOrders([{}])
   }, [])
 
   if (!isAuthenticated)

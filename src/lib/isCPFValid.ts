@@ -1,8 +1,8 @@
 /**
  * Valida se um CPF (documento) é válido.
  *
- * @param cpf - String contendo o CPF a ser validado, com ou sem formatação.
- * @returns Retorna true se o CPF for válido, caso contrário, false.
+ * @param {string} cpf - String contendo o CPF a ser validado, com ou sem formatação.
+ * @returns {boolean} Retorna true se o valor informado  for um CPF válido ou falso caso contrário.
  */
 export function isCPFValid(cpf: string): boolean {
   // Verifica se o parâmetro é uma string

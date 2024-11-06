@@ -21,7 +21,7 @@ export default function Page() {
               className="inline-block mb-8"
             />
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Descubra a maneira mais simples de localizar, adquirir ou negociar
+              Descubra a maneira mais simples de localizar, adquirir ou vender
               seus precatórios.
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600">

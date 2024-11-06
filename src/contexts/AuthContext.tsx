@@ -11,12 +11,13 @@ interface AuthContextProps {
   children: ReactNode
 }
 
-type User = {
+interface User {
   name: string
   email: string
-  image: string
+  image: string | null
   document: string
   isActive: boolean
+  roles: string[]
 }
 
 export type SignInData = {
@@ -70,9 +71,18 @@ export function AuthProvider({ children }: AuthContextProps) {
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tokenDecoded: any = jwtDecode(token as string)
+      const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
+        token as string,
+      )
 
-      setUser(tokenDecoded.payload)
+      const { payload, roles } = tokenDecoded
+
+      const data: User = {
+        ...payload,
+        roles,
+      }
+
+      setUser(data)
 
       router.push('/dashboard')
     } catch (error) {
@@ -97,9 +107,18 @@ export function AuthProvider({ children }: AuthContextProps) {
 
     if (token) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tokenDecoded: any = jwtDecode(token as string)
+      const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
+        token as string,
+      )
 
-      setUser(tokenDecoded.payload)
+      const { payload, roles } = tokenDecoded
+
+      const data: User = {
+        ...payload,
+        roles,
+      }
+
+      setUser(data)
 
       router.push('/dashboard')
     }

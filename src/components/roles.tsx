@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { AuthContext } from '@/contexts/AuthContext'
 import { ReactNode, useContext } from 'react'
 
