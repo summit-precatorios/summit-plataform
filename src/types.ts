@@ -18,6 +18,10 @@ export type ActiveAccountRequestData = {
   token: string | string[]
 }
 
+export type VerifyAccountRequestData = {
+  document: string
+}
+
 export type PaymentMethod = 'PIX' | 'TRANSFER_BANK'
 
 export type CreateAnnouncementRequestData = {

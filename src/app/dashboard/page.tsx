@@ -2,16 +2,19 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useToast } from '@/components/ui/use-toast'
 import { AuthContext } from '@/contexts/AuthContext'
+import { verifyAccountByDocument } from '@/services/auth.service'
 import { Tabs, TabsContent } from '@radix-ui/react-tabs'
 import { CircleOff } from 'lucide-react'
 import Link from 'next/link'
 import { useContext, useEffect, useState } from 'react'
 
 export default function Dashboard() {
-  const { isAuthenticated } = useContext(AuthContext)
+  const { user } = useContext(AuthContext)
+  const { toast } = useToast()
 
-  // TODO Elaborar verificação de precatórios cadastrados
+  // TODO Elaborar verificação de pr  ecatórios cadastrados
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [orders, setOrders] = useState<Array<any>>([])
 
@@ -19,14 +22,42 @@ export default function Dashboard() {
     setOrders([{}])
   }, [])
 
-  if (!isAuthenticated)
+  async function handleClick(document: string) {
+    const response = await verifyAccountByDocument({ document })
+
+    console.log(await response)
+
+    if (!response) {
+      if (!response) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro interno',
+          description: 'Não foi possível processar a sua requisição',
+        })
+      }
+    }
+
+    if (response.statusCode === 201) {
+      toast({
+        variant: 'default',
+        title: 'Verificação da conta',
+        description:
+          'Encaminhamos para o seu email um link para a ativação da sua conta',
+      })
+    }
+  }
+
+  if (!user?.roles.includes('common-user'))
     return (
       <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
         <h1 className="text-xl">
-          Você precisa estar autenticado para acessar esta página.
+          Para anunciar seu precatório ou RPV, é necessário que sua conta esteja
+          ativada.
         </h1>
         <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
-          <Link href="/signin">Entrar</Link>
+          <Link href="#" onClick={() => handleClick(user!.document)}>
+            Ativar conta
+          </Link>
         </Button>
       </div>
     )

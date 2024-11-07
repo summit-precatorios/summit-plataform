@@ -7,13 +7,13 @@ export function middleware(request: NextRequest) {
 
   const isProtectedRoutes = protectedRoutes.includes(request.nextUrl.pathname)
 
-  // if (isProtectedRoutes && !authenticationToken) {
-  //   const SIGNIN_BASE_URL = new URL('/signin', request.url)
+  if (isProtectedRoutes && !authenticationToken) {
+    const SIGNIN_BASE_URL = new URL('/signin', request.url)
 
-  //   SIGNIN_BASE_URL.searchParams.set('unauthorized', 'true')
+    SIGNIN_BASE_URL.searchParams.set('unauthorized', 'true')
 
-  //   return NextResponse.redirect(SIGNIN_BASE_URL)
-  // }
+    return NextResponse.redirect(SIGNIN_BASE_URL)
+  }
 
   return NextResponse.next()
 }

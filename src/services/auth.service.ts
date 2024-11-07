@@ -4,6 +4,7 @@ import {
   ForgotPasswordRequestData,
   RegisterRequestData,
   SignInRequestData,
+  VerifyAccountRequestData,
 } from '@/types'
 
 export async function signInRequest({ document, password }: SignInRequestData) {
@@ -48,6 +49,19 @@ export async function forgotPassword(data: ForgotPasswordRequestData) {
 export async function activeAccount(data: ActiveAccountRequestData) {
   try {
     return await api('auth/active/account', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': `${process.env.API_KEY}`,
+      },
+      body: JSON.stringify(data, null, 2),
+    })
+  } catch (error) {}
+}
+
+export async function verifyAccountByDocument(data: VerifyAccountRequestData) {
+  try {
+    return await api('auth/verify/account', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
