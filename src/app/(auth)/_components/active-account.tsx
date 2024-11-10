@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button'
+import { AuthContext } from '@/contexts/AuthContext'
 import { activeAccount } from '@/services/auth.service'
 import { ActiveAccountRequestData } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 
 export function ActiveAccount({
   params,
@@ -13,6 +14,8 @@ export function ActiveAccount({
   useEffect(() => {
     onInit()
   })
+
+  const { logout } = useContext(AuthContext)
 
   async function onInit() {
     const data: ActiveAccountRequestData = {
@@ -30,6 +33,8 @@ export function ActiveAccount({
       throw new Error(
         'Ocorreu um erro na ativação da sua conta! Por favor tente mais tarde',
       )
+
+    await logout()
   }
 
   return (
