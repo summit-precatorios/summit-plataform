@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
 import { AuthContext } from '@/contexts/AuthContext'
 import { verifyAccountByDocument } from '@/services/auth.service'
+import { getAnnouncementsByUserDocument } from '@/services/user.service'
 import { Tabs, TabsContent } from '@radix-ui/react-tabs'
 import { CircleOff } from 'lucide-react'
 import Link from 'next/link'
@@ -19,10 +20,26 @@ export default function Dashboard() {
   const [orders, setOrders] = useState<Array<any>>([])
   const [hasAccess, setHasAccess] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    setOrders([])
-  }, [])
+    // Função para buscar dados da API
+    const fetchData = async () => {
+      try {
+        setLoading(true) // Inicia o carregamento
+        const response = await getAnnouncementsByUserDocument(user!.document) // URL da API
+        const data = response
+
+        // Converte a resposta em JSON
+        setOrders(data) // Define os dados recebidos no estado
+      } catch (error) {
+      } finally {
+        setLoading(false) // Termina o carregamento
+      }
+    }
+
+    if (user) fetchData()
+  }, [user])
 
   useEffect(() => {
     if (user?.roles.includes('common-user')) {
@@ -81,6 +98,7 @@ export default function Dashboard() {
       </div>
     )
   } else {
+    if (loading) return <p>Carregando...</p>
     return (
       <>
         <div className="hidden flex-col md:flex">
@@ -98,7 +116,13 @@ export default function Dashboard() {
                         <CardTitle className="text-2xl font-bold">
                           Publicados
                         </CardTitle>
-                        0
+                        <span>
+                          {
+                            orders.filter(
+                              (order) => order.status === 'published',
+                            ).length
+                          }
+                        </span>
                       </CardHeader>
                       <CardContent>
                         <div className="text-sm font-medium mb-4">

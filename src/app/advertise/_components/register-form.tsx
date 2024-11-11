@@ -94,6 +94,7 @@ export function RegisterForm(props: {
   // ! definir formState baseado no  schema do formulário
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
     try {
       const response = await createAnnouncementRequest(data)
@@ -135,10 +136,6 @@ export function RegisterForm(props: {
     const newCalculatedBalance = handleSalePriceChange(salePrice)
     form.setValue('liquidBalance', newCalculatedBalance)
   }, [salePrice, form])
-
-  useEffect(() => {
-    console.log('Erros do formulário:', form.formState.errors)
-  })
 
   useEffect(() => {
     // Atualiza o valor do input oculto quando props.title mudar
