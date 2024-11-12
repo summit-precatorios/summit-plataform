@@ -1,11 +1,13 @@
 import { api } from '@/lib/api'
 import { CreateAnnouncementRequestData } from '@/types'
-import Cookies from 'js-cookie'
+
+import { cookies } from 'next/headers'
 
 export async function createAnnouncementRequest(
   data: CreateAnnouncementRequestData,
 ) {
-  const token = Cookies.get('summit.token')
+  const cookieStore = cookies()
+  const token = cookieStore.get('summit.token')
 
   try {
     console.log(token)

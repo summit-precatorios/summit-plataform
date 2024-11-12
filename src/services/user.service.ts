@@ -1,7 +1,6 @@
-import { jwtDecode } from 'jwt-decode'
-
-import Cookies from 'js-cookie'
 import { api } from '@/lib/api'
+import { jwtDecode } from 'jwt-decode'
+import { cookies } from 'next/headers'
 
 export async function getCurrentUser(token?: string) {
   if (token) {
@@ -13,7 +12,8 @@ export async function getCurrentUser(token?: string) {
 }
 
 export async function getAnnouncementsByUserDocument(document: string) {
-  const token = Cookies.get('summit.token')
+  const cookieStore = cookies()
+  const token = cookieStore.get('summit.token')
 
   try {
     return await api(`user/announcements/${document}`, {
