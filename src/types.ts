@@ -41,3 +41,5 @@ export type CreateAnnouncementRequestData = {
   bankAccount?: string | undefined
   agencyBankAccount?: string | undefined
 }
+
+export type Permission = string

@@ -120,7 +120,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       setUser(data)
 
-      // router.push('/dashboard')
+      router.push('/dashboard')
     }
   }, [router])
 
