@@ -1,18 +1,36 @@
-import PermissionContext from '@/contexts/PermissionContext'
+import { Button } from '@/components/ui/button'
+import usePermission from '@/hooks/usePermission'
+
 import { Permission } from '@/types'
-import { ReactNode, useContext } from 'react'
+import Link from 'next/link'
+import { ReactNode } from 'react'
 
 type Props = {
   to: Permission
   children: ReactNode
 }
 
-export async function Restricted({ to, children }: Props) {
-  const { isAllowedTo } = useContext(PermissionContext)
+export function Restricted({ to, children }: Props) {
+  const [loading, allowed] = usePermission(to)
 
-  if (await isAllowedTo(to)) return <>{children}</>
+  if (loading) return <h2>loading...</h2>
 
-  return null
+  if (allowed) return { children }
+
+  return (
+    <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
+      <h1 className="text-xl">
+        Para anunciar seu precatório ou RPV, é necessário que sua conta esteja
+        ativada.
+      </h1>
+      <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
+        <Link href="#" /** onClick={ () => handleClick(user!.document)} */>
+          {/* {isLoading ? 'Ativando conta...' : 'Ativa conta'} */}
+          Ativar conta
+        </Link>
+      </Button>
+    </div>
+  )
 }
 
 export default Restricted

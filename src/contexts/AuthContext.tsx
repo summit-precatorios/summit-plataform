@@ -2,6 +2,7 @@
 
 import { useToast } from '@/components/ui/use-toast'
 import { signInRequest } from '@/services/auth.service'
+import { User } from '@/types'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
@@ -9,15 +10,6 @@ import { ReactNode, createContext, useEffect, useState } from 'react'
 
 interface AuthContextProps {
   children: ReactNode
-}
-
-interface User {
-  name: string
-  email: string
-  image: string | null
-  document: string
-  isActive: boolean
-  roles: string[]
 }
 
 export type SignInData = {

@@ -11,7 +11,7 @@ type PermissionCache = {
   [key: string]: boolean
 }
 
-export function PermissionProvider({ children, fetchPermission }: Props) {
+export async function PermissionProvider({ children, fetchPermission }: Props) {
   const cache: PermissionCache = {}
 
   const isAllowedTo = async (permission: Permission): Promise<boolean> => {
