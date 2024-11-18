@@ -18,16 +18,16 @@ export default function Dashboard() {
   const [orders, setOrders] = useState<Array<any>>([])
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getAnnouncementsByUserDocument(user!.document)
-        const data = response
+    async function fetchOrders() {
 
-        setOrders(data)
-      } catch (error) {}
+      const response = await getAnnouncementsByUserDocument(user!.document)
+      const data = await response.json()
+
+      console.log(data)
+      setOrders(data)
     }
 
-    if (user) fetchData()
+    if (user) fetchOrders()
   }, [user])
 
   return (
