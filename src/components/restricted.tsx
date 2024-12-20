@@ -1,15 +1,14 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import usePermission from '@/hooks/usePermission'
 
 import { Permission } from '@/types'
-import Link from 'next/link'
 import { ReactNode } from 'react'
 
 type Props = {
   to: Permission
   children: ReactNode
+  fallback?: JSX.Element | string
 }
 
 /**
@@ -59,27 +58,16 @@ type Props = {
  * - Explicação detalhada da implementação: [How to conditionally render React UI based on user permissions](https://medium.com/geekculture/how-to-conditionally-render-react-ui-based-on-user-permissions-7b9a1c73ffe2)
  */
 
-export function Restricted({ to, children }: Props) {
+export function Restricted({ to, children, fallback }: Props) {
   const [loading, allowed] = usePermission(to)
 
-  // return
-
-  if (loading) return <h2>loading...</h2>
-
+  if (loading)
+    return (
+      <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
+        <h1 className="text-xl">Carregando...</h1>
+      </div>
+    )
   if (allowed) return <>{children}</>
 
-  return (
-    <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
-      <h1 className="text-xl">
-        Para anunciar seu precatório ou RPV, é necessário que sua conta esteja
-        ativada.
-      </h1>
-      <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
-        <Link href="#" /** onClick={ () => handleClick(user!.document)} */>
-          {/* {isLoading ? 'Ativando conta...' : 'Ativa conta'} */}
-          Ativar conta
-        </Link>
-      </Button>
-    </div>
-  )
+  return <>{fallback}</>
 }

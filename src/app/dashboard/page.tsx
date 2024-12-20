@@ -4,14 +4,31 @@ import { Restricted } from '@/components/restricted'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthContext } from '@/contexts/AuthContext'
+import PermissionContext from '@/contexts/PermissionContext'
 import { getAnnouncementsByUserDocument } from '@/services/user.service'
 import { Tabs, TabsContent } from '@radix-ui/react-tabs'
 import { CircleOff } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+
+const notAllowed = (
+  <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
+    <h1 className="text-xl">
+      Para anunciar seu precatório ou RPV, é necessário que sua conta esteja
+      ativada.
+    </h1>
+    <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
+      <Link href="#" /** onClick={ () => handleClick(user!.document)} */>
+        {/* {isLoading ? 'Ativando conta...' : 'Ativa conta'} */}
+        Ativar conta
+      </Link>
+    </Button>
+  </div>
+)
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext)
+  const { isAllowedTo } = useContext(PermissionContext)
 
   // TODO Elaborar verificação de pr  ecatórios cadastrados
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,19 +36,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchOrders() {
-      const response = await getAnnouncementsByUserDocument(user!.document)
-      const data = await response.json()
+      if (await isAllowedTo('common-user')) {
+        const response = await getAnnouncementsByUserDocument(user!.document)
 
-      console.log(data)
-      setOrders(data)
+        setOrders(response)
+      }
     }
 
     if (user) fetchOrders()
   }, [user])
 
   return (
-    <Suspense fallback={<h2>loading...</h2>}>
-      <Restricted to="common-user">
+    <>
+      <Restricted to="common-user" fallback={notAllowed}>
         <div className="hidden flex-col md:flex">
           <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2 mb-36">
@@ -83,6 +100,9 @@ export default function Dashboard() {
                     </Card>
                   </div>
                 </TabsContent>
+                {/* <Restricted to="common-user">
+                <h1>Com permissão</h1>
+              </Restricted> */}
                 <Button asChild className="mt-10 py-6 px-8">
                   <Link href="/advertise">Criar novo Anúncio</Link>
                 </Button>
@@ -102,6 +122,6 @@ export default function Dashboard() {
           </div>
         </div>
       </Restricted>
-    </Suspense>
+    </>
   )
 }
