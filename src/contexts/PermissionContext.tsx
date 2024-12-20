@@ -1,8 +1,10 @@
+'use client'
+
 import { Permission } from '@/types'
 import { createContext } from 'react'
 
 type PermissionContextType = {
-  isAllowedTo: (permissiona: Permission) => Promise<boolean>
+  isAllowedTo: (permission: Permission) => Promise<boolean>
 }
 
 const defaultBehavior: PermissionContextType = {

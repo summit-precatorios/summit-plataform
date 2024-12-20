@@ -1,6 +1,6 @@
 'use client'
 
-import Restricted from '@/components/restricted'
+import { Restricted } from '@/components/restricted'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthContext } from '@/contexts/AuthContext'
@@ -19,7 +19,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchOrders() {
-
       const response = await getAnnouncementsByUserDocument(user!.document)
       const data = await response.json()
 

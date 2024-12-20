@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import usePermission from '@/hooks/usePermission'
 
@@ -60,6 +62,8 @@ type Props = {
 export function Restricted({ to, children }: Props) {
   const [loading, allowed] = usePermission(to)
 
+  // return
+
   if (loading) return <h2>loading...</h2>
 
   if (allowed) return <>{children}</>
@@ -79,5 +83,3 @@ export function Restricted({ to, children }: Props) {
     </div>
   )
 }
-
-export default Restricted

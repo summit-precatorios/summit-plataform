@@ -1,9 +1,11 @@
+'use client'
+
+import { AuthContext } from '@/contexts/AuthContext'
 import PermissionContext from '@/contexts/PermissionContext'
 import { Permission } from '@/types'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useContext } from 'react'
 
 type Props = {
-  fetchPermission: (permission: Permission) => Promise<boolean>
   children: ReactNode
 }
 
@@ -11,8 +13,16 @@ type PermissionCache = {
   [key: string]: boolean
 }
 
-export async function PermissionProvider({ children, fetchPermission }: Props) {
+export function PermissionProvider({ children }: Props) {
+  const { user } = useContext(AuthContext)
+
   const cache: PermissionCache = {}
+
+  const fetchPermission = async (permission: Permission) => {
+    if (!user) return false
+
+    return user.roles.includes(permission)
+  }
 
   const isAllowedTo = async (permission: Permission): Promise<boolean> => {
     if (Object.keys(cache).includes(permission)) return cache[permission]

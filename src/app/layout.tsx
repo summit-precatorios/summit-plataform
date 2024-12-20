@@ -1,9 +1,9 @@
-import { PermissionWrapper } from '@/components/permission-wrapper'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { fonts } from './fonts'
 import './globals.css'
 import { Header } from './header'
+import { PermissionProvider } from '@/providers/PermissionProvider'
 
 export default function RootLayout({
   children,
@@ -20,7 +20,7 @@ export default function RootLayout({
         <Toaster />
         <AuthProvider>
           <Header />
-          <PermissionWrapper>{children}</PermissionWrapper>
+          <PermissionProvider>{children}</PermissionProvider>
         </AuthProvider>
       </body>
     </html>

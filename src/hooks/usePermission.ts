@@ -1,6 +1,8 @@
+'use client'
+
 import PermissionContext from '@/contexts/PermissionContext'
 import { Permission } from '@/types'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 const usePermission = (permission: Permission) => {
   const [loading, setLoading] = useState(true)
@@ -8,10 +10,13 @@ const usePermission = (permission: Permission) => {
 
   const { isAllowedTo } = useContext(PermissionContext)
 
-  isAllowedTo(permission).then((allowed) => {
-    setLoading(false)
-    setAllowed(allowed)
-  })
+  useEffect(() => {
+    isAllowedTo(permission).then((allowed) => {
+      setLoading(false)
+      setAllowed(allowed)
+    })
+  }, [])
+
   return [loading, allowed]
 }
 
