@@ -11,20 +11,9 @@ import { CircleOff } from 'lucide-react'
 import Link from 'next/link'
 import { useContext, useEffect, useState } from 'react'
 
-const notAllowed = (
-  <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
-    <h1 className="text-xl">
-      Para anunciar seu precatório ou RPV, é necessário que sua conta esteja
-      ativada.
-    </h1>
-    <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
-      <Link href="#" /** onClick={ () => handleClick(user!.document)} */>
-        {/* {isLoading ? 'Ativando conta...' : 'Ativa conta'} */}
-        Ativar conta
-      </Link>
-    </Button>
-  </div>
-)
+function handleClick(document: string) {
+  alert(document)
+}
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext)
@@ -33,6 +22,21 @@ export default function Dashboard() {
   // TODO Elaborar verificação de pr  ecatórios cadastrados
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [orders, setOrders] = useState<Array<any>>([])
+
+  const notAllowed = (
+    <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
+      <h1 className="text-xl">
+        Para anunciar seu precatório ou RPV, é necessário que sua conta esteja
+        ativada.
+      </h1>
+      <Button variant={'default'} asChild className="mt-10 max-sm:w-full">
+        <Link href="#" onClick={() => handleClick(user!.document)}>
+          {/* {isLoading ? 'Ativando conta...' : 'Ativa conta'} */}
+          Ativar conta
+        </Link>
+      </Button>
+    </div>
+  )
 
   useEffect(() => {
     async function fetchOrders() {

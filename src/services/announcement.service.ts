@@ -10,7 +10,6 @@ export async function createAnnouncementRequest(
   const token = Cookies.get('summit.token')
 
   try {
-    console.log(token)
     return await api('announcement', {
       method: 'POST',
       headers: {
