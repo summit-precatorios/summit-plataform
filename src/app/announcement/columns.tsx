@@ -14,6 +14,9 @@ import { MoreHorizontal } from 'lucide-react'
 
 export const columns: ColumnDef<Announcement>[] = [
   {
+    accessorKey: 'id',
+  },
+  {
     accessorKey: 'lawSuit',
     header: 'Número do Processo',
   },
@@ -38,8 +41,6 @@ export const columns: ColumnDef<Announcement>[] = [
     header: 'Opções',
     enableHiding: true,
     cell: ({ row }) => {
-      //   const announcement = row.original
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -56,11 +57,13 @@ export const columns: ColumnDef<Announcement>[] = [
               Copy payment ID
             </DropdownMenuItem> */}
             {/* <DropdownMenuSeparator /> */}
-            <DropdownMenuItem onClick={() => alert(row.getValue('lawSuit'))}>
-              Ver detalhes do Anúncio
-            </DropdownMenuItem>
-
             <Restricted to="common-user">
+              <DropdownMenuItem onClick={() => alert(row.getValue('id'))}>
+                Ver detalhes do Anúncio
+              </DropdownMenuItem>
+            </Restricted>
+
+            <Restricted to="admin-user">
               <DropdownMenuItem onClick={() => alert('Anúncio Aprovado')}>
                 Aprovar Anúncio
               </DropdownMenuItem>

@@ -51,13 +51,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchOrders() {
-      if (await isAllowedTo('common-user')) {
-        const response = await getAnnouncementsByUserDocument(user!.document)
+      const response = await getAnnouncementsByUserDocument(user!.document)
 
-        setOrders(response)
+      setOrders(response)
 
-        console.log(response)
-      }
+      console.log(response)
     }
 
     if (user) fetchOrders()

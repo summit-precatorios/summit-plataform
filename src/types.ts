@@ -43,6 +43,7 @@ export type CreateAnnouncementRequestData = {
 }
 
 export type Announcement = {
+  id: string
   type: string
   ownerFullName: string
   ownerDocument: string
