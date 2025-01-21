@@ -1,13 +1,11 @@
 'use client'
-import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import * as React from 'react'
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onValueChange?: any
 }
 
 const InputCurrency = React.forwardRef<HTMLInputElement, InputProps>(

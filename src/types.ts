@@ -42,6 +42,19 @@ export type CreateAnnouncementRequestData = {
   agencyBankAccount?: string | undefined
 }
 
+export type Announcement = {
+  type: string
+  ownerFullName: string
+  ownerDocument: string
+  lawSuit: string
+  origin: string
+  court: string
+  price: string
+  salePrice: string
+  liquidBalance: string
+  paymentOption: PaymentMethod
+}
+
 export type Permission = string
 
 export type User = {

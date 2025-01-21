@@ -17,7 +17,9 @@ export async function signInRequest({ document, password }: SignInRequestData) {
       },
       body: JSON.stringify({ document, password }, null, 2),
     })
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_fetching_data', error)
+  }
 }
 
 export async function registerRequest(data: RegisterRequestData) {
@@ -48,14 +50,17 @@ export async function forgotPassword(data: ForgotPasswordRequestData) {
 
 export async function activeAccount(data: ActiveAccountRequestData) {
   try {
-    return await api('auth/active/account', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`,
+    return await api<{ message: string; error: string; statusCode: number }>(
+      'auth/active/account',
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': `${process.env.API_KEY}`,
+        },
+        body: JSON.stringify(data, null, 2),
       },
-      body: JSON.stringify(data, null, 2),
-    })
+    )
   } catch (error) {}
 }
 

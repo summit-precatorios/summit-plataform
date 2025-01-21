@@ -64,7 +64,7 @@ export function Restricted({ to, children, fallback }: Props) {
   if (loading)
     return (
       <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
-        <h1 className="text-xl">Carregando...</h1>
+        {/* <h1 className="text-xl">Carregando...</h1> */}
       </div>
     )
   if (allowed) return <>{children}</>

@@ -33,6 +33,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 
 import { CircleHelp, Landmark } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -91,6 +92,7 @@ export function RegisterForm(props: {
   }
 
   const { toast } = useToast()
+  const router = useRouter()
   // ! definir formState baseado no  schema do formulário
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,6 +116,9 @@ export function RegisterForm(props: {
           description:
             'Encaminhamos para o seu email os detalhes sobre o seu anúncio',
         })
+
+        form.reset()
+        router.push('/dashboard')
       }
     } catch (error) {
       toast({

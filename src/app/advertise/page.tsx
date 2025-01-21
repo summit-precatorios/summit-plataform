@@ -20,7 +20,7 @@ export default function Page() {
   return (
     <div className="flex flex-col justify-start max-w-7xl mx-auto mt-20 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
       <h1 className="text-3xl font-semibold mb-4">
-        Olá, o que você quer anunciar?
+        Olá, o que você gostaria de anunciar?
       </h1>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 mt-3">
         <Card

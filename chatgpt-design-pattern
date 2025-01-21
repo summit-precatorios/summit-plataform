@@ -1,0 +1,247 @@
+Integrar o *Strategy Pattern* com outros padrões como *Factory* e *Dependency Injection (DI)* torna o código mais flexível, escalável e alinhado com boas práticas, especialmente em aplicações maiores.
+
+Aqui está uma abordagem detalhada:
+
+---
+
+## *1. Integração com o Factory Pattern*
+
+O *Factory Pattern* ajuda a abstrair a criação das estratégias. Em vez de usar um switch diretamente no serviço, podemos delegar a responsabilidade de criação para uma fábrica.
+
+### Implementação com Factory
+
+typescript
+// Strategy Interface
+interface PostFilterStrategy {
+  getFilter(userId: string): object;
+}
+
+// Concrete Strategies
+class AdminPostFilterStrategy implements PostFilterStrategy {
+  getFilter(): object {
+    return {}; // Admin pode ver todos os posts
+  }
+}
+
+class EditorPostFilterStrategy implements PostFilterStrategy {
+  getFilter(userId: string): object {
+    return { authorId: userId }; // Editor pode ver apenas seus posts
+  }
+}
+
+class ViewerPostFilterStrategy implements PostFilterStrategy {
+  getFilter(): object {
+    return { published: true }; // Viewer pode ver apenas posts publicados
+  }
+}
+
+// Factory: Cria a estratégia com base no perfil
+class PostFilterStrategyFactory {
+  static createStrategy(profile: string): PostFilterStrategy {
+    switch (profile) {
+      case 'admin':
+        return new AdminPostFilterStrategy();
+      case 'editor':
+        return new EditorPostFilterStrategy();
+      case 'viewer':
+        return new ViewerPostFilterStrategy();
+      default:
+        throw new Error('Perfil do usuário desconhecido');
+    }
+  }
+}
+
+// Service: Buscar posts com base no perfil
+async function fetchPostsByUser(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { profile: true },
+  });
+
+  if (!user) {
+    throw new Error('Usuário não encontrado');
+  }
+
+  // Usar a fábrica para criar a estratégia
+  const strategy = PostFilterStrategyFactory.createStrategy(user.profile);
+
+  // Obter o filtro e buscar os posts
+  const filter = strategy.getFilter(userId);
+  return prisma.post.findMany({ where: filter });
+}
+
+
+### Benefícios do Factory Pattern
+- *Responsabilidade Única*: O serviço não precisa conhecer detalhes sobre como as estratégias são criadas.
+- *Manutenção Simplificada*: Adicionar uma nova estratégia só requer uma alteração no Factory.
+
+---
+
+## *2. Integração com Dependency Injection (DI)*
+
+Em sistemas como o *NestJS, podemos usar **Dependency Injection* para gerenciar a criação das estratégias e da fábrica. Isso facilita a testabilidade e permite configurar as dependências via inversão de controle.
+
+### Refatoração com DI no NestJS
+
+typescript
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+
+// Strategy Interface
+export interface PostFilterStrategy {
+  getFilter(userId: string): object;
+}
+
+// Concrete Strategies
+@Injectable()
+class AdminPostFilterStrategy implements PostFilterStrategy {
+  getFilter(): object {
+    return {}; // Admin pode ver todos os posts
+  }
+}
+
+@Injectable()
+class EditorPostFilterStrategy implements PostFilterStrategy {
+  getFilter(userId: string): object {
+    return { authorId: userId }; // Editor pode ver apenas seus posts
+  }
+}
+
+@Injectable()
+class ViewerPostFilterStrategy implements PostFilterStrategy {
+  getFilter(): object {
+    return { published: true }; // Viewer pode ver apenas posts publicados
+  }
+}
+
+// Factory Provider
+@Injectable()
+class PostFilterStrategyFactory {
+  constructor(
+    private readonly adminStrategy: AdminPostFilterStrategy,
+    private readonly editorStrategy: EditorPostFilterStrategy,
+    private readonly viewerStrategy: ViewerPostFilterStrategy,
+  ) {}
+
+  createStrategy(profile: string): PostFilterStrategy {
+    switch (profile) {
+      case 'admin':
+        return this.adminStrategy;
+      case 'editor':
+        return this.editorStrategy;
+      case 'viewer':
+        return this.viewerStrategy;
+      default:
+        throw new Error('Perfil do usuário desconhecido');
+    }
+  }
+}
+
+// Service Layer
+@Injectable()
+class PostService {
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly strategyFactory: PostFilterStrategyFactory,
+  ) {}
+
+  async fetchPostsByUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { profile: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    // Criar a estratégia via DI e fábrica
+    const strategy = this.strategyFactory.createStrategy(user.profile);
+
+    // Obter o filtro e buscar os posts
+    const filter = strategy.getFilter(userId);
+    return this.prisma.post.findMany({ where: filter });
+  }
+}
+
+// Module Registration
+import { Module } from '@nestjs/common';
+
+@Module({
+  providers: [
+    AdminPostFilterStrategy,
+    EditorPostFilterStrategy,
+    ViewerPostFilterStrategy,
+    PostFilterStrategyFactory,
+    PostService,
+  ],
+  exports: [PostService],
+})
+class PostModule {}
+
+
+### Como funciona no NestJS?
+1. *Injeção das Estratégias*:
+   - As estratégias são registradas no módulo e injetadas na fábrica pelo framework.
+   - O NestJS gerencia o ciclo de vida das dependências.
+
+2. *Uso da Fábrica*:
+   - O serviço (PostService) solicita à fábrica a criação da estratégia apropriada com base no perfil do usuário.
+
+3. *Lógica Encapsulada*:
+   - O serviço apenas chama a estratégia fornecida pela fábrica, mantendo o código limpo e desacoplado.
+
+---
+
+## *Benefícios da Integração*
+
+### Com Factory
+- Centraliza a lógica de criação das estratégias.
+- Facilita o uso em diferentes partes do sistema.
+
+### Com DI
+- *Testabilidade*: Permite mockar estratégias e a fábrica durante os testes.
+- *Flexibilidade*: Facilita substituir ou modificar dependências.
+- *Escalabilidade*: Ideal para sistemas grandes, onde múltiplas estratégias podem ter dependências complexas.
+
+---
+
+### Cenário de Testes
+
+Com DI, você pode facilmente testar o serviço simulando a fábrica e as estratégias:
+
+typescript
+import { Test, TestingModule } from '@nestjs/testing';
+
+describe('PostService', () => {
+  let postService: PostService;
+  let strategyFactoryMock: PostFilterStrategyFactory;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PostService,
+        {
+          provide: PostFilterStrategyFactory,
+          useValue: {
+            createStrategy: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    postService = module.get<PostService>(PostService);
+    strategyFactoryMock = module.get<PostFilterStrategyFactory>(PostFilterStrategyFactory);
+  });
+
+  it('should fetch posts for admin', async () => {
+    const mockStrategy = { getFilter: jest.fn().mockReturnValue({}) };
+    jest.spyOn(strategyFactoryMock, 'createStrategy').mockReturnValue(mockStrategy);
+
+    await postService.fetchPostsByUser('123');
+    expect(strategyFactoryMock.createStrategy).toHaveBeenCalledWith('admin');
+    expect(mockStrategy.getFilter).toHaveBeenCalled();
+  });
+});
+
+
+Combinando *Strategy, **Factory* e *DI*, você terá um sistema robusto, flexível e pronto para crescer sem comprometer a manutenibilidade.

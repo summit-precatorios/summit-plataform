@@ -150,9 +150,11 @@ export function Header() {
         </nav>
       </header>
 
-      <div className="container bg-red-400 rounded-sm p-6 flex justify-center items-center m-auto">
-        <h1 className="text-white text-lg">Ambiente de Homologação</h1>
-      </div>
+      {/* {process.env.NEXT_PUBLIC_APP_ENV !== 'production' ? (
+        <div className="container bg-red-400 rounded-sm p-6 flex justify-center items-center m-auto">
+          <h1 className="text-white text-lg">Ambiente de Homologação</h1>
+        </div>
+      ) : null} */}
     </>
   )
 
