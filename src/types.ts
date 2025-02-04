@@ -66,3 +66,9 @@ export type User = {
   isActive: boolean
   roles: string[]
 }
+
+export enum Role {
+  User = 'common-user',
+  Admin = 'admin-user',
+  AccountActivator = 'account-activator',
+}

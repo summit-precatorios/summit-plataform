@@ -15,7 +15,7 @@ const usePermission = (permission: Permission) => {
       setLoading(false)
       setAllowed(allowed)
     })
-  }, [isAllowedTo])
+  }, [isAllowedTo, permission])
 
   return [loading, allowed]
 }

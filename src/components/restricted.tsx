@@ -24,7 +24,6 @@ type Props = {
  * @param {ReactNode} props.children - O conteúdo a ser exibido caso o acesso seja permitido.
  *
  * @returns {JSX.Element}
- * Retorna:
  * - Um componente de carregamento (`<h2>loading...</h2>`) enquanto verifica as permissões.
  * - O conteúdo filho (`children`) se o usuário tiver permissão.
  * - Um aviso e um botão para ativar a conta se o acesso for negado.
@@ -58,15 +57,9 @@ type Props = {
  * - Explicação detalhada da implementação: [How to conditionally render React UI based on user permissions](https://medium.com/geekculture/how-to-conditionally-render-react-ui-based-on-user-permissions-7b9a1c73ffe2)
  */
 
-export function Restricted({ to, children, fallback }: Props) {
-  const [loading, allowed] = usePermission(to)
+export function Restricted({ to, children, fallback }: Props): JSX.Element {
+  const [allowed] = usePermission(to)
 
-  if (loading)
-    return (
-      <div className="text-center h-96 mt-10 m-auto max-sm:p-4 w-4/5">
-        {/* <h1 className="text-xl">Carregando...</h1> */}
-      </div>
-    )
   if (allowed) return <>{children}</>
 
   return <>{fallback}</>

@@ -11,8 +11,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { InputPassword } from '@/components/ui/input-password'
 import { useToast } from '@/components/ui/use-toast'
-import { cpfMask } from '@/lib/utils'
 import { isCPFValid } from '@/lib/isCPFValid'
+import { cpfMask } from '@/lib/utils'
 import { registerRequest } from '@/services/auth.service'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
@@ -72,7 +72,7 @@ export function RegisterForm() {
             'Este CPF já está conectado a uma conta, por favor faça o login.',
           action: (
             <Button asChild>
-              <Link href="/signin">Entrar</Link>
+              <Link href="/sign-in">Entrar</Link>
             </Button>
           ),
         })
@@ -93,7 +93,7 @@ export function RegisterForm() {
       }
 
       form.reset()
-      router.push('/signin')
+      router.push('/sign-in')
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -176,7 +176,7 @@ export function RegisterForm() {
               Já tem uma conta?{' '}
               <span>
                 <Link
-                  href="/signin"
+                  href="/sign-in"
                   className="text-[#EAAC2E] hover:opacity-80"
                 >
                   Entrar

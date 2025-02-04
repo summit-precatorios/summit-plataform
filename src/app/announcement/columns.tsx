@@ -38,38 +38,36 @@ export const columns: ColumnDef<Announcement>[] = [
   },
   {
     id: 'options',
-    header: 'Opções',
+    header: () => <div className="text-right">Opções</div>,
     enableHiding: true,
     cell: ({ row }) => {
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {/* <DropdownMenuLabel>Ações</DropdownMenuLabel> */}
-            {/* <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem> */}
-            {/* <DropdownMenuSeparator /> */}
-            <Restricted to="common-user">
-              <DropdownMenuItem onClick={() => alert(row.getValue('id'))}>
-                Ver detalhes do Anúncio
-              </DropdownMenuItem>
-            </Restricted>
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <Restricted to="common-user">
+                <DropdownMenuItem
+                  onClick={() => alert(row.getValue('id'))}
+                  className="hover:cursor-pointer"
+                >
+                  Ver detalhes do Anúncio
+                </DropdownMenuItem>
+              </Restricted>
 
-            <Restricted to="admin-user">
-              <DropdownMenuItem onClick={() => alert('Anúncio Aprovado')}>
-                Aprovar Anúncio
-              </DropdownMenuItem>
-            </Restricted>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <Restricted to="admin-user">
+                <DropdownMenuItem onClick={() => alert('Anúncio Aprovado')}>
+                  Aprovar Anúncio
+                </DropdownMenuItem>
+              </Restricted>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
   },

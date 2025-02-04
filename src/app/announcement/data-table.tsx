@@ -36,6 +36,12 @@ export function DataTable<TData, TValue>({
     },
   })
 
+  if (!data)
+    return (
+      <div className="flex items-center justify-center">
+        Não foi possível carregar os dados.
+      </div>
+    )
   return (
     <Table>
       <TableCaption className="text-right">

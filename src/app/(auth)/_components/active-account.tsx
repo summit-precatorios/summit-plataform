@@ -29,7 +29,7 @@ export function ActiveAccount({
         'Ocorreu um erro na ativação da sua conta! Por favor tente mais tarde',
       )
 
-    if (response.StatusCode === 400)
+    if (response.statusCode === 400)
       throw new Error(
         'Ocorreu um erro na ativação da sua conta! Por favor tente mais tarde',
       )
@@ -51,7 +51,7 @@ export function ActiveAccount({
       </h1>
 
       <Button asChild className="mt-10 py-6 px-8">
-        <Link href="/signin">Acessar minha conta</Link>
+        <Link href="/sign-in">Acessar minha conta</Link>
       </Button>
     </div>
   )

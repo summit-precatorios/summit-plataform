@@ -88,7 +88,7 @@ export function ResetPasswordForm({
       })
 
       form.reset()
-      router.push('/signin')
+      router.push('/sign-in')
     } else {
       toast({
         variant: 'destructive',

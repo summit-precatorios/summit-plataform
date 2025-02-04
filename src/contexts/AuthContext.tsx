@@ -91,7 +91,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
     setUser(null)
 
-    router.push('/signin')
+    router.push('/sign-in')
   }
 
   useEffect(() => {
