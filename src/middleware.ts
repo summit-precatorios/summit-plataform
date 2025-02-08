@@ -4,18 +4,22 @@ const publicRoutes = [
   {
     path: '/sign-in',
     whenAuthenticated: 'redirect',
+    isDynamic: false,
   },
   {
     path: '/register',
     whenAuthenticated: 'redirect',
+    isDynamic: false,
   },
   {
     path: '/active',
     whenAuthenticated: 'redirect',
+    isDynamic: false,
   },
   {
-    path: '/reset',
+    path: '/reset/password/',
     whenAuthenticated: 'redirect',
+    isDynamic: true,
   },
 ] as const
 
@@ -23,8 +27,15 @@ const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/sign-in'
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
-  const publicRoute = publicRoutes.find((route) => route.path === path)
   const authToken = request.cookies.get('summit.token')?.value
+
+  const publicRoute = publicRoutes.find((route) => {
+    if (route.isDynamic) {
+      return path.startsWith(route.path)
+    } else {
+      return route.path === path
+    }
+  })
 
   if (!authToken && publicRoute) {
     return NextResponse.next()
@@ -32,9 +43,7 @@ export function middleware(request: NextRequest) {
 
   if (!authToken && !publicRoute) {
     const redirectUrl = request.nextUrl.clone()
-
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
-
     return NextResponse.redirect(redirectUrl)
   }
 
@@ -44,9 +53,7 @@ export function middleware(request: NextRequest) {
     publicRoute.whenAuthenticated === 'redirect'
   ) {
     const redirectUrl = request.nextUrl.clone()
-
     redirectUrl.pathname = '/dashboard'
-
     return NextResponse.redirect(redirectUrl)
   }
 
@@ -59,13 +66,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }
