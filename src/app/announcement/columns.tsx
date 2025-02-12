@@ -37,6 +37,32 @@ export const columns: ColumnDef<Announcement>[] = [
     header: 'Título',
   },
   {
+    accessorKey: 'price',
+    header: 'Valor do Título',
+    cell: ({ row }) => {
+      const salePrice = parseFloat(row.getValue('price'))
+      const formatted = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(salePrice)
+
+      return <div>{formatted}</div>
+    },
+  },
+  {
+    accessorKey: 'salePrice',
+    header: 'Valor de Venda',
+    cell: ({ row }) => {
+      const salePrice = parseFloat(row.getValue('salePrice'))
+      const formatted = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(salePrice)
+
+      return <div>{formatted}</div>
+    },
+  },
+  {
     id: 'options',
     header: () => <div className="text-right">Opções</div>,
     enableHiding: true,

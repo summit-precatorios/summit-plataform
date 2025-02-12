@@ -11,11 +11,9 @@ const usePermission = (permission: Permission | Permission[]) => {
   useEffect(() => {
     const checkPermissions = async () => {
       if (Array.isArray(permission)) {
-        // Se for um array de permissões, verifica se o usuário tem pelo menos uma delas
         const results = await Promise.all(permission.map((p) => isAllowedTo(p)))
         setAllowed(results.some((result) => result))
       } else {
-        // Se for uma única permissão, verifica normalmente
         const result = await isAllowedTo(permission)
         setAllowed(result)
       }
