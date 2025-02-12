@@ -58,7 +58,7 @@ type Props = {
  */
 
 export function Restricted({ to, children, fallback }: Props): JSX.Element {
-  const [allowed] = usePermission(to)
+  const { allowed } = usePermission(to)
 
   if (allowed) return <>{children}</>
 

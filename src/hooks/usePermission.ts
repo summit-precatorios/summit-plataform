@@ -22,7 +22,7 @@ const usePermission = (permission: Permission | Permission[]) => {
     checkPermissions()
   }, [isAllowedTo, permission])
 
-  return [allowed]
+  return { allowed }
 }
 
 export default usePermission
