@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Announcement } from '@/types'
+import { Announcement, Role } from '@/types'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 
@@ -51,7 +51,7 @@ export const columns: ColumnDef<Announcement>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <Restricted to="common-user">
+              <Restricted to={[Role.Admin, Role.User]}>
                 <DropdownMenuItem
                   onClick={() => alert(row.getValue('id'))}
                   className="hover:cursor-pointer"
@@ -60,7 +60,7 @@ export const columns: ColumnDef<Announcement>[] = [
                 </DropdownMenuItem>
               </Restricted>
 
-              <Restricted to="admin-user">
+              <Restricted to={Role.Admin}>
                 <DropdownMenuItem onClick={() => alert('Anúncio Aprovado')}>
                   Aprovar Anúncio
                 </DropdownMenuItem>

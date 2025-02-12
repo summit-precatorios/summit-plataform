@@ -12,6 +12,7 @@ import { AuthContext } from '@/contexts/AuthContext'
 import PermissionContext from '@/contexts/PermissionContext'
 import { useAnnouncements } from '@/hooks/useAnnouncements'
 import { verifyAccountByDocument } from '@/services/auth.service'
+import { Role } from '@/types'
 import { PlusCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useContext } from 'react'
@@ -56,8 +57,7 @@ export default function DashboardPage() {
                     </TabsTrigger>
                   </TabsList>
                   <Restricted
-                    // to="common-user"
-                    to="common-user"
+                    to={Role.User}
                     fallback={
                       <div className="ml-auto mr-4 flex flex-row items-start">
                         <Button disabled>
@@ -65,28 +65,6 @@ export default function DashboardPage() {
                           Anunciar
                         </Button>
                         <ToolTipHelper content="" handleClick={handleClick} />
-
-                        {/* <span>
-                          <CircleHelp
-                            size={16}
-                            className="ml-1 cursor-pointer text-red-300"
-                            onClick={() => {
-                              toast({
-                                title: 'Ação não permitida',
-                                description:
-                                  'É preciso ativar a sua conta para continuar',
-                                action: (
-                                  <ToastAction
-                                    altText="Enviamos um email com as instruções"
-                                    onClick={() => handleClick()}
-                                  >
-                                    Ativar
-                                  </ToastAction>
-                                ),
-                              })
-                            }}
-                          />
-                        </span> */}
                       </div>
                     }
                   >

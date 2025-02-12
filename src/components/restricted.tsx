@@ -6,7 +6,7 @@ import { Permission } from '@/types'
 import { ReactNode } from 'react'
 
 type Props = {
-  to: Permission
+  to: Permission | Permission[]
   children: ReactNode
   fallback?: JSX.Element | string
 }
