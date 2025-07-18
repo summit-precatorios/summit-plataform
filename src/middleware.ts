@@ -17,7 +17,7 @@ const publicRoutes = [
     isDynamic: false,
   },
   {
-    path: '/reset/password/',
+    path: '/reset/password',
     whenAuthenticated: 'redirect',
     isDynamic: true,
   },

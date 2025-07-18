@@ -6,7 +6,7 @@
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {},
+		"ghcr.io/devcontainers-extra/features/zsh-plugins:0": {},
 		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
 	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -20,8 +20,7 @@
 		"vscode": {
 			"extensions": [
 				"bradlc.vscode-tailwindcss",
-				"austenc.tailwind-docs",
-				"Jannchie.codetime"
+				"austenc.tailwind-docs"
 			]
 		}
 	},
