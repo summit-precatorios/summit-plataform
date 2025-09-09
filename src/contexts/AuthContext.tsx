@@ -98,21 +98,25 @@ export function AuthProvider({ children }: AuthContextProps) {
     const { 'summit.token': token } = parseCookies()
 
     if (token) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
-        token as string,
-      )
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
+          token as string,
+        )
 
-      const { payload, roles } = tokenDecoded
+        const { payload, roles } = tokenDecoded
 
-      const data: User = {
-        ...payload,
-        roles,
+        const data: User = {
+          ...payload,
+          roles,
+        }
+
+        setUser(data)
+      } catch (err) {
+        // Se o token for inválido, remove o cookie e define o usuário como null
+        destroyCookie(null, 'summit.token')
+        setUser(null)
       }
-
-      setUser(data)
-
-      router.push('/dashboard')
     }
   }, [router])
 

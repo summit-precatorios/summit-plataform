@@ -25,16 +25,15 @@ export function ToolTipHelper({ content, handleClick }: Props) {
           </span>
         </TooltipTrigger>
         <TooltipContent className="bg-transparent">
-          <span>{content}</span>
           {handleClick && (
             <Button
               className="bg-transparent"
-              variant="ghost"
+              variant="link"
               onClick={() => {
                 handleClick()
               }}
             >
-              test
+              {content}
             </Button>
           )}
         </TooltipContent>

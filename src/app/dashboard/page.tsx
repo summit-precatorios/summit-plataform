@@ -8,6 +8,7 @@ import { Restricted } from '@/components/restricted'
 import { ToolTipHelper } from '@/components/tool-tip'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/components/ui/use-toast'
 import { AuthContext } from '@/contexts/AuthContext'
 import PermissionContext from '@/contexts/PermissionContext'
 import { useAnnouncements } from '@/hooks/useAnnouncements'
@@ -15,19 +16,50 @@ import { verifyAccountByDocument } from '@/services/auth.service'
 import { Role } from '@/types'
 import { PlusCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 
 export default function DashboardPage() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
   const { isAllowedTo } = useContext(PermissionContext)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const { orders, loading, error } = useAnnouncements(user, isAllowedTo)
+  const { orders } = useAnnouncements(user, isAllowedTo)
+
+  const { toast } = useToast()
 
   async function handleClick() {
     const document = user?.document
 
-    if (document) await verifyAccountByDocument({ document })
+    if (document) {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const response = await verifyAccountByDocument({ document })
+
+        if (response.success) {
+          toast({
+            variant: 'default',
+            description:
+              'E-mail com as informações para ativação da conta foi enviado com sucesso!',
+          })
+        } else {
+          toast({
+            variant: 'destructive',
+            description: 'Ocorreu um erro ao enviar o e-mail de ativação.',
+          })
+        }
+      } catch (err) {
+        toast({
+          variant: 'destructive',
+          description: 'Ocorreu um erro ao enviar o e-mail de ativação.',
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
   }
 
   if (loading) {
@@ -64,7 +96,10 @@ export default function DashboardPage() {
                           <PlusCircle className="mr-4" size={22} />
                           Anunciar
                         </Button>
-                        <ToolTipHelper content="" handleClick={handleClick} />
+                        <ToolTipHelper
+                          content="Ativar minha conta"
+                          handleClick={handleClick}
+                        />
                       </div>
                     }
                   >

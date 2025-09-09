@@ -51,6 +51,15 @@ export function RecoveryPasswordForm() {
 
       form.reset()
     }
+
+    if (response && response.statusCode === 400) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro interno',
+        description:
+          'Não foi possível processar a sua requisição. Tente novamente mais tarde.',
+      })
+    }
   }
 
   return (
