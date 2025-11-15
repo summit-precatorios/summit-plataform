@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { handleApiError } from "@/lib/error-handler";
 import { forgotPassword } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Mail, Send } from "lucide-react";
@@ -43,17 +44,22 @@ export function RecoveryPasswordForm() {
       const response = await forgotPassword(data);
 
       if (!response) {
-        toast({
-          variant: "destructive",
-          title: "Erro interno",
-          description:
-            "Não foi possível processar a sua requisição. Tente novamente mais tarde.",
-        });
-
+        const errorToast = handleApiError({ statusCode: 500 });
+        toast(errorToast);
         return;
       }
 
-      if (response && response.statusCode === 201) {
+      // Verifica se a resposta contém um erro
+      if ("statusCode" in response && response.statusCode >= 400) {
+        const errorToast = handleApiError({
+          statusCode: response.statusCode,
+          message: response.message || response.error,
+        });
+        toast(errorToast);
+        return;
+      }
+
+      if (response && (response.statusCode === 201 || !response.statusCode)) {
         toast({
           variant: "default",
           title: "E-mail enviado com sucesso!",
@@ -63,22 +69,13 @@ export function RecoveryPasswordForm() {
 
         form.reset();
       }
-
-      if (response && response.statusCode === 400) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao enviar",
-          description:
-            "Não foi possível processar a sua requisição. Verifique o e-mail informado.",
-        });
-      }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro interno",
-        description:
-          "Não foi possível processar a sua requisição. Tente novamente mais tarde.",
-      });
+      const errorToast = handleApiError(
+        error && typeof error === "object" && "statusCode" in error
+          ? (error as { statusCode?: number; message?: string })
+          : error,
+      );
+      toast(errorToast);
     }
   }
 

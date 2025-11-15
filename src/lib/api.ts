@@ -39,10 +39,14 @@ export async function api<ResponseType = any>(
     if (!result.ok) {
       const errorData = await result.json().catch(() => ({
         message: `HTTP error! status: ${result.status}`,
+        statusCode: result.status,
       }))
-      throw new Error(
+      // Preserva o statusCode no erro para tratamento adequado
+      const error: Error & { statusCode?: number } = new Error(
         errorData.message || `HTTP error! status: ${result.status}`,
       )
+      error.statusCode = result.status || errorData.statusCode
+      throw error
     }
 
     return (await result.json()) as ResponseType
@@ -50,6 +54,10 @@ export async function api<ResponseType = any>(
     console.error('api_request_error', {
       url: BASE_URL,
       error: error instanceof Error ? error.message : 'Unknown error',
+      statusCode:
+        error && typeof error === 'object' && 'statusCode' in error
+          ? (error as { statusCode: number }).statusCode
+          : undefined,
     })
     throw error
   }

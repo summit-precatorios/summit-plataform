@@ -1,129 +1,147 @@
-'use client'
+"use client";
 
-import { useToast } from '@/components/ui/use-toast'
-import { signInRequest } from '@/services/auth.service'
-import { User } from '@/types'
-import { jwtDecode } from 'jwt-decode'
-import { useRouter } from 'next/navigation'
-import { destroyCookie, parseCookies, setCookie } from 'nookies'
-import { ReactNode, createContext, useEffect, useState } from 'react'
+import { useToast } from "@/components/ui/use-toast";
+import { handleApiError } from "@/lib/error-handler";
+import { signInRequest } from "@/services/auth.service";
+import { User } from "@/types";
+import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/navigation";
+import { destroyCookie, parseCookies, setCookie } from "nookies";
+import { ReactNode, createContext, useEffect, useState } from "react";
 
 interface AuthContextProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export type SignInData = {
-  document: string
-  password: string
-}
+  document: string;
+  password: string;
+};
 type AuthContextType = {
-  isAuthenticated: boolean
-  user: User | null
-  signIn: (data: SignInData) => Promise<void>
-  logout: () => Promise<void>
-}
+  isAuthenticated: boolean;
+  user: User | null;
+  signIn: (data: SignInData) => Promise<void>;
+  logout: () => Promise<void>;
+};
 
-export const AuthContext = createContext({} as AuthContextType)
+export const AuthContext = createContext({} as AuthContextType);
 
 export function AuthProvider({ children }: AuthContextProps) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [user, setUser] = useState<User | null>(null)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
 
-  const isAuthenticated = !!user
+  const isAuthenticated = !!user;
 
   async function signIn({ document, password }: SignInData) {
     try {
-      const response = await signInRequest({ document, password })
+      const response = await signInRequest({ document, password });
 
       if (!response) {
         toast({
-          variant: 'destructive',
-          title: 'Erro interno',
-          description: 'Não foi possível processar a sua requisição',
-        })
+          variant: "destructive",
+          title: "Erro interno",
+          description: "Não foi possível processar a sua requisição",
+        });
 
-        return
+        return;
       }
 
-      const { accessToken: token } = response
+      // Verifica se a resposta contém um erro
+      if ("statusCode" in response && response.statusCode >= 400) {
+        const errorToast = handleApiError({
+          statusCode: response.statusCode,
+          message: response.message || response.error,
+        });
+        toast(errorToast);
+        return;
+      }
+
+      const { accessToken: token } = response;
 
       if (!token) {
         toast({
-          variant: 'destructive',
-          title: 'Falha de Autenticação',
-          description: 'Credenciais de acesso inválidas ou não registradas',
-        })
+          variant: "destructive",
+          title: "Credenciais inválidas",
+          description:
+            "O CPF ou senha informados estão incorretos. Verifique suas credenciais e tente novamente.",
+        });
 
-        return
+        return;
       }
 
-      setCookie(undefined, 'summit.token', token, {
+      setCookie(undefined, "summit.token", token, {
         maxAge: 60 * 60 * 1, // expires in 1 hour
-      })
+      });
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
         token as string,
-      )
+      );
 
-      const { payload, roles } = tokenDecoded
+      const { payload, roles } = tokenDecoded;
 
       const data: User = {
         ...payload,
         roles,
-      }
+      };
 
-      setUser(data)
+      setUser(data);
 
-      router.push('/dashboard')
+      // Aguarda um pequeno delay para garantir que o cookie seja setado
+      // e o estado seja atualizado antes do redirecionamento
+      setTimeout(() => {
+        router.replace("/dashboard");
+      }, 100);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro interno',
-        description: 'Não foi possível processar a sua requisição',
-      })
+      // Trata erros com statusCode quando disponível
+      const errorToast = handleApiError(
+        error && typeof error === "object" && "statusCode" in error
+          ? (error as { statusCode?: number; message?: string })
+          : error,
+      );
+      toast(errorToast);
     }
   }
 
   async function logout() {
-    destroyCookie(null, 'summit.token')
+    destroyCookie(null, "summit.token");
 
-    setUser(null)
+    setUser(null);
 
-    router.push('/sign-in')
+    router.push("/sign-in");
   }
 
   useEffect(() => {
-    const { 'summit.token': token } = parseCookies()
+    const { "summit.token": token } = parseCookies();
 
     if (token && !user) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
           token as string,
-        )
+        );
 
-        const { payload, roles } = tokenDecoded
+        const { payload, roles } = tokenDecoded;
 
         const data: User = {
           ...payload,
           roles,
-        }
+        };
 
-        setUser(data)
+        setUser(data);
 
-        router.push('/dashboard')
+        router.push("/dashboard");
       } catch (error) {
-        console.error('error_decoding_token', error)
-        destroyCookie(null, 'summit.token')
+        console.error("error_decoding_token", error);
+        destroyCookie(null, "summit.token");
       }
     }
-  }, [user, router])
+  }, [user, router]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }

@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { InputPassword } from "@/components/ui/input-password";
 import { useToast } from "@/components/ui/use-toast";
+import { handleApiError } from "@/lib/error-handler";
 import { isCPFValid } from "@/lib/isCPFValid";
 import { cpfMask } from "@/lib/utils";
 import { registerRequest } from "@/services/auth.service";
@@ -71,29 +72,37 @@ export function RegisterForm() {
       const response = await registerRequest(data);
 
       if (!response) {
-        toast({
-          variant: "destructive",
-          title: "Erro interno",
-          description: "Não foi possível processar a sua requisição",
-        });
-
+        const errorToast = handleApiError({ statusCode: 500 });
+        toast(errorToast);
         return;
       }
 
-      if (response.statusCode === 409) {
-        toast({
-          variant: "default",
-          description:
-            "Este CPF já está conectado a uma conta, por favor faça o login.",
-          action: (
-            <Button asChild variant="outline" size="sm">
-              <Link href="/sign-in">Entrar</Link>
-            </Button>
-          ),
+      // Verifica se a resposta contém um erro
+      if ("statusCode" in response && response.statusCode >= 400) {
+        // Mantém o comportamento especial para 409 (conflito)
+        if (response.statusCode === 409) {
+          toast({
+            variant: "default",
+            description:
+              "Este CPF já está conectado a uma conta, por favor faça o login.",
+            action: (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/sign-in">Entrar</Link>
+              </Button>
+            ),
+          });
+          return;
+        }
+
+        const errorToast = handleApiError({
+          statusCode: response.statusCode,
+          message: response.message || response.error,
         });
+        toast(errorToast);
+        return;
       }
 
-      if (response.statusCode === 201) {
+      if (response.statusCode === 201 || !response.statusCode) {
         toast({
           variant: "default",
           title: "Conta criada com sucesso!",
@@ -105,11 +114,12 @@ export function RegisterForm() {
         router.push("/sign-in");
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro interno",
-        description: "Não foi possível processar a sua requisição",
-      });
+      const errorToast = handleApiError(
+        error && typeof error === "object" && "statusCode" in error
+          ? (error as { statusCode?: number; message?: string })
+          : error,
+      );
+      toast(errorToast);
     }
   }
 

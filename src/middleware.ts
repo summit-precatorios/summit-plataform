@@ -82,16 +82,16 @@ export function middleware(request: NextRequest) {
   }
 
   // ! Desabilita temporariamente o middleware para testar a página /advertise
-  if (path.startsWith('/advertise')) {
-    return NextResponse.next()
-  }
+  // if (path.startsWith('/advertise')) {
+  //   return NextResponse.next()
+  // }
 
-  if (path.startsWith('/dashboard')) {
-    return NextResponse.next()
-  }
-  if (path.startsWith('/announcement')) {
-    return NextResponse.next()
-  }
+  // if (path.startsWith('/dashboard')) {
+  //   return NextResponse.next()
+  // }
+  // if (path.startsWith('/announcement')) {
+  //   return NextResponse.next()
+  // }
   
   if (!authToken && !publicRoute) {
     const redirectUrl = request.nextUrl.clone()

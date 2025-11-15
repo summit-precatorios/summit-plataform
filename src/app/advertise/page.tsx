@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, TrendingUp, AlertCircle, CheckCircle2, Info } from 'lucide-react'
+import { CheckCircle2, FileText, Info, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 import { RegisterForm } from './_components/register-form'
 

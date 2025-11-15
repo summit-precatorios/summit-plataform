@@ -79,7 +79,11 @@ export const columns: ColumnDef<Announcement>[] = [
             <DropdownMenuContent align="end">
               <Restricted to={[Role.Admin, Role.User]}>
                 <DropdownMenuItem
-                  onClick={() => alert(row.getValue("id"))}
+
+                  onClick={() => {
+                    const id = row.getValue("id");
+                    window.location.href = `/announcement/${id}`;
+                  }}
                   className="hover:cursor-pointer"
                 >
                   Ver detalhes do Anúncio

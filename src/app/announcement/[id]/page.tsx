@@ -1,60 +1,82 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/components/ui/use-toast";
+import { handleApiError } from "@/lib/error-handler";
+import { getAnnouncementsByDocument } from "@/services/announcement.service";
+import { Announcement } from "@/types";
 import {
-  AlertCircle,
-  ArrowLeft,
-  Banknote,
-  CheckCircle2,
-  Clock,
-  CreditCard,
-  Download,
-  FileText,
-  Landmark,
-  Scale,
-  Share2,
-  TrendingUp,
-  User,
-  Wallet,
+    AlertCircle,
+    ArrowLeft,
+    Banknote,
+    CheckCircle2,
+    Clock,
+    CreditCard,
+    Download,
+    FileText,
+    Landmark,
+    Scale,
+    Share2,
+    TrendingUp,
+    User,
+    Wallet,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-// Dados simulados para visualização
-const mockAnnouncement = {
-  id: "1",
-  type: "PRECATORIO",
-  ownerFullName: "João da Silva Santos",
-  ownerDocument: "123.456.789-00",
-  lawSuit: "5003007-08.2015.8.09.0051",
-  origin: "federal",
-  court: "TRF-4",
-  price: "150000.00",
-  salePrice: "142500.00",
-  liquidBalance: "135375.00",
-  paymentOption: "PIX" as const,
-  pixKey: "joao.silva@email.com",
-  ownerBankAccount: "",
-  documentBankAccount: "",
-  bankAccount: "",
-  agencyBankAccount: "",
-  status: "PENDING",
-  createdAt: "2024-01-15T10:30:00Z",
-};
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function AnnouncementDetailPage() {
   const router = useRouter();
+  const params = useParams();
+  const { toast } = useToast();
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Por enquanto usa dados simulados, depois será substituído por busca na API
-  const announcement = mockAnnouncement;
+  useEffect(() => {
+    async function fetchAnnouncement() {
+      const id = params?.id as string;
+
+      if (!id) {
+        setError("ID do anúncio não fornecido");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await getAnnouncementsByDocument(id);
+
+        if (response && response.id) {
+          setAnnouncement(response);
+        } else {
+          setError("Anúncio não encontrado");
+        }
+      } catch (err) {
+        const errorToast = handleApiError(
+          err && typeof err === "object" && "statusCode" in err
+            ? (err as { statusCode?: number; message?: string })
+            : err,
+        );
+        toast(errorToast);
+        setError("Não foi possível carregar o anúncio");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAnnouncement();
+  }, [params?.id, toast]);
 
   const formatCurrency = (value: string | number) => {
     const numValue = typeof value === "string" ? parseFloat(value) : value;
@@ -114,7 +136,18 @@ export default function AnnouncementDetailPage() {
     );
   };
 
-  if (!announcement) {
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingSpinner />
+          <p className="text-sm text-gray-600">Carregando anúncio...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !announcement) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Card className="max-w-md">
@@ -126,7 +159,8 @@ export default function AnnouncementDetailPage() {
                   Anúncio não encontrado
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
-                  O anúncio solicitado não foi encontrado ou não existe mais.
+                  {error ||
+                    "O anúncio solicitado não foi encontrado ou não existe mais."}
                 </p>
               </div>
               <Button
@@ -169,7 +203,9 @@ export default function AnnouncementDetailPage() {
               </p>
               <p className="text-sm text-gray-500 mt-1">
                 ID: {announcement.id} • Criado em{" "}
-                {formatDate(announcement.createdAt)}
+                {announcement.createdAt
+                  ? formatDate(announcement.createdAt)
+                  : "Data não disponível"}
               </p>
             </div>
             <div className="flex gap-2">
@@ -413,7 +449,7 @@ export default function AnnouncementDetailPage() {
                       Chave PIX
                     </label>
                     <p className="mt-1 text-base font-semibold text-gray-900">
-                      {announcement.pixKey}
+                      {announcement.pixKey || "Não informado"}
                     </p>
                   </div>
                 ) : (
@@ -423,7 +459,7 @@ export default function AnnouncementDetailPage() {
                         Titular da Conta
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.ownerBankAccount}
+                        {announcement.ownerBankAccount || "Não informado"}
                       </p>
                     </div>
                     <div>
@@ -431,7 +467,7 @@ export default function AnnouncementDetailPage() {
                         CPF/CNPJ
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.documentBankAccount}
+                        {announcement.documentBankAccount || "Não informado"}
                       </p>
                     </div>
                     <div>
@@ -439,7 +475,7 @@ export default function AnnouncementDetailPage() {
                         Conta
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.bankAccount}
+                        {announcement.bankAccount || "Não informado"}
                       </p>
                     </div>
                     <div>
@@ -447,7 +483,7 @@ export default function AnnouncementDetailPage() {
                         Agência
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.agencyBankAccount}
+                        {announcement.agencyBankAccount || "Não informado"}
                       </p>
                     </div>
                   </div>
@@ -496,9 +532,11 @@ export default function AnnouncementDetailPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Criado em</span>
                         <span className="font-medium text-gray-900">
-                          {new Date(announcement.createdAt).toLocaleDateString(
-                            "pt-BR",
-                          )}
+                          {announcement.createdAt
+                            ? new Date(
+                                announcement.createdAt,
+                              ).toLocaleDateString("pt-BR")
+                            : "Data não disponível"}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">

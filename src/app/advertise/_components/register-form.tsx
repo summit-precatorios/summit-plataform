@@ -35,6 +35,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
+import { handleApiError } from "@/lib/error-handler";
 import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from "@/lib/utils";
 import { createAnnouncementRequest } from "@/services/announcement.service";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -213,7 +214,7 @@ export function RegisterForm(props: {
 
         const baseUrl =
           process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
-        const apiUrl = `${baseUrl}/announcements`;
+        const apiUrl = `${baseUrl}/announcement`;
 
         response = await fetch(apiUrl, {
           method: "POST",
@@ -269,11 +270,12 @@ export function RegisterForm(props: {
         });
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro interno",
-        description: "Não foi possível processar a sua requisição",
-      });
+      const errorToast = handleApiError(
+        error && typeof error === 'object' && 'statusCode' in error
+          ? (error as { statusCode?: number; message?: string })
+          : error,
+      );
+      toast(errorToast);
     }
   }
 
@@ -659,11 +661,10 @@ export function RegisterForm(props: {
                   />
                   <Label
                     htmlFor="pix"
-                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
-                      selectedOption === "PIX"
+                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${selectedOption === "PIX"
                         ? "border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <div className="p-3 rounded-full bg-blue-100 mb-3">
                       <svg
@@ -697,11 +698,10 @@ export function RegisterForm(props: {
                   />
                   <Label
                     htmlFor="transfer_bank"
-                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
-                      selectedOption === "TRANSFER_BANK"
+                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${selectedOption === "TRANSFER_BANK"
                         ? "border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <div className="p-3 rounded-full bg-green-100 mb-3">
                       <Landmark className="h-8 w-8 text-green-600" />

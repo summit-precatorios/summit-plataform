@@ -19,7 +19,7 @@ export async function getCurrentUser(token?: string) {
 
 export async function getAnnouncementsByUserDocument(document: string) {
   try {
-    return await api(`user/announcements/${document}`, {
+    return await api(`user/announcement/${document}`, {
       method: 'GET',
       headers: providerBaseHeaders(),
     })
