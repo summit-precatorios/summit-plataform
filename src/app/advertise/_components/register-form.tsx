@@ -1,653 +1,756 @@
-'use client'
+"use client";
 
-import { useAdvertise } from '@/app/advertise/_components/use-advertise'
-import { Button } from '@/components/ui/button'
+import { useAdvertise } from "@/app/advertise/_components/use-advertise";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { InputCurrency } from '@/components/ui/input-currency'
-import { Label } from '@/components/ui/label'
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { InputCurrency } from "@/components/ui/input-currency";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { useToast } from '@/components/ui/use-toast'
-import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
-import { createAnnouncementRequest } from '@/services/announcement.service'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
-
-import { CircleHelp, Landmark } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/use-toast";
+import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from "@/lib/utils";
+import { createAnnouncementRequest } from "@/services/announcement.service";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
+import {
+  Calculator,
+  CircleHelp,
+  CreditCard,
+  DollarSign,
+  FileText,
+  Info,
+  Landmark,
+  User,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 function handleSalePriceChange(value: string | number): string {
-  if (!value) return ''
+  if (!value) return "";
 
-  // Garantir que o valor seja uma string
-  const valueStr = String(value)
-
+  const valueStr = String(value);
   const numericValue = parseFloat(
-    valueStr.replace(/[^\d,-]/g, '').replace(',', '.'),
-  )
+    valueStr.replace(/[^\d,-]/g, "").replace(",", "."),
+  );
 
   if (!isNaN(numericValue)) {
-    const calculatedBalance = (numericValue * 0.95).toFixed(2) // 95% do valor de venda
-
+    const calculatedBalance = (numericValue * 0.95).toFixed(2); // 95% do valor de venda
     const formattedBalance = currencyFormatter
       .format(Number(calculatedBalance))
-      .replace(/^R\$/, '')
-      .trim()
+      .replace(/^R\$/, "")
+      .trim();
 
-    return formattedBalance
+    return formattedBalance;
   }
 
-  return ''
+  return "";
 }
 
 export function RegisterForm(props: {
-  title: string
-  description: string
-  show: boolean
-  announcementType: 'RPV' | 'PRECATORIO'
+  title: string;
+  description: string;
+  show: boolean;
+  announcementType: "RPV" | "PRECATORIO";
 }) {
-  const [salePrice, setSalePrice] = useState('0,00')
-  const [documentBankAccount, setDocumentBankAccount] = useState('')
-  const [selectedOption, setSelectedOption] = useState<'PIX' | 'TRANSFER_BANK'>(
-    'PIX',
-  )
+  const [salePrice, setSalePrice] = useState("0,00");
+  const [documentBankAccount, setDocumentBankAccount] = useState("");
+  const [selectedOption, setSelectedOption] = useState<"PIX" | "TRANSFER_BANK">(
+    "PIX",
+  );
+  const [formattedPrice, setFormattedPrice] = useState("0,00");
+  const { createAnnouncementSchema } = useAdvertise();
 
-  const [formattedPrice, setFormattedPrice] = useState('0,00')
-  const { createAnnouncementSchema } = useAdvertise()
-
-  type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
+  type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>;
 
   const form = useForm<CreateAnnouncementSchema>({
     resolver: zodResolver(createAnnouncementSchema),
     defaultValues: {
-      paymentOption: 'PIX',
+      paymentOption: "PIX",
     },
-  })
-  const handlePaymentReceivingOption = (option: 'PIX' | 'TRANSFER_BANK') => {
-    setSelectedOption(option)
+  });
 
-    form.setValue('paymentOption', option)
-  }
+  const handlePaymentReceivingOption = (option: "PIX" | "TRANSFER_BANK") => {
+    setSelectedOption(option);
+    form.setValue("paymentOption", option);
+  };
 
-  const { toast } = useToast()
-  const router = useRouter()
-  // ! definir formState baseado no  schema do formulário
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { toast } = useToast();
+  const router = useRouter();
 
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
     try {
-      const response = await createAnnouncementRequest(data)
+      const response = await createAnnouncementRequest(data);
 
       if (!response) {
         toast({
-          variant: 'destructive',
-          title: 'Erro interno',
-          description: 'Não foi possível processar a sua requisição',
-        })
-        return
+          variant: "destructive",
+          title: "Erro interno",
+          description: "Não foi possível processar a sua requisição",
+        });
+        return;
       }
 
       if (response && (response.statusCode === 201 || !response.statusCode)) {
         toast({
-          variant: 'default',
+          variant: "default",
           title: `Seu ${props.title} foi registrado com sucesso!`,
           description:
-            'Encaminhamos para o seu email os detalhes sobre o seu anúncio',
-        })
+            "Encaminhamos para o seu email os detalhes sobre o seu anúncio",
+        });
 
-        form.reset()
-        router.push('/dashboard')
+        form.reset();
+        router.push("/dashboard");
       } else {
         toast({
-          variant: 'destructive',
-          title: 'Erro ao criar anúncio',
+          variant: "destructive",
+          title: "Erro ao criar anúncio",
           description:
-            response?.message || 'Não foi possível processar a sua requisição',
-        })
+            response?.message || "Não foi possível processar a sua requisição",
+        });
       }
     } catch (error) {
       toast({
-        variant: 'destructive',
-        title: 'Erro interno',
-        description: 'Não foi possível processar a sua requisição',
-      })
+        variant: "destructive",
+        title: "Erro interno",
+        description: "Não foi possível processar a sua requisição",
+      });
     }
   }
 
-  // const salePricee = handleSalePriceChange(form.watch('salePrice'))
-  const calculatedBalance = handleSalePriceChange(form.watch('salePrice'))
+  const calculatedBalance = handleSalePriceChange(form.watch("salePrice"));
 
   useEffect(() => {
-    form.setValue('liquidBalance', calculatedBalance)
-  }, [calculatedBalance, form])
-
-  // Ensure salePrice is updated correctly
-  useEffect(() => {
-    const newCalculatedBalance = handleSalePriceChange(salePrice)
-    form.setValue('liquidBalance', newCalculatedBalance)
-  }, [salePrice, form])
+    form.setValue("liquidBalance", calculatedBalance);
+  }, [calculatedBalance, form]);
 
   useEffect(() => {
-    // Atualiza o valor do input oculto quando props.title mudar
-    form.setValue('type', props.announcementType)
-  }, [props.announcementType, form])
+    const newCalculatedBalance = handleSalePriceChange(salePrice);
+    form.setValue("liquidBalance", newCalculatedBalance);
+  }, [salePrice, form]);
+
+  useEffect(() => {
+    form.setValue("type", props.announcementType);
+  }, [props.announcementType, form]);
+
+  if (!props.show) {
+    return null;
+  }
 
   return (
-    <div className="w-full space-x-3 flex-col">
+    <div className="w-full space-y-6">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="grid grid-cols-5 space-x-3 w-full"
-        >
-          <input type="hidden" {...form.register('type')} value={props.title} />
-
-          <Card
-            className={`mt-16 ${props.show ? 'block' : 'hidden'} col-span-3`}
-          >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Section 1: Dados do Proprietário */}
+          <Card className="border-2 shadow-lg">
             <CardHeader>
-              <CardTitle>{props.title}</CardTitle>
-              <CardDescription>{props.description}</CardDescription>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-100">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Dados do Proprietário
+                  </CardTitle>
+                  <CardDescription>
+                    Informações sobre o proprietário do precatório
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid grid-cols-5 gap-4">
-                <div className="grid gap-2 col-span-3">
-                  <FormField
-                    control={form.control}
-                    name="ownerFullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome Completo</FormLabel>
-                        <FormControl>
-                          <Input
-                            className="h-9"
-                            placeholder="ex: João da Silva"
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-2 col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="ownerDocument"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>CPF</FormLabel>
-                        <FormControl>
-                          <Input
-                            className="h-9"
-                            {...field}
-                            placeholder="Informe o seu CPF"
-                            onChange={(e) =>
-                              field.onChange(cpfMask(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-7 gap-4">
-                <div className="ggrid gap-2 col-span-3">
-                  <FormField
-                    control={form.control}
-                    name="lawSuit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Número do Processo</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="h-9"
-                            placeholder={`Informe o número do seu ${props.title === 'RPV' ? 'RPV' : 'precatório'}`}
-                            onChange={(e) =>
-                              field.onChange(e.target.value.replace(/\D/g, ''))
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-2 col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="origin"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Origem</FormLabel>
-
-                        <Select
+            <CardContent className="grid gap-6 pt-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="ownerFullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium flex items-center gap-2">
+                        <User className="h-4 w-4 text-gray-500" />
+                        Nome Completo
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          className="h-12 text-base"
+                          placeholder="Ex: João da Silva"
                           {...field}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="default">Selecione</SelectItem>
-                            <SelectItem value="federal">Federal</SelectItem>
-                            <SelectItem value="estadual">Estadual</SelectItem>
-                            <SelectItem value="municipal">Municipal</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                <div className="grid gap-2 col-span-2">
-                  <div className="grid gap-2">
-                    <FormField
-                      control={form.control}
-                      name="court"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tribunal</FormLabel>
-
-                          <Select
-                            defaultValue={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Selecione" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="default">Selecione</SelectItem>
-                              <SelectItem value="federal">TRF-1</SelectItem>
-                              <SelectItem value="estadual">TRF-4</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="grid gap-2 col-span-1">
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex justify-start items-center m-0.5">
-                          Valor Nominal do {props.title}
-                        </FormLabel>
-                        <FormControl>
-                          <InputCurrency
-                            className="h-9"
-                            {...field}
-                            value={formattedPrice}
-                            onChange={(e) => {
-                              field.onChange(() => {
-                                const value = e.target.value.replace(/\D/g, '')
-                                setFormattedPrice(
-                                  currencyFormatter
-                                    .format(Number(value) / 100)
-                                    .replace(/^R\$/, '')
-                                    .trim(),
-                                )
-
-                                field.onChange(
-                                  currencyFormatter
-                                    .format(Number(value) / 100)
-                                    .replace(/^R\$/, '')
-                                    .trim(),
-                                )
-                              })
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-2 col-span-1">
-                  <FormField
-                    control={form.control}
-                    name="salePrice"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex justify-start items-center">
-                          Valor de Venda
-                          <span>
-                            <CircleHelp
-                              size={16}
-                              className="text-red-400 ml-1 cursor-pointer"
-                              onClick={() => {
-                                toast({
-                                  title: 'Dúvidas',
-                                  description: `Informe o valor que gostaria de vender o seu ${props.title}`,
-                                })
-                              }}
-                            />
-                          </span>
-                        </FormLabel>
-
-                        <FormControl>
-                          <InputCurrency
-                            min={0}
-                            className="h-9"
-                            {...field}
-                            value={salePrice}
-                            onChange={(e) => {
-                              field.onChange(() => {
-                                const value = e.target.value.replace(/\D/g, '')
-                                setSalePrice(
-                                  currencyFormatter
-                                    .format(Number(value) / 100)
-                                    .replace(/^R\$/, '')
-                                    .trim(),
-                                )
-
-                                field.onChange(
-                                  currencyFormatter
-                                    .format(Number(value) / 100)
-                                    .replace(/^R\$/, '')
-                                    .trim(),
-                                )
-                              })
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-2 col-span-1">
-                  <FormField
-                    control={form.control}
-                    name="liquidBalance"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex justify-start items-center">
-                          Saldo Líquido
-                          <span>
-                            <CircleHelp
-                              size={16}
-                              className="text-red-400 ml-1 cursor-pointer"
-                              onClick={() => {
-                                toast({
-                                  title: 'Taxa de Manutenção',
-                                  description: 'Explicação do valor líquido',
-                                })
-                              }}
-                            />
-                          </span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            min={0}
-                            className="h-9"
-                            {...field}
-                            disabled
-                            value={`R$ ${field.value}`}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="ownerDocument"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500" />
+                        CPF
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          className="h-12 text-base"
+                          placeholder="000.000.000-00"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(cpfMask(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </CardContent>
           </Card>
 
-          <Card
-            className={`mt-16 ${props.show ? 'block' : 'hidden'} col-span-2`}
-          >
+          {/* Section 2: Informações do Precatório */}
+          <Card className="border-2 shadow-lg">
             <CardHeader>
-              <CardTitle>Dados para Recebimento</CardTitle>
-              <CardDescription>
-                Para receber o valor do {props.title} vendido após uma
-                negociação bem-sucedida, por favor, informe o método de
-                recebimento desejado.
-              </CardDescription>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-100">
+                  <FileText className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Informações do {props.title}
+                  </CardTitle>
+                  <CardDescription>
+                    Detalhes sobre o processo judicial
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="grid gap-6">
+            <CardContent className="grid gap-6 pt-6">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="lawSuit"
+                  render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel className="text-base font-medium">
+                        Número do Processo
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          className="h-12 text-base"
+                          placeholder={`Informe o número do seu ${props.title === "RPV" ? "RPV" : "precatório"}`}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(e.target.value.replace(/\D/g, ""))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="origin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        Origem
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="h-12 text-base">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="federal">Federal</SelectItem>
+                          <SelectItem value="estadual">Estadual</SelectItem>
+                          <SelectItem value="municipal">Municipal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="court"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        Tribunal
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="h-12 text-base">
+                            <SelectValue placeholder="Selecione o tribunal" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="federal">TRF-1</SelectItem>
+                          <SelectItem value="estadual">TRF-4</SelectItem>
+                          <SelectItem value="estadual">TRF-5</SelectItem>
+                          <SelectItem value="estadual">TJSP</SelectItem>
+                          <SelectItem value="estadual">TJMG</SelectItem>
+                          <SelectItem value="estadual">TJRS</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 3: Valores */}
+          <Card className="border-2 shadow-lg">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-100">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Valores</CardTitle>
+                  <CardDescription>
+                    Informe os valores do seu {props.title}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="grid gap-6 pt-6">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium flex items-center gap-2">
+                        Valor Nominal
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <CircleHelp className="h-4 w-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Valor original do {props.title}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </FormLabel>
+                      <FormControl>
+                        <InputCurrency
+                          className="h-12 text-base"
+                          {...field}
+                          value={formattedPrice}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setFormattedPrice(
+                              currencyFormatter
+                                .format(Number(value) / 100)
+                                .replace(/^R\$/, "")
+                                .trim(),
+                            );
+                            field.onChange(
+                              currencyFormatter
+                                .format(Number(value) / 100)
+                                .replace(/^R\$/, "")
+                                .trim(),
+                            );
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="salePrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium flex items-center gap-2">
+                        Valor de Venda
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <CircleHelp className="h-4 w-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Valor que você deseja receber pela venda</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </FormLabel>
+                      <FormControl>
+                        <InputCurrency
+                          className="h-12 text-base"
+                          {...field}
+                          value={salePrice}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setSalePrice(
+                              currencyFormatter
+                                .format(Number(value) / 100)
+                                .replace(/^R\$/, "")
+                                .trim(),
+                            );
+                            field.onChange(
+                              currencyFormatter
+                                .format(Number(value) / 100)
+                                .replace(/^R\$/, "")
+                                .trim(),
+                            );
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="liquidBalance"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium flex items-center gap-2">
+                        <Calculator className="h-4 w-4 text-gray-500" />
+                        Saldo Líquido
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <CircleHelp className="h-4 w-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p>
+                                Valor líquido após a taxa de 5%. Calculado
+                                automaticamente como 95% do valor de venda.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            className="h-12 text-base bg-gray-50 border-2 border-gray-200"
+                            disabled
+                            value={`R$ ${field.value || "0,00"}`}
+                            readOnly
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Info className="h-5 w-5 text-gray-400" />
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormDescription className="flex items-center gap-1 text-sm text-gray-600">
+                        <Info className="h-3 w-3" />
+                        Calculado automaticamente (95% do valor de venda)
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 4: Dados para Recebimento */}
+          <Card className="border-2 shadow-lg">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#EAAC2E]/10">
+                  <CreditCard className="h-5 w-5 text-[#EAAC2E]" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Dados para Recebimento
+                  </CardTitle>
+                  <CardDescription>
+                    Informe como deseja receber o pagamento
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="grid gap-6 pt-6">
               <RadioGroup
                 value={selectedOption}
-                onValueChange={(value: 'PIX' | 'TRANSFER_BANK') =>
+                onValueChange={(value: "PIX" | "TRANSFER_BANK") =>
                   handlePaymentReceivingOption(value)
                 }
-                className="grid grid-cols-2 gap-4 shad"
+                className="grid gap-4 sm:grid-cols-2"
               >
                 <div>
                   <RadioGroupItem
                     value="PIX"
                     id="pix"
                     className="peer sr-only"
-                    aria-label="Card"
                   />
                   <Label
                     htmlFor="pix"
-                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${selectedOption === 'PIX' ? 'bg-gray-100' : ''}`}
+                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
+                      selectedOption === "PIX"
+                        ? "border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    }`}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      x="0px"
-                      y="0px"
-                      width="100"
-                      height="100"
-                      viewBox="0 0 48 48"
-                      className="mb-3 h-8 w-8"
-                    >
-                      <path
-                        fill="#37c6d0"
-                        d="M19.262,44.037l-8.04-8.04L11,35l-1.777-1.003l-5.26-5.26c-2.617-2.617-2.617-6.859,0-9.475	l5.26-5.26L11,13l0.223-0.997l8.04-8.04c2.617-2.617,6.859-2.617,9.475,0l8.04,8.04L37,13l1.777,1.003l5.26,5.26	c2.617,2.617,2.617,6.859,0,9.475l-5.26,5.26L37,35l-0.223,0.997l-8.04,8.04C26.121,46.653,21.879,46.653,19.262,44.037z"
-                      ></path>
-                      <path
-                        d="M35.79,11.01c-1.76,0.07-3.4,0.79-4.63,2.04l-6.81,6.77c-0.09,0.1-0.22,0.15-0.35,0.15	s-0.25-0.05-0.35-0.15l-6.8-6.76c-1.24-1.26-2.88-1.98-4.64-2.05L8.22,15h3.68c0.8,0,1.55,0.31,2.12,0.88l6.8,6.78	c0.85,0.84,1.98,1.31,3.18,1.31s2.33-0.47,3.18-1.31l6.79-6.78C34.55,15.31,35.3,15,36.1,15h3.68L35.79,11.01z M36.1,33	c-0.8,0-1.55-0.31-2.12-0.88l-6.8-6.78c-0.85-0.84-1.98-1.31-3.18-1.31s-2.33,0.47-3.18,1.31l-6.79,6.78	C13.45,32.69,12.7,33,11.9,33H8.22l3.99,3.99c1.76-0.07,3.4-0.79,4.63-2.04l6.81-6.77c0.09-0.1,0.22-0.15,0.35-0.15	s0.25,0.05,0.35,0.15l6.8,6.76c1.24,1.26,2.88,1.98,4.64,2.05L39.78,33H36.1z"
-                        opacity=".05"
-                      ></path>
-                      <path
-                        d="M36.28,11.5H36.1c-1.74,0-3.38,0.68-4.59,1.91l-6.8,6.77c-0.19,0.19-0.45,0.29-0.71,0.29	s-0.52-0.1-0.71-0.29l-6.79-6.77c-1.22-1.23-2.86-1.91-4.6-1.91h-0.18l-3,3h3.18c0.93,0,1.81,0.36,2.48,1.02l6.8,6.78	c0.75,0.76,1.75,1.17,2.82,1.17s2.07-0.41,2.82-1.17l6.8-6.77c0.67-0.67,1.55-1.03,2.48-1.03h3.18L36.28,11.5z M36.1,33.5	c-0.93,0-1.81-0.36-2.48-1.02l-6.8-6.78c-0.75-0.76-1.75-1.17-2.82-1.17s-2.07,0.41-2.82,1.17l-6.8,6.77	c-0.67,0.67-1.55,1.03-2.48,1.03H8.72l3,3h0.18c1.74,0,3.38-0.68,4.59-1.91l6.8-6.77c0.19-0.19,0.45-0.29,0.71-0.29	s0.52,0.1,0.71,0.29l6.79,6.77c1.22,1.23,2.86,1.91,4.6,1.91h0.18l3-3H36.1z"
-                        opacity=".07"
-                      ></path>
-                      <path
-                        fill="#fff"
-                        d="M38.78,14H36.1c-1.07,0-2.07,0.42-2.83,1.17l-6.8,6.78c-0.68,0.68-1.58,1.02-2.47,1.02	s-1.79-0.34-2.47-1.02l-6.8-6.78C13.97,14.42,12.97,14,11.9,14H9.22l2-2h0.68c1.6,0,3.11,0.62,4.24,1.76l6.8,6.77	c0.59,0.59,1.53,0.59,2.12,0l6.8-6.77C32.99,12.62,34.5,12,36.1,12h0.68L38.78,14z M36.1,34c-1.07,0-2.07-0.42-2.83-1.17l-6.8-6.78	c-1.36-1.36-3.58-1.36-4.94,0l-6.8,6.78C13.97,33.58,12.97,34,11.9,34H9.22l2,2h0.68c1.6,0,3.11-0.62,4.24-1.76l6.8-6.77	c0.59-0.59,1.53-0.59,2.12,0l6.8,6.77C32.99,35.38,34.5,36,36.1,36h0.68l2-2H36.1z"
-                      ></path>
-                    </svg>
-                    Pix
+                    <div className="p-3 rounded-full bg-blue-100 mb-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 48 48"
+                      >
+                        <path
+                          fill="#37c6d0"
+                          d="M19.262,44.037l-8.04-8.04L11,35l-1.777-1.003l-5.26-5.26c-2.617-2.617-2.617-6.859,0-9.475	l5.26-5.26L11,13l0.223-0.997l8.04-8.04c2.617-2.617,6.859-2.617,9.475,0l8.04,8.04L37,13l1.777,1.003l5.26,5.26	c2.617,2.617,2.617,6.859,0,9.475l-5.26,5.26L37,35l-0.223,0.997l-8.04,8.04C26.121,46.653,21.879,46.653,19.262,44.037z"
+                        />
+                        <path
+                          fill="#fff"
+                          d="M38.78,14H36.1c-1.07,0-2.07,0.42-2.83,1.17l-6.8,6.78c-0.68,0.68-1.58,1.02-2.47,1.02	s-1.79-0.34-2.47-1.02l-6.8-6.78C13.97,14.42,12.97,14,11.9,14H9.22l2-2h0.68c1.6,0,3.11,0.62,4.24,1.76l6.8,6.77	c0.59,0.59,1.53,0.59,2.12,0l6.8-6.77C32.99,12.62,34.5,12,36.1,12h0.68L38.78,14z M36.1,34c-1.07,0-2.07-0.42-2.83-1.17l-6.8-6.78	c-1.36-1.36-3.58-1.36-4.94,0l-6.8,6.78C13.97,33.58,12.97,34,11.9,34H9.22l2,2h0.68c1.6,0,3.11-0.62,4.24-1.76l6.8-6.77	c0.59-0.59,1.53-0.59,2.12,0l6.8,6.77C32.99,35.38,34.5,36,36.1,36h0.68l2-2H36.1z"
+                        />
+                      </svg>
+                    </div>
+                    <span className="font-semibold text-base">PIX</span>
+                    <span className="text-sm text-gray-600 mt-1">
+                      Recebimento instantâneo
+                    </span>
                   </Label>
                 </div>
+
                 <div>
                   <RadioGroupItem
                     value="TRANSFER_BANK"
                     id="transfer_bank"
                     className="peer sr-only"
-                    aria-label="Card"
                   />
                   <Label
                     htmlFor="transfer_bank"
-                    className={`flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked] [&:has([data-state=checked])] cursor-pointer ${selectedOption === 'TRANSFER_BANK' ? 'bg-gray-100' : ''}`}
+                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
+                      selectedOption === "TRANSFER_BANK"
+                        ? "border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    }`}
                   >
-                    <Landmark className="mb-3 h-8 w-8" />
-                    Transferência Bancária
+                    <div className="p-3 rounded-full bg-green-100 mb-3">
+                      <Landmark className="h-8 w-8 text-green-600" />
+                    </div>
+                    <span className="font-semibold text-base">
+                      Transferência Bancária
+                    </span>
+                    <span className="text-sm text-gray-600 mt-1">
+                      DADOS bancários
+                    </span>
                   </Label>
                 </div>
               </RadioGroup>
 
-              {selectedOption === 'PIX' ? (
-                <div className="grid gap-2">
+              {selectedOption === "PIX" ? (
+                <div className="grid gap-4">
                   <FormField
                     control={form.control}
                     name="pixKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Chave pix</FormLabel>
+                        <FormLabel className="text-base font-medium">
+                          Chave PIX
+                        </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Digite ou cole a sua chave"
-                            className="h-9"
+                            type="text"
+                            className="h-12 text-base"
+                            placeholder="Digite ou cole a sua chave PIX"
                             {...field}
                             onChange={(e) => {
-                              field.onChange(pixKeysMask(e.target.value))
+                              const maskedValue = pixKeysMask(e.target.value);
+                              field.onChange(maskedValue);
                             }}
                           />
                         </FormControl>
+                        <FormDescription>
+                          CPF, e-mail, telefone, chave aleatória ou CNPJ
+                        </FormDescription>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-              ) : selectedOption === 'TRANSFER_BANK' ? (
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="grid gap-2 col-span-2">
-                    <FormField
-                      control={form.control}
-                      name="ownerBankAccount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Titular da Conta</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Nome do favorecido"
-                              className="h-9"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid gap-2 col-span-2">
-                    <FormField
-                      control={form.control}
-                      name="documentBankAccount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>CPF/CNPJ</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="h-9"
-                              value={documentBankAccount}
-                              onChange={(e) => {
-                                field.onChange(
-                                  (() => {
-                                    const clearValue = e.target.value.replace(
-                                      /\D/g,
-                                      '',
-                                    )
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="ownerBankAccount"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel className="text-base font-medium">
+                          Titular da Conta
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 text-base"
+                            placeholder="Nome completo do favorecido"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                                    if (clearValue.length <= 11) {
-                                      setDocumentBankAccount(
-                                        cpfMask(clearValue),
-                                      )
-                                    } else {
-                                      setDocumentBankAccount(
-                                        cnpjMask(clearValue),
-                                      )
-                                    }
-
-                                    return clearValue
-                                  })(),
-                                )
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid gap-2 col-span-2">
-                    <FormField
-                      control={form.control}
-                      name="bankAccount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Conta</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="h-9"
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value.replace(/\D/g, ''),
-                                )
+                  <FormField
+                    control={form.control}
+                    name="documentBankAccount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          CPF/CNPJ
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 text-base"
+                            placeholder="000.000.000-00"
+                            value={documentBankAccount}
+                            onChange={(e) => {
+                              const clearValue = e.target.value.replace(
+                                /\D/g,
+                                "",
+                              );
+                              if (clearValue.length <= 11) {
+                                setDocumentBankAccount(cpfMask(clearValue));
+                              } else {
+                                setDocumentBankAccount(cnpjMask(clearValue));
                               }
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid gap-2 col-span-2">
-                    <FormField
-                      control={form.control}
-                      name="agencyBankAccount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Agência</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="h-9"
-                              placeholder="Sem dígito verificador"
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value.replace(/\D/g, ''),
-                                )
-                              }
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                              field.onChange(clearValue);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="bankAccount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          Conta
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 text-base"
+                            placeholder="Número da conta"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(e.target.value.replace(/\D/g, ""))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="agencyBankAccount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          Agência
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 text-base"
+                            placeholder="Sem dígito verificador"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(e.target.value.replace(/\D/g, ""))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              ) : null}
+              )}
             </CardContent>
           </Card>
-          <Button type="submit" className="w-full h-12 mt-4">
-            {form.formState.isSubmitting ? 'Registrando...' : 'Registrar'}
-          </Button>
+
+          {/* Submit Button */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-4">
+            <div className="text-sm text-gray-600 flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              <span>
+                Ao enviar, você concorda com nossos{" "}
+                <a href="/terms" className="text-[#EAAC2E] hover:underline">
+                  Termos de Serviço
+                </a>{" "}
+                e{" "}
+                <a href="/privacy" className="text-[#EAAC2E] hover:underline">
+                  Política de Privacidade
+                </a>
+              </span>
+            </div>
+            <Button
+              type="submit"
+              className="w-full sm:w-auto min-w-[200px] h-12 text-base font-semibold"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Registrando...
+                </>
+              ) : (
+                "Registrar Anúncio"
+              )}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
-  )
+  );
 }
-
-/**
- * Dados para Transferência Bancária
- * - CPF/CNPF
- * - Titular da Conta
- * - Agência
- * - Conta
- * - Tipo de Conta: Conta Corrente | Conta Poupança | Conta Pagamento
- */

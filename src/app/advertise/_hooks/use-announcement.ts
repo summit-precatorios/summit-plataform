@@ -1,1 +1,1 @@
-export const useAnnouncement = () => {}
+export const useAnnouncement = () => {};

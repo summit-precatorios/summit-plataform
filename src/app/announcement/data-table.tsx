@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Table,
@@ -8,17 +8,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from "@tanstack/react-table";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
@@ -34,14 +34,14 @@ export function DataTable<TData, TValue>({
         id: false,
       },
     },
-  })
+  });
 
   if (!data)
     return (
       <div className="flex items-center justify-center">
         Não foi possível carregar os dados.
       </div>
-    )
+    );
   return (
     <Table>
       <TableCaption className="text-right">
@@ -60,7 +60,7 @@ export function DataTable<TData, TValue>({
                         header.getContext(),
                       )}
                 </TableHead>
-              )
+              );
             })}
           </TableRow>
         ))}
@@ -70,7 +70,7 @@ export function DataTable<TData, TValue>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              data-state={row.getIsSelected() && 'selected'}
+              data-state={row.getIsSelected() && "selected"}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id} className="text-left">
@@ -88,5 +88,5 @@ export function DataTable<TData, TValue>({
         )}
       </TableBody>
     </Table>
-  )
+  );
 }

@@ -112,12 +112,14 @@ export function AuthProvider({ children }: AuthContextProps) {
         }
 
         setUser(data)
+
+        router.push('/dashboard')
       } catch (error) {
         console.error('error_decoding_token', error)
         destroyCookie(null, 'summit.token')
       }
     }
-  }, [user])
+  }, [user, router])
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>

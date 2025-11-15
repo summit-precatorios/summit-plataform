@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const publicRoutes = [
   {
+    path: '/',
+    whenAuthenticated: 'no-redirect',
+    isDynamic: false,
+  },
+  {
     path: '/sign-in',
     whenAuthenticated: 'redirect',
     isDynamic: false,
@@ -12,13 +17,38 @@ const publicRoutes = [
     isDynamic: false,
   },
   {
-    path: '/active',
-    whenAuthenticated: 'redirect',
+    path: '/about',
+    whenAuthenticated: 'no-redirect',
     isDynamic: false,
   },
   {
-    path: '/reset/password/',
-    whenAuthenticated: 'redirect',
+    path: '/contact',
+    whenAuthenticated: 'no-redirect',
+    isDynamic: false,
+  },
+  {
+    path: '/faq',
+    whenAuthenticated: 'no-redirect',
+    isDynamic: false,
+  },
+  {
+    path: '/terms',
+    whenAuthenticated: 'no-redirect',
+    isDynamic: false,
+  },
+  {
+    path: '/privacy',
+    whenAuthenticated: 'no-redirect',
+    isDynamic: false,
+  },
+  {
+    path: '/active/account/',
+    whenAuthenticated: 'no-redirect', // Evita redirecionamento
+    isDynamic: true,
+  },
+  {
+    path: '/reset/password',
+    whenAuthenticated: 'no-redirect', // Alterado para evitar redirecionamento
     isDynamic: true,
   },
 ] as const
@@ -37,10 +67,24 @@ export function middleware(request: NextRequest) {
     }
   })
 
+  // Verificação específica para /active/account/<token>
+  // if (path.startsWith('/active/account')) {
+  //   return NextResponse.next() // Permite o acesso sem redirecionamento
+  // }
+
+  // // Verificação específica para /reset/password/
+  // if (path.startsWith('/reset/password')) {
+  //   return NextResponse.next() // Permite o acesso sem redirecionamento
+  // }
+
   if (!authToken && publicRoute) {
     return NextResponse.next()
   }
 
+  // ! Desabilita temporariamente o middleware para testar a página /advertise
+  if (path.startsWith('/advertise')) {
+    return NextResponse.next()
+  }
   if (!authToken && !publicRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE

@@ -26,14 +26,27 @@ export function cnpjMask(value: string) {
 }
 
 export function pixKeysMask(value: string) {
-  // debugger
+  // Remove espaços em branco no início e fim
+  const trimmedValue = value.trim()
 
-  const cleanValue = removeMask(value).trim() // Remove máscara e espaços em branco
+  // Verifica se é um email válido (contém @ e não é apenas números)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const isEmail = emailRegex.test(trimmedValue)
 
-  // Verifica se contém caracteres não numéricos (para e-mails e chaves aleatórias)
-  // if (/\D/.test(cleanValue)) {
-  //   return value.trim() // Retorna a entrada original, já que pode ser um e-mail ou chave aleatória
-  // }
+  // Se parece ser um email (contém @), retorna sem máscara
+  if (trimmedValue.includes('@')) {
+    // Permite digitação normal de email, mas remove espaços
+    return trimmedValue.replace(/\s/g, '')
+  }
+
+  // Se contém letras e não é email, pode ser chave aleatória - retorna sem máscara
+  if (/[a-zA-Z]/.test(trimmedValue) && !isEmail) {
+    // Remove apenas espaços para chaves aleatórias
+    return trimmedValue.replace(/\s/g, '')
+  }
+
+  // Para valores numéricos, aplica máscaras apropriadas
+  const cleanValue = removeMask(trimmedValue)
 
   let formattedValue
 

@@ -1,5 +1,12 @@
-'use client'
-import { Button } from '@/components/ui/button'
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -7,120 +14,190 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { InputPassword } from '@/components/ui/input-password'
-import { AuthContext } from '@/contexts/AuthContext'
-import { cpfMask } from '@/lib/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useContext } from 'react'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { InputPassword } from "@/components/ui/input-password";
+import { AuthContext } from "@/contexts/AuthContext";
+import { cpfMask } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft, Lock, Mail, Shield } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useContext } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
   document: z
     .string()
-    .min(1, 'Informe o seu CPF')
-    .transform((value) => value.replace(/\D/g, '')),
-  password: z.string().min(1, 'Informe a sua senha.'),
-})
+    .min(1, "Informe o seu CPF")
+    .transform((value) => value.replace(/\D/g, "")),
+  password: z.string().min(1, "Informe a sua senha."),
+});
 
 export function AuthForm() {
-  const { signIn } = useContext(AuthContext)
-  const router = useRouter()
+  const { signIn } = useContext(AuthContext);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      document: '',
-      password: '',
+      document: "",
+      password: "",
     },
-  })
+  });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    await signIn(data)
+    await signIn(data);
 
-    form.reset()
+    form.reset();
   }
-  return (
-    <div className="flex flex-col justify-center max-w-lg h-[80vh] mx-auto mt-3 max-sm:p-4 max-sm:justify-start max-md:p-4 max-md:justify-start">
-      <h1 className="text-3xl font-semibold mb-4">Entrar</h1>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="document"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Informe o seu CPF"
-                    {...field}
-                    onChange={(e) => field.onChange(cpfMask(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Senha</FormLabel>
-                <FormControl>
-                  <InputPassword
-                    placeholder="Define sua senha"
-                    type="password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-start w-96 mb-8">
-            <p className="text-base font-normal">
-              Esqueceu sua senha?{' '}
-              <Link
-                href="/reset/password"
-                onClick={(e) => {
-                  e.preventDefault()
-                  router.push('/reset/password')
-                }}
-                className="text-[#EAAC2E] hover:opacity-80 cursor-pointer"
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-12">
+      <div className="w-full max-w-md">
+        {/* Logo/Back Button */}
+        <div className="mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para home
+          </Link>
+        </div>
+
+        <Card className="border-2 shadow-xl">
+          <CardHeader className="space-y-1 text-center pb-6">
+            <div className="mx-auto w-16 h-16 rounded-full bg-[#EAAC2E]/10 flex items-center justify-center mb-4">
+              <Shield className="h-8 w-8 text-[#EAAC2E]" />
+            </div>
+            <CardTitle className="text-3xl font-bold">
+              Bem-vindo de volta
+            </CardTitle>
+            <CardDescription className="text-base">
+              Entre com suas credenciais para acessar sua conta
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
               >
-                Recuperar senha
-              </Link>
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Button
-              type="submit"
-              className="h-12"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? 'Acessando...' : 'Acessar conta'}
-            </Button>
-            <p>
-              Não tem uma conta?{' '}
-              <span>
-                <Link
-                  href="/register"
-                  className="text-[#EAAC2E] hover:opacity-80"
+                <FormField
+                  control={form.control}
+                  name="document"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        CPF
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <Mail className="h-5 w-5" />
+                          </div>
+                          <Input
+                            placeholder="000.000.000-00"
+                            className="pl-10 h-12"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(cpfMask(e.target.value))
+                            }
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium">
+                        Senha
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <Lock className="h-5 w-5" />
+                          </div>
+                          <InputPassword
+                            placeholder="Digite sua senha"
+                            className="pl-10 h-12"
+                            type="password"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex items-center justify-end">
+                  <Link
+                    href="/reset/password"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push("/reset/password");
+                    }}
+                    className="text-sm text-[#EAAC2E] hover:underline font-medium transition-colors"
+                  >
+                    Esqueceu sua senha?
+                  </Link>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-base font-semibold"
+                  disabled={form.formState.isSubmitting}
                 >
-                  Criar conta
-                </Link>
-              </span>
-            </p>
-          </div>
-        </form>
-      </Form>
+                  {form.formState.isSubmitting ? "Entrando..." : "Entrar"}
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      ou
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-center text-sm">
+                  <span className="text-gray-600">Não tem uma conta? </span>
+                  <Link
+                    href="/register"
+                    className="font-semibold text-[#EAAC2E] hover:underline transition-colors"
+                  >
+                    Criar conta gratuita
+                  </Link>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <div className="mt-6 text-center text-sm text-gray-600">
+          <p>
+            Ao entrar, você concorda com nossos{" "}
+            <Link href="/terms" className="text-[#EAAC2E] hover:underline">
+              Termos de Serviço
+            </Link>{" "}
+            e{" "}
+            <Link href="/privacy" className="text-[#EAAC2E] hover:underline">
+              Política de Privacidade
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
