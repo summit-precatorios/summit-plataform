@@ -107,9 +107,10 @@ export function RegisterForm(props: {
           title: 'Erro interno',
           description: 'Não foi possível processar a sua requisição',
         })
+        return
       }
 
-      if (response.statusCode === 201) {
+      if (response && (response.statusCode === 201 || !response.statusCode)) {
         toast({
           variant: 'default',
           title: `Seu ${props.title} foi registrado com sucesso!`,
@@ -119,6 +120,13 @@ export function RegisterForm(props: {
 
         form.reset()
         router.push('/dashboard')
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao criar anúncio',
+          description:
+            response?.message || 'Não foi possível processar a sua requisição',
+        })
       }
     } catch (error) {
       toast({

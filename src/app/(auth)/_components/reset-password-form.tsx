@@ -72,27 +72,37 @@ export function ResetPasswordForm({
       token: params.token,
     }
 
-    const response = await api('auth/reset/password', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`,
-      },
-      body: JSON.stringify(enrichmentData, null, 2),
-    })
+    try {
+      const response = await api<{ statusCode?: number; message?: string }>(
+        'auth/reset/password',
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
+          },
+          body: JSON.stringify(enrichmentData, null, 2),
+        },
+      )
 
-    if (response.statusCode === 200) {
-      toast({
-        variant: 'default',
-        description: 'Sua senha foi alterada com sucesso',
-      })
+      if (response && (response.statusCode === 200 || !response.statusCode)) {
+        toast({
+          variant: 'default',
+          description: 'Sua senha foi alterada com sucesso',
+        })
 
-      form.reset()
-      router.push('/sign-in')
-    } else {
+        form.reset()
+        router.push('/sign-in')
+      } else {
+        toast({
+          variant: 'destructive',
+          description: response?.message || 'Token inválido',
+        })
+      }
+    } catch (error) {
       toast({
         variant: 'destructive',
-        description: 'Token inválido',
+        description: 'Não foi possível alterar a senha. Tente novamente.',
       })
     }
   }

@@ -19,6 +19,7 @@ export async function signInRequest({ document, password }: SignInRequestData) {
     })
   } catch (error) {
     console.error('error_fetching_data', error)
+    throw error
   }
 }
 
@@ -28,11 +29,14 @@ export async function registerRequest(data: RegisterRequestData) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`,
+        'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
       },
       body: JSON.stringify(data, null, 2),
     })
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_registering_user', error)
+    throw error
+  }
 }
 
 export async function forgotPassword(data: ForgotPasswordRequestData) {
@@ -41,11 +45,14 @@ export async function forgotPassword(data: ForgotPasswordRequestData) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`,
+        'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
       },
       body: JSON.stringify(data, null, 2),
     })
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_requesting_password_recovery', error)
+    throw error
+  }
 }
 
 export async function activeAccount(data: ActiveAccountRequestData) {
@@ -56,12 +63,15 @@ export async function activeAccount(data: ActiveAccountRequestData) {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': `${process.env.API_KEY}`,
+          'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
         },
         body: JSON.stringify(data, null, 2),
       },
     )
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_activating_account', error)
+    throw error
+  }
 }
 
 export async function verifyAccountByDocument(data: VerifyAccountRequestData) {
@@ -70,9 +80,12 @@ export async function verifyAccountByDocument(data: VerifyAccountRequestData) {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': `${process.env.API_KEY}`,
+        'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
       },
       body: JSON.stringify(data, null, 2),
     })
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_verifying_account', error)
+    throw error
+  }
 }

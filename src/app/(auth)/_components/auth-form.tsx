@@ -14,6 +14,7 @@ import { AuthContext } from '@/contexts/AuthContext'
 import { cpfMask } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -28,6 +29,7 @@ const formSchema = z.object({
 
 export function AuthForm() {
   const { signIn } = useContext(AuthContext)
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,7 +89,11 @@ export function AuthForm() {
               Esqueceu sua senha?{' '}
               <Link
                 href="/reset/password"
-                className="text-[#EAAC2E] hover:opacity-80"
+                onClick={(e) => {
+                  e.preventDefault()
+                  router.push('/reset/password')
+                }}
+                className="text-[#EAAC2E] hover:opacity-80 cursor-pointer"
               >
                 Recuperar senha
               </Link>

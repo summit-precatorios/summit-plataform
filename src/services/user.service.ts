@@ -1,27 +1,30 @@
-import { api } from '@/lib/api'
-import Cookies from 'js-cookie'
+import { api, providerBaseHeaders } from '@/lib/api'
 import { jwtDecode } from 'jwt-decode'
+
+type DecodedToken = {
+  payload: {
+    document: string
+    [key: string]: unknown
+  }
+  roles?: string[]
+}
 
 export async function getCurrentUser(token?: string) {
   if (token) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tokenDecoded: any = await jwtDecode(token as string)
+    const tokenDecoded = jwtDecode<DecodedToken>(token as string)
 
     return tokenDecoded.payload.document ?? undefined
   }
 }
 
 export async function getAnnouncementsByUserDocument(document: string) {
-  const token = Cookies.get('summit.token')
-
   try {
     return await api(`user/announcements/${document}`, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
-      },
+      headers: providerBaseHeaders(),
     })
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_fetching_user_announcements', error)
+    throw error
+  }
 }

@@ -15,15 +15,17 @@ export function useAnnouncements(
     let isMounted = true
 
     async function fetchOrders() {
+      if (!user) return
+
       dispatchLoading(true)
       dispatchError(null)
 
       try {
         const response = (await isAllowedTo(Role.Admin))
           ? await getAllAnnouncements()
-          : await getAnnouncementsByUserDocument(user!.document)
+          : await getAnnouncementsByUserDocument(user.document)
 
-        if (isMounted) dispatchOrders(response)
+        if (isMounted) dispatchOrders(response || [])
       } catch (error) {
         if (isMounted) dispatchError('error_fetching_orders')
       } finally {

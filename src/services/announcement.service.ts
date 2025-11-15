@@ -1,28 +1,24 @@
 import { api, providerBaseHeaders } from '@/lib/api'
 import { CreateAnnouncementRequestData } from '@/types'
-import Cookies from 'js-cookie'
 
 export async function createAnnouncementRequest(
   data: CreateAnnouncementRequestData,
 ) {
-  const token = Cookies.get('summit.token')
-
   try {
-    return await api('announcement', {
+    return await api('announcements', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
-      },
+      headers: providerBaseHeaders(),
       body: JSON.stringify(data, null, 2),
     })
-  } catch (error) {}
+  } catch (error) {
+    console.error('error_creating_announcement', error)
+    throw error
+  }
 }
 
 export async function getAnnouncementsByDocument(document: string) {
   try {
-    const response = await api(`user/announcement/${document}`, {
+    const response = await api(`user/announcements/${document}`, {
       method: 'GET',
       headers: providerBaseHeaders(),
     })
@@ -40,7 +36,7 @@ export async function getAnnouncementsByDocument(document: string) {
 
 export async function getAllAnnouncements() {
   try {
-    const response = await api('announcement', {
+    const response = await api('announcements', {
       method: 'GET',
       headers: providerBaseHeaders(),
     })

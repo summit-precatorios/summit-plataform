@@ -97,24 +97,27 @@ export function AuthProvider({ children }: AuthContextProps) {
   useEffect(() => {
     const { 'summit.token': token } = parseCookies()
 
-    if (token) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
-        token as string,
-      )
+    if (token && !user) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
+          token as string,
+        )
 
-      const { payload, roles } = tokenDecoded
+        const { payload, roles } = tokenDecoded
 
-      const data: User = {
-        ...payload,
-        roles,
+        const data: User = {
+          ...payload,
+          roles,
+        }
+
+        setUser(data)
+      } catch (error) {
+        console.error('error_decoding_token', error)
+        destroyCookie(null, 'summit.token')
       }
-
-      setUser(data)
-
-      router.push('/dashboard')
     }
-  }, [router])
+  }, [user])
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>
