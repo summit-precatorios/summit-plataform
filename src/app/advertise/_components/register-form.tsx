@@ -40,14 +40,18 @@ import { createAnnouncementRequest } from "@/services/announcement.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import {
+  AlertCircle,
   Calculator,
   CircleHelp,
   CreditCard,
   DollarSign,
+  File,
   FileText,
   Info,
   Landmark,
+  Upload,
   User,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -87,6 +91,9 @@ export function RegisterForm(props: {
     "PIX",
   );
   const [formattedPrice, setFormattedPrice] = useState("0,00");
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   const { createAnnouncementSchema } = useAdvertise();
 
   type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>;
@@ -103,12 +110,134 @@ export function RegisterForm(props: {
     form.setValue("paymentOption", option);
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newErrors: string[] = [];
+    const validFiles: File[] = [];
+
+    Array.from(files).forEach((file) => {
+      // Verifica se é PDF
+      if (file.type !== "application/pdf") {
+        newErrors.push(`"${file.name}" não é um arquivo PDF válido.`);
+        return;
+      }
+
+      // Verifica o tamanho do arquivo
+      if (file.size > MAX_FILE_SIZE) {
+        newErrors.push(`"${file.name}" excede o tamanho máximo de 10MB.`);
+        return;
+      }
+
+      // Verifica se o arquivo já foi adicionado
+      if (
+        uploadedFiles.some((f) => f.name === file.name && f.size === file.size)
+      ) {
+        newErrors.push(`"${file.name}" já foi adicionado.`);
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    if (newErrors.length > 0) {
+      setFileErrors(newErrors);
+      toast({
+        variant: "destructive",
+        title: "Erro ao adicionar arquivos",
+        description: newErrors.join(" "),
+      });
+    } else {
+      setFileErrors([]);
+    }
+
+    if (validFiles.length > 0) {
+      setUploadedFiles((prev) => [...prev, ...validFiles]);
+      toast({
+        variant: "default",
+        title: `${validFiles.length} arquivo(s) adicionado(s)`,
+        description: "Os documentos foram adicionados com sucesso.",
+      });
+    }
+
+    // Limpa o input para permitir adicionar o mesmo arquivo novamente se necessário
+    event.target.value = "";
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
   const { toast } = useToast();
   const router = useRouter();
 
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
     try {
-      const response = await createAnnouncementRequest(data);
+      // Se houver arquivos, prepara FormData, caso contrário envia JSON normal
+      let response;
+
+      if (uploadedFiles.length > 0) {
+        // Criar FormData para envio de arquivos
+        const formData = new FormData();
+
+        // Adiciona todos os campos do formulário
+        Object.entries(data).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            formData.append(key, String(value));
+          }
+        });
+
+        // Adiciona os arquivos PDF
+        uploadedFiles.forEach((file, index) => {
+          formData.append(`documents[${index}]`, file);
+        });
+
+        // Enviar com FormData
+        const token = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("summit.token="))
+          ?.split("=")[1];
+
+        if (!token) {
+          throw new Error("token_is_missing");
+        }
+
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
+        const apiUrl = `${baseUrl}/announcements`;
+
+        response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+            // Não definir Content-Type para FormData - o browser fará isso automaticamente
+          },
+          body: formData,
+        }).then(async (res) => {
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({
+              message: `HTTP error! status: ${res.status}`,
+            }));
+            throw new Error(
+              errorData.message || `HTTP error! status: ${res.status}`,
+            );
+          }
+          return res.json();
+        });
+      } else {
+        // Envia normalmente sem arquivos
+        response = await createAnnouncementRequest(data);
+      }
 
       if (!response) {
         toast({
@@ -128,6 +257,8 @@ export function RegisterForm(props: {
         });
 
         form.reset();
+        setUploadedFiles([]);
+        setFileErrors([]);
         router.push("/dashboard");
       } else {
         toast({
@@ -716,6 +847,140 @@ export function RegisterForm(props: {
                   />
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Section 5: Documentos */}
+          <Card className="border-2 shadow-lg">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-100">
+                  <File className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Documentos (Opcional)
+                  </CardTitle>
+                  <CardDescription>
+                    Anexe documentos relacionados ao seu precatório (procuração,
+                    processos, etc.)
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="grid gap-6 pt-6">
+              {/* File Upload Area */}
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-[#EAAC2E] transition-colors">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div className="p-3 rounded-full bg-[#EAAC2E]/10 mb-3">
+                      <Upload className="h-8 w-8 text-[#EAAC2E]" />
+                    </div>
+                    <Label
+                      htmlFor="file-upload"
+                      className="cursor-pointer flex flex-col items-center gap-2"
+                    >
+                      <span className="text-base font-semibold text-gray-900">
+                        Clique para fazer upload ou arraste os arquivos aqui
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        Apenas arquivos PDF (máximo 10MB por arquivo)
+                      </span>
+                    </Label>
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </div>
+                </div>
+
+                {/* File Errors */}
+                {fileErrors.length > 0 && (
+                  <Card className="border-red-200 bg-red-50">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-red-900 mb-2">
+                            Erros ao adicionar arquivos:
+                          </p>
+                          <ul className="text-sm text-red-700 space-y-1">
+                            {fileErrors.map((error, index) => (
+                              <li key={index}>• {error}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Uploaded Files List */}
+                {uploadedFiles.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-900">
+                        Arquivos selecionados ({uploadedFiles.length})
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {uploadedFiles.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="p-2 rounded bg-red-100 flex-shrink-0">
+                              <File className="h-4 w-4 text-red-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {file.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatFileSize(file.size)}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeFile(index)}
+                            className="flex-shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Info Box */}
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-3">
+                      <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 text-sm text-blue-900">
+                        <p className="font-medium mb-1">
+                          Documentos recomendados:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1 text-blue-800">
+                          <li>Procuração (se aplicável)</li>
+                          <li>Documentos do processo judicial</li>
+                          <li>Comprovantes de propriedade</li>
+                          <li>Outros documentos relevantes</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </CardContent>
           </Card>
 

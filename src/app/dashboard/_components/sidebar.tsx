@@ -1,57 +1,88 @@
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { Scale } from 'lucide-react'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { FileText, Scale, TrendingUp } from "lucide-react";
 
 interface SidebarProps {
-  className: string | undefined
+  className: string | undefined;
 }
 
 export function Sidebar({ className }: SidebarProps) {
   return (
-    <div className={cn('pb-12', className)}>
+    <div className={cn("pb-12", className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            Seus Títulos
+          <h2 className="mb-4 px-4 text-xl font-bold tracking-tight text-gray-900">
+            Meus Títulos
           </h2>
-          <div className="space-y-1">
-            <Button variant="secondary" className="w-full justify-start">
-              <Scale size={20} className="mr-2" color="#67da6f" />
-              Precatórios
+          <div className="space-y-2">
+            <Button
+              variant="secondary"
+              className="w-full justify-start bg-[#EAAC2E]/10 hover:bg-[#EAAC2E]/20 text-gray-900 border-2 border-[#EAAC2E]/30"
+            >
+              <Scale size={20} className="mr-3 text-[#EAAC2E]" />
+              <span className="font-semibold">Precatórios</span>
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Scale size={20} className="mr-2" color="#c3ea57" />
-              RPVs
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 text-gray-700"
+            >
+              <FileText size={20} className="mr-3 text-blue-600" />
+              <span className="font-medium">RPVs</span>
             </Button>
           </div>
         </div>
+
         <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            Explorar
+          <h2 className="mb-4 px-4 text-xl font-bold tracking-tight text-gray-900">
+            Análise
           </h2>
-          <div className="space-y-1">
-            <Button variant="ghost" className="w-full justify-start">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2 h-4 w-4"
-              >
-                <path d="M21 15V6" />
-                <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
-                <path d="M12 12H3" />
-                <path d="M16 6H3" />
-                <path d="M12 18H3" />
-              </svg>
-              Notícias
+          <div className="space-y-2">
+            <Card className="border-2 border-blue-200 bg-blue-50/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-blue-100">
+                    <TrendingUp className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-gray-900">
+                    Visão Geral
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-xs text-gray-600">
+                  Acompanhe o status dos seus anúncios e estatísticas de
+                  negociação.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className="px-3 py-2">
+          <h2 className="mb-4 px-4 text-xl font-bold tracking-tight text-gray-900">
+            Ajuda
+          </h2>
+          <div className="space-y-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 text-gray-700"
+              onClick={() => (window.location.href = "/faq")}
+            >
+              <FileText size={20} className="mr-3 text-purple-600" />
+              <span className="font-medium">FAQ</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 text-gray-700"
+              onClick={() => (window.location.href = "/contact")}
+            >
+              <FileText size={20} className="mr-3 text-green-600" />
+              <span className="font-medium">Suporte</span>
             </Button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

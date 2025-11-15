@@ -85,6 +85,11 @@ export function middleware(request: NextRequest) {
   if (path.startsWith('/advertise')) {
     return NextResponse.next()
   }
+
+  if (path.startsWith('/dashboard')) {
+    return NextResponse.next()
+  }
+
   if (!authToken && !publicRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
