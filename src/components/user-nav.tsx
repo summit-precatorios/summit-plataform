@@ -1,13 +1,14 @@
 "use client";
 
 import { AuthContext } from "@/contexts/AuthContext";
+import { cpfMask } from "@/lib/utils";
 import {
-    AlertCircle,
-    CheckCircle2,
-    LayoutDashboard,
-    LogOut,
-    Settings,
-    UserCircle,
+  AlertCircle,
+  CheckCircle2,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  UserCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useContext } from "react";
@@ -15,13 +16,13 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
 export function UserNav() {
@@ -98,7 +99,7 @@ export function UserNav() {
             </div>
             {user?.document && (
               <p className="text-xs text-gray-400 font-mono">
-                CPF: {user.document}
+                CPF: {cpfMask(user.document)}
               </p>
             )}
           </div>

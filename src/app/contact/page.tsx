@@ -72,13 +72,13 @@ export default function ContactPage() {
       icon: Phone,
       title: "Telefone",
       description: "Ligue para nós",
-      value: "(11) 3000-0000",
+      value: "(61) 3000-0000",
     },
     {
       icon: MapPin,
       title: "Endereço",
       description: "Nossa localização",
-      value: "São Paulo, SP - Brasil",
+      value: "Brasília, DF - Brasil",
     },
   ];
 
