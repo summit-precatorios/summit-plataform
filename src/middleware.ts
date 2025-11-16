@@ -53,6 +53,13 @@ const publicRoutes = [
   },
 ] as const
 
+// Rotas protegidas que requerem autenticação
+const protectedRoutes = [
+  '/dashboard',
+  '/advertise',
+  '/announcement',
+] as const
+
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/sign-in'
 
 export function middleware(request: NextRequest) {
@@ -67,33 +74,23 @@ export function middleware(request: NextRequest) {
     }
   })
 
-  // Verificação específica para /active/account/<token>
-  // if (path.startsWith('/active/account')) {
-  //   return NextResponse.next() // Permite o acesso sem redirecionamento
-  // }
+  // Verifica se a rota é uma rota protegida conhecida
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    path.startsWith(route)
+  )
 
-  // // Verificação específica para /reset/password/
-  // if (path.startsWith('/reset/password')) {
-  //   return NextResponse.next() // Permite o acesso sem redirecionamento
-  // }
+  // Se não for rota pública nem protegida conhecida, permite que o Next.js processe
+  // (isso permite que páginas 404 sejam exibidas normalmente)
+  if (!publicRoute && !isProtectedRoute) {
+    return NextResponse.next()
+  }
 
   if (!authToken && publicRoute) {
     return NextResponse.next()
   }
 
-  // ! Desabilita temporariamente o middleware para testar a página /advertise
-  // if (path.startsWith('/advertise')) {
-  //   return NextResponse.next()
-  // }
-
-  // if (path.startsWith('/dashboard')) {
-  //   return NextResponse.next()
-  // }
-  // if (path.startsWith('/announcement')) {
-  //   return NextResponse.next()
-  // }
-  
-  if (!authToken && !publicRoute) {
+  // Redireciona apenas se for uma rota protegida conhecida e não houver token
+  if (!authToken && isProtectedRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
     return NextResponse.redirect(redirectUrl)

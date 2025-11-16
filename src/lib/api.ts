@@ -51,14 +51,38 @@ export async function api<ResponseType = any>(
 
     return (await result.json()) as ResponseType
   } catch (error) {
+    // Se o erro já tem statusCode, preserva
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+      console.error('api_request_error', {
+        url: BASE_URL,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        statusCode: (error as { statusCode: number }).statusCode,
+      })
+      throw error
+    }
+
+    // Para erros de timeout ou rede, cria um erro com informações úteis
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('aborted')
+    
+    const apiError: Error & { statusCode?: number } = new Error(
+      isTimeout 
+        ? 'A requisição demorou muito para responder. Tente novamente.'
+        : errorMessage
+    )
+    
+    // Timeout não tem statusCode HTTP, mas podemos marcar como erro de rede
+    if (!isTimeout) {
+      apiError.statusCode = undefined
+    }
+
     console.error('api_request_error', {
       url: BASE_URL,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      statusCode:
-        error && typeof error === 'object' && 'statusCode' in error
-          ? (error as { statusCode: number }).statusCode
-          : undefined,
+      error: errorMessage,
+      statusCode: apiError.statusCode,
+      isTimeout,
     })
-    throw error
+    
+    throw apiError
   }
 }

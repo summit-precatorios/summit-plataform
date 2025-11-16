@@ -35,9 +35,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
-import { handleApiError } from "@/lib/error-handler";
 import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from "@/lib/utils";
 import { createAnnouncementRequest } from "@/services/announcement.service";
+import { CreateAnnouncementRequestData } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import {
@@ -181,8 +181,62 @@ export function RegisterForm(props: {
   const { toast } = useToast();
   const router = useRouter();
 
+  // Função auxiliar para converter valor monetário formatado para número
+  const convertCurrencyToNumber = (value: string | undefined): string => {
+    if (!value || value.trim() === "") return "";
+    // Remove formatação e converte vírgula para ponto
+    const numericValue = value
+      .replace(/[^\d,.-]/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".");
+    return numericValue;
+  };
+
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
     try {
+      // Valida se todos os campos obrigatórios estão preenchidos
+      if (!data.type && !props.announcementType) {
+        toast({
+          variant: "destructive",
+          title: "Erro de validação",
+          description: "O tipo de anúncio é obrigatório",
+        });
+        return;
+      }
+
+      // Garante que o tipo está presente
+      const formDataToSend = {
+        ...data,
+        type: data.type || props.announcementType,
+      };
+
+      // Valida campos obrigatórios antes de enviar
+      const requiredFields = [
+        { key: "ownerFullName", label: "Nome completo" },
+        { key: "ownerDocument", label: "CPF" },
+        { key: "lawSuit", label: "Número do processo" },
+        { key: "origin", label: "Origem" },
+        { key: "court", label: "Tribunal" },
+        { key: "price", label: "Valor nominal" },
+        { key: "salePrice", label: "Valor de venda" },
+        { key: "liquidBalance", label: "Saldo líquido" },
+        { key: "paymentOption", label: "Forma de pagamento" },
+      ];
+
+      const missingFields = requiredFields.filter(
+        (field) => !formDataToSend[field.key as keyof typeof formDataToSend] ||
+        String(formDataToSend[field.key as keyof typeof formDataToSend]).trim() === ""
+      );
+
+      if (missingFields.length > 0) {
+        toast({
+          variant: "destructive",
+          title: "Campos obrigatórios não preenchidos",
+          description: `Por favor, preencha: ${missingFields.map(f => f.label).join(", ")}`,
+        });
+        return;
+      }
+
       // Se houver arquivos, prepara FormData, caso contrário envia JSON normal
       let response;
 
@@ -190,12 +244,46 @@ export function RegisterForm(props: {
         // Criar FormData para envio de arquivos
         const formData = new FormData();
 
-        // Adiciona todos os campos do formulário
-        Object.entries(data).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            formData.append(key, String(value));
+        // Adiciona todos os campos obrigatórios do formulário
+        // Campos obrigatórios sempre presentes
+        formData.append("type", formDataToSend.type);
+        formData.append("ownerFullName", formDataToSend.ownerFullName);
+        formData.append("ownerDocument", formDataToSend.ownerDocument);
+        formData.append("lawSuit", formDataToSend.lawSuit);
+        formData.append("origin", formDataToSend.origin);
+        formData.append("court", formDataToSend.court);
+        
+        // Valores monetários - converte para formato numérico
+        const price = convertCurrencyToNumber(formDataToSend.price);
+        const salePrice = convertCurrencyToNumber(formDataToSend.salePrice);
+        const liquidBalance = convertCurrencyToNumber(formDataToSend.liquidBalance);
+        
+        formData.append("price", price);
+        formData.append("salePrice", salePrice);
+        formData.append("liquidBalance", liquidBalance);
+        
+        // Payment option
+        formData.append("paymentOption", formDataToSend.paymentOption);
+
+        // Campos condicionais baseados no tipo de pagamento
+        if (formDataToSend.paymentOption === "PIX") {
+          if (formDataToSend.pixKey) {
+            formData.append("pixKey", formDataToSend.pixKey);
           }
-        });
+        } else if (formDataToSend.paymentOption === "TRANSFER_BANK") {
+          if (formDataToSend.ownerBankAccount) {
+            formData.append("ownerBankAccount", formDataToSend.ownerBankAccount);
+          }
+          if (formDataToSend.documentBankAccount) {
+            formData.append("documentBankAccount", formDataToSend.documentBankAccount);
+          }
+          if (formDataToSend.bankAccount) {
+            formData.append("bankAccount", formDataToSend.bankAccount);
+          }
+          if (formDataToSend.agencyBankAccount) {
+            formData.append("agencyBankAccount", formDataToSend.agencyBankAccount);
+          }
+        }
 
         // Adiciona os arquivos PDF
         uploadedFiles.forEach((file, index) => {
@@ -228,16 +316,53 @@ export function RegisterForm(props: {
           if (!res.ok) {
             const errorData = await res.json().catch(() => ({
               message: `HTTP error! status: ${res.status}`,
+              statusCode: res.status,
             }));
-            throw new Error(
-              errorData.message || `HTTP error! status: ${res.status}`,
+            const error: Error & { statusCode?: number } = new Error(
+              Array.isArray(errorData.message)
+                ? errorData.message.join(", ")
+                : errorData.message || `HTTP error! status: ${res.status}`,
             );
+            error.statusCode = res.status || errorData.statusCode;
+            throw error;
           }
           return res.json();
         });
       } else {
+        // Prepara dados para envio JSON - converte valores monetários
+        const jsonData: CreateAnnouncementRequestData = {
+          type: formDataToSend.type,
+          ownerFullName: formDataToSend.ownerFullName,
+          ownerDocument: formDataToSend.ownerDocument,
+          lawSuit: formDataToSend.lawSuit,
+          origin: formDataToSend.origin,
+          court: formDataToSend.court,
+          price: convertCurrencyToNumber(formDataToSend.price),
+          salePrice: convertCurrencyToNumber(formDataToSend.salePrice),
+          liquidBalance: convertCurrencyToNumber(formDataToSend.liquidBalance),
+          paymentOption: formDataToSend.paymentOption,
+        };
+
+        // Adiciona campos condicionais apenas se preenchidos
+        if (formDataToSend.paymentOption === "PIX" && formDataToSend.pixKey) {
+          jsonData.pixKey = formDataToSend.pixKey;
+        } else if (formDataToSend.paymentOption === "TRANSFER_BANK") {
+          if (formDataToSend.ownerBankAccount) {
+            jsonData.ownerBankAccount = formDataToSend.ownerBankAccount;
+          }
+          if (formDataToSend.documentBankAccount) {
+            jsonData.documentBankAccount = formDataToSend.documentBankAccount;
+          }
+          if (formDataToSend.bankAccount) {
+            jsonData.bankAccount = formDataToSend.bankAccount;
+          }
+          if (formDataToSend.agencyBankAccount) {
+            jsonData.agencyBankAccount = formDataToSend.agencyBankAccount;
+          }
+        }
+
         // Envia normalmente sem arquivos
-        response = await createAnnouncementRequest(data);
+        response = await createAnnouncementRequest(jsonData);
       }
 
       if (!response) {
@@ -262,20 +387,47 @@ export function RegisterForm(props: {
         setFileErrors([]);
         router.push("/dashboard");
       } else {
+        // Trata erros de validação com mensagens mais claras
+        const errorMessage = Array.isArray(response?.message)
+          ? response.message.join(". ")
+          : response?.message || "Não foi possível processar a sua requisição";
+        
         toast({
           variant: "destructive",
           title: "Erro ao criar anúncio",
-          description:
-            response?.message || "Não foi possível processar a sua requisição",
+          description: errorMessage,
         });
       }
     } catch (error) {
-      const errorToast = handleApiError(
-        error && typeof error === 'object' && 'statusCode' in error
-          ? (error as { statusCode?: number; message?: string })
-          : error,
-      );
-      toast(errorToast);
+      // Melhora o tratamento de erros para mostrar mensagens mais específicas
+      let errorMessage = "Não foi possível processar a sua requisição";
+      
+      if (error && typeof error === "object") {
+        if ("statusCode" in error) {
+          const httpError = error as { statusCode?: number; message?: string | string[] };
+          if (httpError.statusCode === 400) {
+            // Erro de validação
+            const message = httpError.message;
+            if (Array.isArray(message)) {
+              errorMessage = `Erro de validação: ${message.join(". ")}`;
+            } else if (typeof message === "string") {
+              errorMessage = `Erro de validação: ${message}`;
+            }
+          } else {
+            errorMessage = typeof httpError.message === "string"
+              ? httpError.message
+              : Array.isArray(httpError.message)
+              ? httpError.message.join(". ")
+              : errorMessage;
+          }
+        }
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Erro ao criar anúncio",
+        description: errorMessage,
+      });
     }
   }
 
@@ -290,9 +442,23 @@ export function RegisterForm(props: {
     form.setValue("liquidBalance", newCalculatedBalance);
   }, [salePrice, form]);
 
+  // Garante que o tipo está sempre definido
   useEffect(() => {
-    form.setValue("type", props.announcementType);
+    if (props.announcementType) {
+      form.setValue("type", props.announcementType);
+    }
   }, [props.announcementType, form]);
+
+  // Valida se todos os campos obrigatórios estão preenchidos antes de enviar
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      // Log para debug (pode ser removido em produção)
+      if (process.env.NODE_ENV === "development" && name) {
+        console.log(`Field ${name} changed:`, value[name as keyof typeof value]);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   if (!props.show) {
     return null;

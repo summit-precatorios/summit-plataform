@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { AuthContext } from "@/contexts/AuthContext";
 import PermissionContext from "@/contexts/PermissionContext";
-import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useAnnouncements, type AnnouncementsError } from "@/hooks/useAnnouncements";
 import { verifyAccountByDocument } from "@/services/auth.service";
 import { Role } from "@/types";
 import {
@@ -45,6 +45,9 @@ export default function DashboardPage() {
     loading: ordersLoading,
     error: ordersError,
   } = useAnnouncements(user, isAllowedTo);
+
+  // Verifica se o erro é relacionado à falta de permissão/role
+  const isPermissionError = ordersError?.type === 'FORBIDDEN' || ordersError?.type === 'UNAUTHORIZED';
 
   const { toast } = useToast();
 
@@ -136,6 +139,52 @@ export default function DashboardPage() {
     );
   }
 
+  // Renderiza erro de permissão com opção de reenviar email
+  if (isPermissionError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <Card className="border-yellow-200 bg-yellow-50 max-w-md">
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-yellow-900">
+                    Conta não ativada
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    {ordersError?.message ||
+                      "Por favor, confirme seu e-mail para acessar esta funcionalidade."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 pt-2">
+                <Button
+                  onClick={handleClick}
+                  disabled={loading}
+                  className="bg-[#EAAC2E] hover:bg-[#ffc947] w-full"
+                >
+                  {loading ? (
+                    <>
+                      <LoadingSpinner className="mr-2 h-4 w-4" />
+                      Enviando...
+                    </>
+                  ) : (
+                    "Reenviar e-mail de ativação"
+                  )}
+                </Button>
+                <p className="text-xs text-yellow-600 text-center">
+                  Verifique sua caixa de entrada e spam
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Renderiza outros tipos de erro
   if (error || ordersError) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
@@ -147,7 +196,7 @@ export default function DashboardPage() {
                 <p className="font-semibold text-red-900">Erro ao carregar</p>
                 <p className="text-sm text-red-700 mt-1">
                   {error ||
-                    ordersError ||
+                    ordersError?.message ||
                     "Não foi possível carregar os dados do dashboard."}
                 </p>
               </div>
