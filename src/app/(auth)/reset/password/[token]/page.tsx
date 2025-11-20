@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import { ResetPasswordForm } from "../../../_components/reset-password-form";
+import { useParams } from 'next/navigation';
+import { ResetPasswordForm } from '../../../_components/reset-password-form';
 
 export default function ResetPassword() {
   const params = useParams();

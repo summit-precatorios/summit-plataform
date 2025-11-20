@@ -1,38 +1,38 @@
-"use client";
+'use client';
 
-import { LoadingSpinner } from "@/components/loading-spinner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from '@/components/loading-spinner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
-import { handleApiError } from "@/lib/error-handler";
-import { getAnnouncementsByDocument } from "@/services/announcement.service";
-import { Announcement } from "@/types";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/use-toast';
+import { handleApiError } from '@/lib/error-handler';
+import { getAnnouncementsByDocument } from '@/services/announcement.service';
+import { Announcement } from '@/types';
 import {
-    AlertCircle,
-    ArrowLeft,
-    Banknote,
-    CheckCircle2,
-    Clock,
-    CreditCard,
-    Download,
-    FileText,
-    Landmark,
-    Scale,
-    Share2,
-    TrendingUp,
-    User,
-    Wallet,
-} from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+  AlertCircle,
+  ArrowLeft,
+  Banknote,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Download,
+  FileText,
+  Landmark,
+  Scale,
+  Share2,
+  TrendingUp,
+  User,
+  Wallet,
+} from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function AnnouncementDetailPage() {
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function AnnouncementDetailPage() {
       const id = params?.id as string;
 
       if (!id) {
-        setError("ID do anúncio não fornecido");
+        setError('ID do anúncio não fornecido');
         setLoading(false);
         return;
       }
@@ -60,16 +60,16 @@ export default function AnnouncementDetailPage() {
         if (response && response.id) {
           setAnnouncement(response);
         } else {
-          setError("Anúncio não encontrado");
+          setError('Anúncio não encontrado');
         }
       } catch (err) {
         const errorToast = handleApiError(
-          err && typeof err === "object" && "statusCode" in err
+          err && typeof err === 'object' && 'statusCode' in err
             ? (err as { statusCode?: number; message?: string })
-            : err,
+            : err
         );
         toast(errorToast);
-        setError("Não foi possível carregar o anúncio");
+        setError('Não foi possível carregar o anúncio');
       } finally {
         setLoading(false);
       }
@@ -79,48 +79,48 @@ export default function AnnouncementDetailPage() {
   }, [params?.id, toast]);
 
   const formatCurrency = (value: string | number) => {
-    const numValue = typeof value === "string" ? parseFloat(value) : value;
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
     }).format(numValue);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(date);
   };
 
   const getCourtName = (court: string) => {
     const courts: Record<string, string> = {
-      federal: "TRF-1",
-      estadual: "TRF-4",
-      municipal: "TJSP",
+      federal: 'TRF-1',
+      estadual: 'TRF-4',
+      municipal: 'TJSP',
     };
     return courts[court] || court;
   };
 
   const getOriginName = (origin: string) => {
     const origins: Record<string, string> = {
-      federal: "Federal",
-      estadual: "Estadual",
-      municipal: "Municipal",
+      federal: 'Federal',
+      estadual: 'Estadual',
+      municipal: 'Municipal',
     };
     return origins[origin] || origin;
   };
 
   const getTypeName = (type: string) => {
-    return type === "RPV" ? "RPV - Requisição de Pequeno Valor" : "Precatório";
+    return type === 'RPV' ? 'RPV - Requisição de Pequeno Valor' : 'Precatório';
   };
 
   const getStatusBadge = (status: string) => {
-    if (status === "APPROVED") {
+    if (status === 'APPROVED') {
       return (
         <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
           <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -160,11 +160,11 @@ export default function AnnouncementDetailPage() {
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
                   {error ||
-                    "O anúncio solicitado não foi encontrado ou não existe mais."}
+                    'O anúncio solicitado não foi encontrado ou não existe mais.'}
                 </p>
               </div>
               <Button
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push('/dashboard')}
                 variant="outline"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -196,16 +196,16 @@ export default function AnnouncementDetailPage() {
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                   Detalhes do Anúncio
                 </h1>
-                {getStatusBadge(announcement.status || "PENDING")}
+                {getStatusBadge(announcement.status || 'PENDING')}
               </div>
               <p className="text-lg text-gray-600">
                 {getTypeName(announcement.type)}
               </p>
               <p className="text-sm text-gray-500 mt-1">
-                ID: {announcement.id} • Criado em{" "}
+                ID: {announcement.id} • Criado em{' '}
                 {announcement.createdAt
                   ? formatDate(announcement.createdAt)
-                  : "Data não disponível"}
+                  : 'Data não disponível'}
               </p>
             </div>
             <div className="flex gap-2">
@@ -272,8 +272,8 @@ export default function AnnouncementDetailPage() {
                   </div>
                   <div>
                     <CardTitle className="text-xl">
-                      Informações do{" "}
-                      {announcement.type === "RPV" ? "RPV" : "Precatório"}
+                      Informações do{' '}
+                      {announcement.type === 'RPV' ? 'RPV' : 'Precatório'}
                     </CardTitle>
                     <CardDescription>
                       Detalhes sobre o processo judicial
@@ -417,7 +417,7 @@ export default function AnnouncementDetailPage() {
                     Método de Pagamento
                   </label>
                   <div className="mt-2 flex items-center gap-3">
-                    {announcement.paymentOption === "PIX" ? (
+                    {announcement.paymentOption === 'PIX' ? (
                       <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 border border-blue-200">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -443,13 +443,13 @@ export default function AnnouncementDetailPage() {
                   </div>
                 </div>
 
-                {announcement.paymentOption === "PIX" ? (
+                {announcement.paymentOption === 'PIX' ? (
                   <div>
                     <label className="text-sm font-medium text-gray-500">
                       Chave PIX
                     </label>
                     <p className="mt-1 text-base font-semibold text-gray-900">
-                      {announcement.pixKey || "Não informado"}
+                      {announcement.pixKey || 'Não informado'}
                     </p>
                   </div>
                 ) : (
@@ -459,7 +459,7 @@ export default function AnnouncementDetailPage() {
                         Titular da Conta
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.ownerBankAccount || "Não informado"}
+                        {announcement.ownerBankAccount || 'Não informado'}
                       </p>
                     </div>
                     <div>
@@ -467,7 +467,7 @@ export default function AnnouncementDetailPage() {
                         CPF/CNPJ
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.documentBankAccount || "Não informado"}
+                        {announcement.documentBankAccount || 'Não informado'}
                       </p>
                     </div>
                     <div>
@@ -475,7 +475,7 @@ export default function AnnouncementDetailPage() {
                         Conta
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.bankAccount || "Não informado"}
+                        {announcement.bankAccount || 'Não informado'}
                       </p>
                     </div>
                     <div>
@@ -483,7 +483,7 @@ export default function AnnouncementDetailPage() {
                         Agência
                       </label>
                       <p className="mt-1 text-base font-semibold text-gray-900">
-                        {announcement.agencyBankAccount || "Não informado"}
+                        {announcement.agencyBankAccount || 'Não informado'}
                       </p>
                     </div>
                   </div>
@@ -511,7 +511,7 @@ export default function AnnouncementDetailPage() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => router.push("/dashboard")}
+                  onClick={() => router.push('/dashboard')}
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Voltar ao Dashboard
@@ -526,7 +526,7 @@ export default function AnnouncementDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {getStatusBadge(announcement.status || "PENDING")}
+                  {getStatusBadge(announcement.status || 'PENDING')}
                   <div className="pt-4 border-t">
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
@@ -534,15 +534,15 @@ export default function AnnouncementDetailPage() {
                         <span className="font-medium text-gray-900">
                           {announcement.createdAt
                             ? new Date(
-                                announcement.createdAt,
-                              ).toLocaleDateString("pt-BR")
-                            : "Data não disponível"}
+                                announcement.createdAt
+                              ).toLocaleDateString('pt-BR')
+                            : 'Data não disponível'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Tipo</span>
                         <span className="font-medium text-gray-900">
-                          {announcement.type === "RPV" ? "RPV" : "Precatório"}
+                          {announcement.type === 'RPV' ? 'RPV' : 'Precatório'}
                         </span>
                       </div>
                     </div>
@@ -575,7 +575,7 @@ export default function AnnouncementDetailPage() {
                     <span className="text-sm font-medium text-gray-700">
                       {formatCurrency(
                         parseFloat(announcement.salePrice) -
-                          parseFloat(announcement.liquidBalance),
+                          parseFloat(announcement.liquidBalance)
                       )}
                     </span>
                   </div>

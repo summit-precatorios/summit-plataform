@@ -1,12 +1,12 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -14,25 +14,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { InputPassword } from "@/components/ui/input-password";
-import { AuthContext } from "@/contexts/AuthContext";
-import { cpfMask } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Lock, Mail, Shield } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useContext } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { InputPassword } from '@/components/ui/input-password';
+import { AuthContext } from '@/contexts/AuthContext';
+import { cpfMask } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Lock, Mail, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useContext } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 const formSchema = z.object({
   document: z
     .string()
-    .min(1, "Informe o seu CPF")
-    .transform((value) => value.replace(/\D/g, "")),
-  password: z.string().min(1, "Informe a sua senha."),
+    .min(1, 'Informe o seu CPF')
+    .transform((value) => value.replace(/\D/g, '')),
+  password: z.string().min(1, 'Informe a sua senha.'),
 });
 
 export function AuthForm() {
@@ -42,8 +42,8 @@ export function AuthForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      document: "",
-      password: "",
+      document: '',
+      password: '',
     },
   });
 
@@ -144,7 +144,7 @@ export function AuthForm() {
                     href="/reset/password"
                     onClick={(e) => {
                       e.preventDefault();
-                      router.push("/reset/password");
+                      router.push('/reset/password');
                     }}
                     className="text-sm text-[#EAAC2E] hover:underline font-medium transition-colors"
                   >
@@ -157,7 +157,7 @@ export function AuthForm() {
                   className="w-full h-12 text-base font-semibold"
                   disabled={form.formState.isSubmitting}
                 >
-                  {form.formState.isSubmitting ? "Entrando..." : "Entrar"}
+                  {form.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
                 </Button>
 
                 <div className="relative">
@@ -187,11 +187,11 @@ export function AuthForm() {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
-            Ao entrar, você concorda com nossos{" "}
+            Ao entrar, você concorda com nossos{' '}
             <Link href="/terms" className="text-[#EAAC2E] hover:underline">
               Termos de Serviço
-            </Link>{" "}
-            e{" "}
+            </Link>{' '}
+            e{' '}
             <Link href="/privacy" className="text-[#EAAC2E] hover:underline">
               Política de Privacidade
             </Link>

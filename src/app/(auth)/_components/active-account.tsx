@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { activeAccount } from "@/services/auth.service";
-import { ActiveAccountRequestData } from "@/types";
-import { TriangleAlert } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Button } from '@/components/ui/button';
+import { activeAccount } from '@/services/auth.service';
+import { ActiveAccountRequestData } from '@/types';
+import { TriangleAlert } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export function ActiveAccount({
   params,
@@ -23,7 +23,7 @@ export function ActiveAccount({
           ? params.token[0]
           : params.token;
         if (!token) {
-          throw new Error("Token inválido ou ausente.");
+          throw new Error('Token inválido ou ausente.');
         }
 
         const data: ActiveAccountRequestData = { token };
@@ -31,13 +31,13 @@ export function ActiveAccount({
 
         if (!response || response.statusCode === 401) {
           throw new Error(
-            "O token de ativação é inválido ou expirado. Solicite um novo link de ativação.",
+            'O token de ativação é inválido ou expirado. Solicite um novo link de ativação.'
           );
         }
 
         if (!response || response.statusCode === 400) {
           throw new Error(
-            "Ocorreu um erro na ativação da sua conta! Por favor, tente mais tarde.",
+            'Ocorreu um erro na ativação da sua conta! Por favor, tente mais tarde.'
           );
         }
 
@@ -50,7 +50,7 @@ export function ActiveAccount({
         setError(
           err instanceof Error
             ? err.message
-            : "Ocorreu um erro inesperado. Tente novamente mais tarde.",
+            : 'Ocorreu um erro inesperado. Tente novamente mais tarde.'
         );
       } finally {
         setIsLoading(false); // Finaliza o estado de carregamento

@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { AlertTriangle, ArrowLeft, Home, Search } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { AlertTriangle, ArrowLeft, Home, Search } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function NotFound() {
   const router = useRouter();
@@ -107,7 +107,7 @@ export default function NotFound() {
 
         {/* Footer Info */}
         <p className="mt-8 text-sm text-gray-500">
-          Se você acredita que isso é um erro, por favor{" "}
+          Se você acredita que isso é um erro, por favor{' '}
           <Link
             href="/contact"
             className="text-[#EAAC2E] hover:underline font-medium"

@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { UserNav } from '@/components/user-nav'
-import { AuthContext } from '@/contexts/AuthContext'
+} from '@/components/ui/sheet';
+import { UserNav } from '@/components/user-nav';
+import { AuthContext } from '@/contexts/AuthContext';
 import {
   Bell,
   HelpCircle,
@@ -18,22 +18,22 @@ import {
   Menu,
   Shield,
   UserPlus,
-} from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useContext, useState } from 'react'
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useContext, useState } from 'react';
 
 export function Header() {
-  const { isAuthenticated, user } = useContext(AuthContext)
-  const pathname = usePathname()
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const { isAuthenticated, user } = useContext(AuthContext);
+  const pathname = usePathname();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const isActive = (path: string) => pathname === path
+  const isActive = (path: string) => pathname === path;
 
   const handleLinkClick = () => {
-    setIsSheetOpen(false)
-  }
+    setIsSheetOpen(false);
+  };
 
   return (
     <>
@@ -130,7 +130,6 @@ export function Header() {
                     </SheetClose>
 
                     <div className="border-t pt-4 mt-2">
-                    
                       {!isAuthenticated ? (
                         <div className="flex flex-col gap-2">
                           <SheetClose asChild>
@@ -269,5 +268,5 @@ export function Header() {
         </div>
       </header>
     </>
-  )
+  );
 }

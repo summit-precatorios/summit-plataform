@@ -1,6 +1,6 @@
-'use client'
-import { Card, CardContent } from '@/components/ui/card'
-import { Shield } from 'lucide-react'
+'use client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Shield } from 'lucide-react';
 
 export default function PrivacyPage() {
   return (
@@ -229,7 +229,7 @@ export default function PrivacyPage() {
                   <p className="text-gray-700 leading-relaxed">
                     Se você tiver dúvidas sobre esta Política de Privacidade ou
                     sobre o tratamento de seus dados pessoais, entre em contato
-                    conosco através da página de{" "}
+                    conosco através da página de{' '}
                     <a
                       href="/contact"
                       className="text-[#EAAC2E] hover:underline"
@@ -245,5 +245,5 @@ export default function PrivacyPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

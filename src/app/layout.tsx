@@ -1,14 +1,14 @@
-import { Toaster } from '@/components/ui/toaster'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { fonts } from './fonts'
-import './globals.css'
-import { Header } from './header'
-import { PermissionProvider } from '@/providers/PermissionProvider'
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { fonts } from './fonts';
+import './globals.css';
+import { Header } from './header';
+import { PermissionProvider } from '@/providers/PermissionProvider';
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html
@@ -24,5 +24,5 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  )
+  );
 }

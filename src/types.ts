@@ -22,7 +22,7 @@ export type VerifyAccountRequestData = {
   document: string;
 };
 
-export type PaymentMethod = "PIX" | "TRANSFER_BANK";
+export type PaymentMethod = 'PIX' | 'TRANSFER_BANK';
 
 export type CreateAnnouncementRequestData = {
   type: string;
@@ -75,7 +75,7 @@ export type User = {
 };
 
 export enum Role {
-  User = "common-user",
-  Admin = "admin-user",
-  AccountActivator = "account-activator",
+  User = 'common-user',
+  Admin = 'admin-user',
+  AccountActivator = 'account-activator',
 }

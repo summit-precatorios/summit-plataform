@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { AuthContext } from "@/contexts/AuthContext";
-import { cpfMask } from "@/lib/utils";
+import { AuthContext } from '@/contexts/AuthContext';
+import { cpfMask } from '@/lib/utils';
 import {
   AlertCircle,
   CheckCircle2,
@@ -9,12 +9,12 @@ import {
   LogOut,
   Settings,
   UserCircle,
-} from "lucide-react";
-import Link from "next/link";
-import { useContext } from "react";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+} from 'lucide-react';
+import Link from 'next/link';
+import { useContext } from 'react';
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,15 +23,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from './ui/dropdown-menu';
 
 export function UserNav() {
   const { user, logout } = useContext(AuthContext);
 
   function getFallBack() {
-    if (!user?.name) return "U";
-    const firstLettersOfName = user.name.split(" ");
-    let initials = "";
+    if (!user?.name) return 'U';
+    const firstLettersOfName = user.name.split(' ');
+    let initials = '';
 
     if (firstLettersOfName) {
       for (let i = 0; i < 2 && i < firstLettersOfName.length; i++) {
@@ -39,7 +39,7 @@ export function UserNav() {
       }
     }
 
-    return initials || "U";
+    return initials || 'U';
   }
 
   const handleLogout = async () => {
@@ -58,7 +58,7 @@ export function UserNav() {
               <AvatarFallback className="bg-gradient-to-br from-[#EAAC2E] to-[#ffc947] text-white font-semibold">
                 <img
                   src={user.image}
-                  alt={user.name || "Avatar"}
+                  alt={user.name || 'Avatar'}
                   className="rounded-full w-full h-full object-cover"
                 />
               </AvatarFallback>
@@ -79,10 +79,10 @@ export function UserNav() {
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <p className="text-sm font-semibold leading-none text-gray-900">
-                  {user?.name || "Usuário"}
+                  {user?.name || 'Usuário'}
                 </p>
                 <p className="text-xs leading-none text-gray-500 mt-1 truncate">
-                  {user?.email || "email@exemplo.com"}
+                  {user?.email || 'email@exemplo.com'}
                 </p>
               </div>
               {user?.isActive ? (

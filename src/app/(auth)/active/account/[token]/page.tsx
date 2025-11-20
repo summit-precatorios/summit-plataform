@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { ActiveAccount } from "@/app/(auth)/_components/active-account";
-import { useParams } from "next/navigation";
+import { ActiveAccount } from '@/app/(auth)/_components/active-account';
+import { useParams } from 'next/navigation';
 
 export default function ActivationAccount() {
   const params = useParams();

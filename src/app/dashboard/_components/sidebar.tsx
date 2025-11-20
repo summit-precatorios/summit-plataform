@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { FileText, Scale, TrendingUp } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { FileText, Scale, TrendingUp } from 'lucide-react';
 
 interface SidebarProps {
   className: string | undefined;
@@ -9,7 +9,7 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   return (
-    <div className={cn("pb-12", className)}>
+    <div className={cn('pb-12', className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-4 px-4 text-xl font-bold tracking-tight text-gray-900">
@@ -67,7 +67,7 @@ export function Sidebar({ className }: SidebarProps) {
             <Button
               variant="ghost"
               className="w-full justify-start hover:bg-gray-100 text-gray-700"
-              onClick={() => (window.location.href = "/faq")}
+              onClick={() => (window.location.href = '/faq')}
             >
               <FileText size={20} className="mr-3 text-purple-600" />
               <span className="font-medium">FAQ</span>
@@ -75,7 +75,7 @@ export function Sidebar({ className }: SidebarProps) {
             <Button
               variant="ghost"
               className="w-full justify-start hover:bg-gray-100 text-gray-700"
-              onClick={() => (window.location.href = "/contact")}
+              onClick={() => (window.location.href = '/contact')}
             >
               <FileText size={20} className="mr-3 text-green-600" />
               <span className="font-medium">Suporte</span>

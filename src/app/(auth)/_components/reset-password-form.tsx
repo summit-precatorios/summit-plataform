@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -13,18 +13,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { InputPassword } from "@/components/ui/input-password";
-import { useToast } from "@/components/ui/use-toast";
-import { api } from "@/lib/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { jwtDecode } from "jwt-decode";
-import { ArrowLeft, Lock, Mail, Shield } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from '@/components/ui/form';
+import { InputPassword } from '@/components/ui/input-password';
+import { useToast } from '@/components/ui/use-toast';
+import { api } from '@/lib/api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { jwtDecode } from 'jwt-decode';
+import { ArrowLeft, Lock, Mail, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 type Data = {
   user: {
@@ -37,12 +37,12 @@ const formSchema = z
   .object({
     password: z
       .string()
-      .min(8, { message: "Sua senha precisa de no mínimo 8 caracteres" }),
+      .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
     confirm: z.string(),
   })
   .refine((data) => data.password === data.confirm, {
-    message: "A confirmação da senha não coincide",
-    path: ["confirm"],
+    message: 'A confirmação da senha não coincide',
+    path: ['confirm'],
   });
 
 export function ResetPasswordForm({
@@ -61,19 +61,19 @@ export function ResetPasswordForm({
       setData(tokenDecoded);
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Token inválido",
-        description: "O link de recuperação é inválido ou expirou.",
+        variant: 'destructive',
+        title: 'Token inválido',
+        description: 'O link de recuperação é inválido ou expirou.',
       });
-      router.push("/reset/password");
+      router.push('/reset/password');
     }
   }, [router, params.token, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      password: "",
-      confirm: "",
+      password: '',
+      confirm: '',
     },
   });
 
@@ -85,36 +85,36 @@ export function ResetPasswordForm({
 
     try {
       const response = await api<{ statusCode?: number; message?: string }>(
-        "auth/reset/password",
+        'auth/reset/password',
         {
-          method: "PATCH",
+          method: 'PATCH',
           headers: {
-            "Content-Type": "application/json",
-            "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+            'Content-Type': 'application/json',
+            'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
           body: JSON.stringify(enrichmentData, null, 2),
-        },
+        }
       );
 
       if (response && (response.statusCode === 200 || !response.statusCode)) {
         toast({
-          variant: "default",
-          title: "Senha alterada com sucesso!",
-          description: "Sua senha foi redefinida. Você já pode fazer login.",
+          variant: 'default',
+          title: 'Senha alterada com sucesso!',
+          description: 'Sua senha foi redefinida. Você já pode fazer login.',
         });
 
         form.reset();
-        router.push("/sign-in");
+        router.push('/sign-in');
       } else {
         toast({
-          variant: "destructive",
-          description: response?.message || "Token inválido ou expirado",
+          variant: 'destructive',
+          description: response?.message || 'Token inválido ou expirado',
         });
       }
     } catch (error) {
       toast({
-        variant: "destructive",
-        description: "Não foi possível alterar a senha. Tente novamente.",
+        variant: 'destructive',
+        description: 'Não foi possível alterar a senha. Tente novamente.',
       });
     }
   }
@@ -228,8 +228,8 @@ export function ResetPasswordForm({
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? "Redefinindo..."
-                    : "Redefinir senha"}
+                    ? 'Redefinindo...'
+                    : 'Redefinir senha'}
                 </Button>
               </form>
             </Form>
