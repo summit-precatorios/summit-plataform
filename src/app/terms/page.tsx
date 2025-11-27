@@ -204,8 +204,8 @@ export default function TermsPage() {
                   </h2>
                   <p className="text-gray-700 leading-relaxed">
                     Se você tiver dúvidas sobre estes Termos de Serviço, entre
-                    em contato conosco através da página de{' '}
-                    em contato conosco através da página de{' '}
+                    em contato conosco através da página de em contato conosco
+                    através da página de{' '}
                     <a
                       href="/contact"
                       className="text-[#EAAC2E] hover:underline"

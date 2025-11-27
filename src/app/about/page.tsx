@@ -1,7 +1,7 @@
-'use client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, TrendingUp, Users, Zap } from 'lucide-react';
-import Link from 'next/link';
+'use client'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Shield, TrendingUp, Users, Zap } from 'lucide-react'
+import Link from 'next/link'
 
 const values = [
   {
@@ -201,5 +201,5 @@ export default function AboutPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }

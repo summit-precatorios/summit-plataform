@@ -1,9 +1,9 @@
-import { isCPFValid } from '@/lib/isCPFValid';
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { isCPFValid } from '@/lib/isCPFValid'
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 export function cpfMask(value: string) {
@@ -12,7 +12,7 @@ export function cpfMask(value: string) {
     ?.replace(/(\d{3})(\d)/, '$1.$2') // coloca ponto entre o terceiro e o quarto dígito
     ?.replace(/(\d{3})(\d)/, '$1.$2') // coloca ponto entre o sétimo e o oitavo dígito
     ?.replace(/(\d{3})(\d{1,2})/, '$1-$2') // coloca hífen entre o décimo primeiro e o décimo segundo dígito
-    ?.replace(/(-\d{2})\d+?$/, '$1'); // garante que só terá no máximo 14 caracteres
+    ?.replace(/(-\d{2})\d+?$/, '$1') // garante que só terá no máximo 14 caracteres
 }
 
 export function cnpjMask(value: string) {
@@ -22,56 +22,56 @@ export function cnpjMask(value: string) {
     ?.replace(/(\d{3})(\d)/, '$1.$2')
     ?.replace(/(\d{3})(\d)/, '$1/$2')
     ?.replace(/(\d{4})(\d)/, '$1-$2')
-    ?.replace(/(-\d{2})\d+?$/, '$1');
+    ?.replace(/(-\d{2})\d+?$/, '$1')
 }
 
 export function pixKeysMask(value: string) {
   // Remove espaços em branco no início e fim
-  const trimmedValue = value.trim();
+  const trimmedValue = value.trim()
 
   // Verifica se é um email válido (contém @ e não é apenas números)
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isEmail = emailRegex.test(trimmedValue);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const isEmail = emailRegex.test(trimmedValue)
 
   // Se parece ser um email (contém @), retorna sem máscara
   if (trimmedValue.includes('@')) {
     // Permite digitação normal de email, mas remove espaços
-    return trimmedValue.replace(/\s/g, '');
+    return trimmedValue.replace(/\s/g, '')
   }
 
   // Se contém letras e não é email, pode ser chave aleatória - retorna sem máscara
   if (/[a-zA-Z]/.test(trimmedValue) && !isEmail) {
     // Remove apenas espaços para chaves aleatórias
-    return trimmedValue.replace(/\s/g, '');
+    return trimmedValue.replace(/\s/g, '')
   }
 
   // Para valores numéricos, aplica máscaras apropriadas
-  const cleanValue = removeMask(trimmedValue);
+  const cleanValue = removeMask(trimmedValue)
 
-  let formattedValue;
+  let formattedValue
 
   if (cleanValue.length === 11) {
     if (isCPFValid(cleanValue)) {
-      formattedValue = cpfMask(cleanValue);
+      formattedValue = cpfMask(cleanValue)
     } else {
-      formattedValue = phoneMask(cleanValue);
+      formattedValue = phoneMask(cleanValue)
     }
   } else if (cleanValue.length === 14) {
-    formattedValue = cnpjMask(cleanValue);
+    formattedValue = cnpjMask(cleanValue)
   } else {
-    formattedValue = cleanValue;
+    formattedValue = cleanValue
   }
 
-  return formattedValue;
+  return formattedValue
 }
 
 function removeMask(value: string) {
   if (/[a-zA-Z]/.test(value)) {
     // Se contém uma letra, aplica o regex para remover caracteres especiais
-    return value.replace(/[/\s]/g, '');
+    return value.replace(/[/\s]/g, '')
   } else {
     // Caso contrário, aplica outro regex ou processamento
-    return value.replace(/[()\-\s]/g, '');
+    return value.replace(/[()\-\s]/g, '')
   }
 }
 
@@ -79,7 +79,7 @@ export function phoneMask(value: string) {
   return value
     .replace(/\D/g, '')
     ?.replace(/(\d{2})(\d)/, '($1) $2')
-    ?.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+    ?.replace(/(\d{4,5})(\d{4})$/, '$1-$2')
 }
 
 export function processNumberMask(value: string) {
@@ -90,7 +90,7 @@ export function processNumberMask(value: string) {
     .replace(/^(\d{7}-\d{2})(\d)/, '$1.$2') // 5003007-08.2
     .replace(/^(\d{7}-\d{2}.\d{4})(\d)/, '$1.$2') // 5003007-08.2015.8
     .replace(/^(\d{7}-\d{2}.\d{4}.)(\d)/, '$1$2.') // 5003007-08.2015.8.
-    .replace(/^(\d{7}-\d{2}.\d{4}.8.\d{2})(\d)/, '$1.$2.');
+    .replace(/^(\d{7}-\d{2}.\d{4}.8.\d{2})(\d)/, '$1.$2.')
 }
 
 export const currencyFormatter = Intl.NumberFormat('pt-BR', {
@@ -100,4 +100,4 @@ export const currencyFormatter = Intl.NumberFormat('pt-BR', {
   style: 'currency',
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
-});
+})

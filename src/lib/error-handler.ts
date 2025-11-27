@@ -153,8 +153,9 @@ export function handleApiError(error: unknown): ErrorToastOptions {
 /**
  * Extrai informações de erro de uma resposta fetch
  */
-export async function extractErrorFromResponse(response: Response): Promise<ApiError> {
-  
+export async function extractErrorFromResponse(
+  response: Response,
+): Promise<ApiError> {
   try {
     const errorData = await response.json()
     return {
