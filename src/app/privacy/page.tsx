@@ -1,6 +1,6 @@
-'use client'
-import { Card, CardContent } from '@/components/ui/card'
-import { Shield } from 'lucide-react'
+'use client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Shield } from 'lucide-react';
 
 export default function PrivacyPage() {
   return (
@@ -245,5 +245,5 @@ export default function PrivacyPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

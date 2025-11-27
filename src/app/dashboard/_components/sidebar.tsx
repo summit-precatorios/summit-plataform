@@ -68,6 +68,7 @@ export function Sidebar({ className }: SidebarProps) {
               variant="ghost"
               className="w-full justify-start hover:bg-gray-100 text-gray-700"
               onClick={() => (window.location.href = '/faq')}
+              onClick={() => (window.location.href = '/faq')}
             >
               <FileText size={20} className="mr-3 text-purple-600" />
               <span className="font-medium">FAQ</span>
@@ -75,6 +76,7 @@ export function Sidebar({ className }: SidebarProps) {
             <Button
               variant="ghost"
               className="w-full justify-start hover:bg-gray-100 text-gray-700"
+              onClick={() => (window.location.href = '/contact')}
               onClick={() => (window.location.href = '/contact')}
             >
               <FileText size={20} className="mr-3 text-green-600" />

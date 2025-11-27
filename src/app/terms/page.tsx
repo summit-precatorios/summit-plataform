@@ -18,6 +18,7 @@ export default function TermsPage() {
           </h1>
           <p className="mt-6 text-xl leading-8 text-gray-600">
             Última atualização: {new Date().toLocaleDateString('pt-BR')}
+            Última atualização: {new Date().toLocaleDateString('pt-BR')}
           </p>
         </div>
       </section>
@@ -203,6 +204,7 @@ export default function TermsPage() {
                   </h2>
                   <p className="text-gray-700 leading-relaxed">
                     Se você tiver dúvidas sobre estes Termos de Serviço, entre
+                    em contato conosco através da página de{' '}
                     em contato conosco através da página de{' '}
                     <a
                       href="/contact"

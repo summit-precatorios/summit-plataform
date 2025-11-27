@@ -1,13 +1,13 @@
-'use client'
-import { Button } from '@/components/ui/button'
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { AuthContext } from '@/contexts/AuthContext'
+} from '@/components/ui/card';
+import { AuthContext } from '@/contexts/AuthContext';
 import {
   ArrowRight,
   CheckCircle2,
@@ -18,10 +18,10 @@ import {
   TrendingUp,
   Users,
   Zap,
-} from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useContext } from 'react'
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useContext } from 'react';
 
 const benefits = [
   {
@@ -60,7 +60,7 @@ const benefits = [
     description:
       'Processo de registro e validação de documentos de forma simples e descomplicada.',
   },
-]
+];
 
 const features = [
   {
@@ -81,10 +81,10 @@ const features = [
     description:
       'Conecte-se com investidores qualificados interessados em adquirir seus precatórios.',
   },
-]
+];
 
 export default function Page() {
-  const { isAuthenticated } = useContext(AuthContext)
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -159,7 +159,7 @@ export default function Page() {
 
             <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
               {features.map((feature, index) => {
-                const Icon = feature.icon
+                const Icon = feature.icon;
                 return (
                   <div
                     key={index}
@@ -175,7 +175,7 @@ export default function Page() {
                       {feature.description}
                     </p>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function Page() {
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {benefits.map((benefit, index) => {
-              const Icon = benefit.icon
+              const Icon = benefit.icon;
               return (
                 <Card
                   key={index}
@@ -215,7 +215,7 @@ export default function Page() {
                     </CardDescription>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -261,5 +261,5 @@ export default function Page() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

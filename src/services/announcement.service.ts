@@ -1,8 +1,8 @@
-import { api, providerBaseHeaders } from '@/lib/api'
-import { CreateAnnouncementRequestData } from '@/types'
+import { api, providerBaseHeaders } from '@/lib/api';
+import { CreateAnnouncementRequestData } from '@/types';
 
 export async function createAnnouncementRequest(
-  data: CreateAnnouncementRequestData,
+  data: CreateAnnouncementRequestData
 ) {
   try {
     return await api('announcement', {
@@ -11,8 +11,8 @@ export async function createAnnouncementRequest(
       body: JSON.stringify(data, null, 2),
     })
   } catch (error) {
-    console.error('error_creating_announcement', error)
-    throw error
+    console.error('error_creating_announcement', error);
+    throw error;
   }
 }
 

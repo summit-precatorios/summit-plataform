@@ -91,6 +91,7 @@ export const columns: ColumnDef<Announcement>[] = [
 
               <Restricted to={Role.Admin}>
                 <DropdownMenuItem onClick={() => alert('Anúncio Aprovado')}>
+                <DropdownMenuItem onClick={() => alert('Anúncio Aprovado')}>
                   Aprovar Anúncio
                 </DropdownMenuItem>
               </Restricted>

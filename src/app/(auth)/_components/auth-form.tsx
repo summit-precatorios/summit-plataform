@@ -44,6 +44,8 @@ export function AuthForm() {
     defaultValues: {
       document: '',
       password: '',
+      document: '',
+      password: '',
     },
   })
 
@@ -158,6 +160,7 @@ export function AuthForm() {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
+                  {form.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
                 </Button>
 
                 <div className="relative">
@@ -188,8 +191,11 @@ export function AuthForm() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             Ao entrar, você concorda com nossos{' '}
+            Ao entrar, você concorda com nossos{' '}
             <Link href="/terms" className="text-[#EAAC2E] hover:underline">
               Termos de Serviço
+            </Link>{' '}
+            e{' '}
             </Link>{' '}
             e{' '}
             <Link href="/privacy" className="text-[#EAAC2E] hover:underline">

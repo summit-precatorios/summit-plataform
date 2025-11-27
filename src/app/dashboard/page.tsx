@@ -107,6 +107,8 @@ export default function DashboardPage() {
           toast({
             variant: 'default',
             title: 'E-mail enviado!',
+            variant: 'default',
+            title: 'E-mail enviado!',
             description:
               'E-mail com as informações para ativação da conta foi enviado com sucesso!',
           })
@@ -156,6 +158,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-yellow-700 mt-1">
                     {ordersError?.message ||
                       'Por favor, confirme seu e-mail para acessar esta funcionalidade.'}
+                      'Por favor, confirme seu e-mail para acessar esta funcionalidade.'}
                   </p>
                 </div>
               </div>
@@ -171,6 +174,7 @@ export default function DashboardPage() {
                       Enviando...
                     </>
                   ) : (
+                    'Reenviar e-mail de ativação'
                     'Reenviar e-mail de ativação'
                   )}
                 </Button>
@@ -199,6 +203,7 @@ export default function DashboardPage() {
                   {error ||
                     ordersError?.message ||
                     'Não foi possível carregar os dados do dashboard.'}
+                    'Não foi possível carregar os dados do dashboard.'}
                 </p>
               </div>
             </div>
@@ -224,6 +229,7 @@ export default function DashboardPage() {
                     </h1>
                     <p className="mt-2 text-lg text-gray-600">
                       Bem-vindo de volta, {user?.name || 'Usuário'}!
+                      Bem-vindo de volta, {user?.name || 'Usuário'}!
                     </p>
                   </div>
                   <Restricted
@@ -242,6 +248,7 @@ export default function DashboardPage() {
                     }
                   >
                     <Button
+                      onClick={() => router.push('/advertise')}
                       onClick={() => router.push('/advertise')}
                       className="bg-[#EAAC2E] hover:bg-[#ffc947]"
                     >
@@ -266,6 +273,7 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
                       {ordersLoading ? '...' : statistics.total}
+                      {ordersLoading ? '...' : statistics.total}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       Todos os seus anúncios
@@ -285,6 +293,7 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
                       {ordersLoading ? '...' : statistics.pending}
+                      {ordersLoading ? '...' : statistics.pending}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">Em análise</p>
                   </CardContent>
@@ -301,6 +310,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
+                      {ordersLoading ? '...' : statistics.approved}
                       {ordersLoading ? '...' : statistics.approved}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
@@ -321,6 +331,10 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
                       {ordersLoading
+                        ? '...'
+                        : new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
                         ? '...'
                         : new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
@@ -397,6 +411,7 @@ export default function DashboardPage() {
                           </p>
                           <Restricted to={Role.User}>
                             <Button
+                              onClick={() => router.push('/advertise')}
                               onClick={() => router.push('/advertise')}
                               className="bg-[#EAAC2E] hover:bg-[#ffc947]"
                             >

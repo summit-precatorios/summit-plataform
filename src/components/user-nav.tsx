@@ -59,6 +59,7 @@ export function UserNav() {
                 <img
                   src={user.image}
                   alt={user.name || 'Avatar'}
+                  alt={user.name || 'Avatar'}
                   className="rounded-full w-full h-full object-cover"
                 />
               </AvatarFallback>
@@ -80,8 +81,10 @@ export function UserNav() {
               <div className="flex-1">
                 <p className="text-sm font-semibold leading-none text-gray-900">
                   {user?.name || 'Usuário'}
+                  {user?.name || 'Usuário'}
                 </p>
                 <p className="text-xs leading-none text-gray-500 mt-1 truncate">
+                  {user?.email || 'email@exemplo.com'}
                   {user?.email || 'email@exemplo.com'}
                 </p>
               </div>

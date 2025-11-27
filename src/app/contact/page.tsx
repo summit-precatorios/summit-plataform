@@ -292,6 +292,7 @@ export default function ContactPage() {
                       >
                         {form.formState.isSubmitting ? (
                           'Enviando...'
+                          'Enviando...'
                         ) : (
                           <>
                             <Send className="mr-2 h-5 w-5" />

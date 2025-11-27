@@ -108,6 +108,7 @@ export default function NotFound() {
         {/* Footer Info */}
         <p className="mt-8 text-sm text-gray-500">
           Se você acredita que isso é um erro, por favor{' '}
+          Se você acredita que isso é um erro, por favor{' '}
           <Link
             href="/contact"
             className="text-[#EAAC2E] hover:underline font-medium"

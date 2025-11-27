@@ -8,10 +8,7 @@
   },
   "customizations": {
     "vscode": {
-			"extensions": [
-				"bradlc.vscode-tailwindcss",
-				"austenc.tailwind-docs"
-			]
+      "extensions": ["bradlc.vscode-tailwindcss", "austenc.tailwind-docs"]
     }
   },
   "mounts": [

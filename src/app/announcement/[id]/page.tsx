@@ -575,7 +575,7 @@ export default function AnnouncementDetailPage() {
                     <span className="text-sm font-medium text-gray-700">
                       {formatCurrency(
                         parseFloat(announcement.salePrice) -
-                          parseFloat(announcement.liquidBalance),
+                          parseFloat(announcement.liquidBalance)
                       )}
                     </span>
                   </div>

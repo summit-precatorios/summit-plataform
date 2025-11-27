@@ -76,6 +76,7 @@ export function AuthProvider({ children }: AuthContextProps) {
   const syncTokenToOtherTabs = useCallback((token: string | null) => {
     try {
       if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined') {
         localStorage.setItem(
           AUTH_SYNC_KEY,
           JSON.stringify({ token, timestamp: Date.now() }),
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       // Verifica se a resposta contém um erro
       if ('statusCode' in response && response.statusCode >= 400) {
+      if ('statusCode' in response && response.statusCode >= 400) {
         const errorToast = handleApiError({
           statusCode: response.statusCode,
           message: response.message || response.error,
@@ -120,6 +122,8 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       if (!token) {
         toast({
+          variant: 'destructive',
+          title: 'Credenciais inválidas',
           variant: 'destructive',
           title: 'Credenciais inválidas',
           description:
@@ -149,6 +153,7 @@ export function AuthProvider({ children }: AuthContextProps) {
     } catch (error) {
       // Trata erros com statusCode quando disponível
       const errorToast = handleApiError(
+        error && typeof error === 'object' && 'statusCode' in error
         error && typeof error === 'object' && 'statusCode' in error
           ? (error as { statusCode?: number; message?: string })
           : error,
