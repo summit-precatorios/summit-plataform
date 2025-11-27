@@ -190,7 +190,8 @@ export function AuthForm() {
             Ao entrar, você concorda com nossos{' '}
             <Link href='/terms' className='text-[#EAAC2E] hover:underline'>
               Termos de Serviço
-            </Link>
+            </Link>{' '}
+            e{' '}
             <Link href='/privacy' className='text-[#EAAC2E] hover:underline'>
               Política de Privacidade
             </Link>

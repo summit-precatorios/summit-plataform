@@ -46,9 +46,12 @@ const formSchema = z.object({
     .email('Insira um endereço de e-mail válido.')
     .min(3, 'Deve conter pelo menos 3 caracteres')
     .max(200, 'Deve conter no máximo 200 caracteres'),
-  document: z.string().refine((document) => isCPFValid(document), {
-    message: 'CPF inválido',
-  }),
+  document: z
+    .string()
+    .refine((document) => isCPFValid(document), {
+      message: 'CPF inválido',
+    })
+    .transform((value) => value.replace(/\D/g, '')),
   password: z
     .string()
     .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
