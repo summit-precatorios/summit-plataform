@@ -1,20 +1,20 @@
 {
-	"name": "Node.js & TypeScript",
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/devcontainers-extra/features/zsh-plugins:0": {},
-		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
-	},
-	"customizations": {
-		"vscode": {
+  "name": "Node.js & TypeScript",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers-extra/features/zsh-plugins:0": {},
+    "ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+  },
+  "customizations": {
+    "vscode": {
 			"extensions": [
 				"bradlc.vscode-tailwindcss",
 				"austenc.tailwind-docs"
 			]
-		}
-	},
-	"mounts": [
-		"type=bind,source=${localEnv:HOME}/.ssh/,target=/home/node/.ssh/,readonly"
-	]
+    }
+  },
+  "mounts": [
+    "type=bind,source=${localEnv:HOME}/.ssh/,target=/home/node/.ssh/,readonly"
+  ]
 }

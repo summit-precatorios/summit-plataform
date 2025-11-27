@@ -130,7 +130,6 @@ export function Header() {
                     </SheetClose>
 
                     <div className="border-t pt-4 mt-2">
-                    
                       {!isAuthenticated ? (
                         <div className="flex flex-col gap-2">
                           <SheetClose asChild>

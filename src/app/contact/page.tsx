@@ -1,12 +1,12 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -14,73 +14,73 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, MapPin, MessageSquare, Phone, Send, User } from "lucide-react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Mail, MapPin, MessageSquare, Phone, Send, User } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const formSchema = z.object({
-  name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
-  email: z.string().email("Insira um e-mail válido"),
+  name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
+  email: z.string().email('Insira um e-mail válido'),
   phone: z.string().optional(),
-  subject: z.string().min(5, "Assunto deve ter pelo menos 5 caracteres"),
+  subject: z.string().min(5, 'Assunto deve ter pelo menos 5 caracteres'),
   message: z
     .string()
-    .min(10, "Mensagem deve ter pelo menos 10 caracteres")
-    .max(1000, "Mensagem deve ter no máximo 1000 caracteres"),
-});
+    .min(10, 'Mensagem deve ter pelo menos 10 caracteres')
+    .max(1000, 'Mensagem deve ter no máximo 1000 caracteres'),
+})
 
 export default function ContactPage() {
-  const { toast } = useToast();
+  const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: '',
     },
-  });
+  })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     // Aqui você pode integrar com uma API de envio de e-mail
-    console.log("Form data:", data);
+    console.log('Form data:', data)
 
     toast({
-      variant: "default",
-      title: "Mensagem enviada!",
-      description: "Recebemos sua mensagem e entraremos em contato em breve.",
-    });
+      variant: 'default',
+      title: 'Mensagem enviada!',
+      description: 'Recebemos sua mensagem e entraremos em contato em breve.',
+    })
 
-    form.reset();
+    form.reset()
   }
 
   const contactInfo = [
     {
       icon: Mail,
-      title: "E-mail",
-      description: "Entre em contato por e-mail",
-      value: "contato@summit.com.br",
+      title: 'E-mail',
+      description: 'Entre em contato por e-mail',
+      value: 'contato@summit.com.br',
     },
     {
       icon: Phone,
-      title: "Telefone",
-      description: "Ligue para nós",
-      value: "(61) 3000-0000",
+      title: 'Telefone',
+      description: 'Ligue para nós',
+      value: '(61) 3000-0000',
     },
     {
       icon: MapPin,
-      title: "Endereço",
-      description: "Nossa localização",
-      value: "Brasília, DF - Brasil",
+      title: 'Endereço',
+      description: 'Nossa localização',
+      value: 'Brasília, DF - Brasil',
     },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -116,7 +116,7 @@ export default function ContactPage() {
 
                 <div className="space-y-4">
                   {contactInfo.map((info, index) => {
-                    const Icon = info.icon;
+                    const Icon = info.icon
                     return (
                       <Card key={index} className="border-2">
                         <CardHeader>
@@ -140,7 +140,7 @@ export default function ContactPage() {
                           </p>
                         </CardContent>
                       </Card>
-                    );
+                    )
                   })}
                 </div>
               </div>
@@ -291,7 +291,7 @@ export default function ContactPage() {
                         disabled={form.formState.isSubmitting}
                       >
                         {form.formState.isSubmitting ? (
-                          "Enviando..."
+                          'Enviando...'
                         ) : (
                           <>
                             <Send className="mr-2 h-5 w-5" />
@@ -308,5 +308,5 @@ export default function ContactPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }

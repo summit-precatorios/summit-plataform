@@ -6,50 +6,50 @@ import Link from 'next/link'
 const values = [
   {
     icon: Shield,
-    title: "Segurança",
+    title: 'Segurança',
     description:
-      "Priorizamos a segurança de todas as transações e dados dos nossos usuários com tecnologia de ponta.",
+      'Priorizamos a segurança de todas as transações e dados dos nossos usuários com tecnologia de ponta.',
   },
   {
     icon: Zap,
-    title: "Agilidade",
+    title: 'Agilidade',
     description:
-      "Processos simplificados para que você negocie seus precatórios de forma rápida e eficiente.",
+      'Processos simplificados para que você negocie seus precatórios de forma rápida e eficiente.',
   },
   {
     icon: TrendingUp,
-    title: "Transparência",
+    title: 'Transparência',
     description:
-      "Todas as informações são claras e transparentes, sem surpresas ou taxas ocultas.",
+      'Todas as informações são claras e transparentes, sem surpresas ou taxas ocultas.',
   },
   {
     icon: Users,
-    title: "Confiança",
+    title: 'Confiança',
     description:
-      "Uma plataforma confiável que conecta investidores e vendedores com segurança e credibilidade.",
+      'Uma plataforma confiável que conecta investidores e vendedores com segurança e credibilidade.',
   },
-];
+]
 
 const timeline = [
   {
-    year: "2024",
-    title: "Fundação",
+    year: '2024',
+    title: 'Fundação',
     description:
-      "Summit foi criada com a missão de democratizar o acesso à negociação de precatórios no Brasil.",
+      'Summit foi criada com a missão de democratizar o acesso à negociação de precatórios no Brasil.',
   },
   {
-    year: "2024",
-    title: "Lançamento da Plataforma",
+    year: '2024',
+    title: 'Lançamento da Plataforma',
     description:
-      "Plataforma digital completa para negociação de RPVs e Precatórios entra em funcionamento.",
+      'Plataforma digital completa para negociação de RPVs e Precatórios entra em funcionamento.',
   },
   {
-    year: "2024",
-    title: "Crescimento",
+    year: '2024',
+    title: 'Crescimento',
     description:
-      "Centenas de usuários já confiam na Summit para suas negociações de precatórios.",
+      'Centenas de usuários já confiam na Summit para suas negociações de precatórios.',
   },
-];
+]
 
 export default function AboutPage() {
   return (
@@ -121,7 +121,7 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((value, index) => {
-              const Icon = value.icon;
+              const Icon = value.icon
               return (
                 <Card
                   key={index}
@@ -137,7 +137,7 @@ export default function AboutPage() {
                     <p className="text-gray-600">{value.description}</p>
                   </CardContent>
                 </Card>
-              );
+              )
             })}
           </div>
         </div>

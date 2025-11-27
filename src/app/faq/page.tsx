@@ -1,9 +1,9 @@
 'use client'
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Input } from '@/components/ui/input'
 import { HelpCircle, Search } from 'lucide-react'

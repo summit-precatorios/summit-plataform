@@ -1,6 +1,6 @@
-"use client";
-import { Card, CardContent } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+'use client'
+import { Card, CardContent } from '@/components/ui/card'
+import { FileText } from 'lucide-react'
 
 export default function TermsPage() {
   return (
@@ -17,7 +17,7 @@ export default function TermsPage() {
             Termos de Serviço
           </h1>
           <p className="mt-6 text-xl leading-8 text-gray-600">
-            Última atualização: {new Date().toLocaleDateString("pt-BR")}
+            Última atualização: {new Date().toLocaleDateString('pt-BR')}
           </p>
         </div>
       </section>
@@ -203,7 +203,7 @@ export default function TermsPage() {
                   </h2>
                   <p className="text-gray-700 leading-relaxed">
                     Se você tiver dúvidas sobre estes Termos de Serviço, entre
-                    em contato conosco através da página de{" "}
+                    em contato conosco através da página de{' '}
                     <a
                       href="/contact"
                       className="text-[#EAAC2E] hover:underline"
@@ -219,5 +219,5 @@ export default function TermsPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }

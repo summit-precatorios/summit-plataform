@@ -62,15 +62,17 @@ export async function api<ResponseType = any>(
     }
 
     // Para erros de timeout ou rede, cria um erro com informações úteis
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('aborted')
-    
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    const isTimeout =
+      errorMessage.includes('timeout') || errorMessage.includes('aborted')
+
     const apiError: Error & { statusCode?: number } = new Error(
-      isTimeout 
+      isTimeout
         ? 'A requisição demorou muito para responder. Tente novamente.'
-        : errorMessage
+        : errorMessage,
     )
-    
+
     // Timeout não tem statusCode HTTP, mas podemos marcar como erro de rede
     if (!isTimeout) {
       apiError.statusCode = undefined
@@ -82,7 +84,7 @@ export async function api<ResponseType = any>(
       statusCode: apiError.statusCode,
       isTimeout,
     })
-    
+
     throw apiError
   }
 }

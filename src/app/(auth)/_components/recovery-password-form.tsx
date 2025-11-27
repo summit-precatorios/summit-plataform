@@ -1,12 +1,12 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -14,68 +14,68 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import { handleApiError } from "@/lib/error-handler";
-import { forgotPassword } from "@/services/auth.service";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Mail, Send } from "lucide-react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/use-toast'
+import { handleApiError } from '@/lib/error-handler'
+import { forgotPassword } from '@/services/auth.service'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowLeft, Mail, Send } from 'lucide-react'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const formSchema = z.object({
-  email: z.string().email("Insira um endereço de e-mail válido."),
-});
+  email: z.string().email('Insira um endereço de e-mail válido.'),
+})
 
 export function RecoveryPasswordForm() {
-  const { toast } = useToast();
+  const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      email: '',
     },
-  });
+  })
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      const response = await forgotPassword(data);
+      const response = await forgotPassword(data)
 
       if (!response) {
-        const errorToast = handleApiError({ statusCode: 500 });
-        toast(errorToast);
-        return;
+        const errorToast = handleApiError({ statusCode: 500 })
+        toast(errorToast)
+        return
       }
 
       // Verifica se a resposta contém um erro
-      if ("statusCode" in response && response.statusCode >= 400) {
+      if ('statusCode' in response && response.statusCode >= 400) {
         const errorToast = handleApiError({
           statusCode: response.statusCode,
           message: response.message || response.error,
-        });
-        toast(errorToast);
-        return;
+        })
+        toast(errorToast)
+        return
       }
 
       if (response && (response.statusCode === 201 || !response.statusCode)) {
         toast({
-          variant: "default",
-          title: "E-mail enviado com sucesso!",
+          variant: 'default',
+          title: 'E-mail enviado com sucesso!',
           description:
-            "Caso este seja um e-mail válido, você receberá instruções para redefinir sua senha.",
-        });
+            'Caso este seja um e-mail válido, você receberá instruções para redefinir sua senha.',
+        })
 
-        form.reset();
+        form.reset()
       }
     } catch (error) {
       const errorToast = handleApiError(
-        error && typeof error === "object" && "statusCode" in error
+        error && typeof error === 'object' && 'statusCode' in error
           ? (error as { statusCode?: number; message?: string })
           : error,
-      );
-      toast(errorToast);
+      )
+      toast(errorToast)
     }
   }
 
@@ -152,7 +152,7 @@ export function RecoveryPasswordForm() {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? (
-                    "Enviando..."
+                    'Enviando...'
                   ) : (
                     <>
                       <Send className="mr-2 h-5 w-5" />
@@ -176,5 +176,5 @@ export function RecoveryPasswordForm() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

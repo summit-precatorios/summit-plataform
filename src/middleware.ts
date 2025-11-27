@@ -54,11 +54,7 @@ const publicRoutes = [
 ] as const
 
 // Rotas protegidas que requerem autenticação
-const protectedRoutes = [
-  '/dashboard',
-  '/advertise',
-  '/announcement',
-] as const
+const protectedRoutes = ['/dashboard', '/advertise', '/announcement'] as const
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/sign-in'
 
@@ -76,7 +72,7 @@ export function middleware(request: NextRequest) {
 
   // Verifica se a rota é uma rota protegida conhecida
   const isProtectedRoute = protectedRoutes.some((route) =>
-    path.startsWith(route)
+    path.startsWith(route),
   )
 
   // Se não for rota pública nem protegida conhecida, permite que o Next.js processe

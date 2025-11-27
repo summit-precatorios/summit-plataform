@@ -36,7 +36,8 @@ export function useAnnouncements(
           if (isMounted) {
             dispatchError({
               type: 'FORBIDDEN',
-              message: 'Conta não ativada. Por favor, confirme seu e-mail para acessar esta funcionalidade.',
+              message:
+                'Conta não ativada. Por favor, confirme seu e-mail para acessar esta funcionalidade.',
               statusCode: 403,
             })
             dispatchOrders([])
@@ -59,7 +60,8 @@ export function useAnnouncements(
         if (statusCode === 403) {
           dispatchError({
             type: 'FORBIDDEN',
-            message: 'Você não tem permissão para acessar esta funcionalidade. Por favor, confirme seu e-mail.',
+            message:
+              'Você não tem permissão para acessar esta funcionalidade. Por favor, confirme seu e-mail.',
             statusCode: 403,
           })
         } else if (statusCode === 401) {
@@ -74,7 +76,8 @@ export function useAnnouncements(
         } else {
           dispatchError({
             type: statusCode ? 'NETWORK' : 'UNKNOWN',
-            message: 'Não foi possível carregar os anúncios. Tente novamente mais tarde.',
+            message:
+              'Não foi possível carregar os anúncios. Tente novamente mais tarde.',
             statusCode,
           })
         }

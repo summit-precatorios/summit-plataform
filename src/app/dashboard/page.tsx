@@ -1,26 +1,26 @@
-"use client";
+'use client'
 
-import { columns } from "@/app/announcement/columns";
-import { DataTable } from "@/app/announcement/data-table";
-import { Sidebar } from "@/app/dashboard/_components/sidebar";
-import { LoadingSpinner } from "@/components/loading-spinner";
-import { Restricted } from "@/components/restricted";
-import { ToolTipHelper } from "@/components/tool-tip";
-import { Button } from "@/components/ui/button";
+import { columns } from '@/app/announcement/columns'
+import { DataTable } from '@/app/announcement/data-table'
+import { Sidebar } from '@/app/dashboard/_components/sidebar'
+import { LoadingSpinner } from '@/components/loading-spinner'
+import { Restricted } from '@/components/restricted'
+import { ToolTipHelper } from '@/components/tool-tip'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
-import { AuthContext } from "@/contexts/AuthContext";
-import PermissionContext from "@/contexts/PermissionContext";
-import { useAnnouncements, type AnnouncementsError } from "@/hooks/useAnnouncements";
-import { verifyAccountByDocument } from "@/services/auth.service";
-import { Role } from "@/types";
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/components/ui/use-toast'
+import { AuthContext } from '@/contexts/AuthContext'
+import PermissionContext from '@/contexts/PermissionContext'
+import { useAnnouncements } from '@/hooks/useAnnouncements'
+import { verifyAccountByDocument } from '@/services/auth.service'
+import { Role } from '@/types'
 import {
   AlertCircle,
   CheckCircle2,
@@ -28,28 +28,29 @@ import {
   FileText,
   PlusCircle,
   TrendingUp,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useContext, useMemo, useState } from "react";
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useContext, useMemo, useState } from 'react'
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { user } = useContext(AuthContext);
-  const { isAllowedTo } = useContext(PermissionContext);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("announcements");
+  const router = useRouter()
+  const { user } = useContext(AuthContext)
+  const { isAllowedTo } = useContext(PermissionContext)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('announcements')
 
   const {
     orders,
     loading: ordersLoading,
     error: ordersError,
-  } = useAnnouncements(user, isAllowedTo);
+  } = useAnnouncements(user, isAllowedTo)
 
   // Verifica se o erro é relacionado à falta de permissão/role
-  const isPermissionError = ordersError?.type === 'FORBIDDEN' || ordersError?.type === 'UNAUTHORIZED';
+  const isPermissionError =
+    ordersError?.type === 'FORBIDDEN' || ordersError?.type === 'UNAUTHORIZED'
 
-  const { toast } = useToast();
+  const { toast } = useToast()
 
   // Calcula estatísticas dos anúncios
   const statistics = useMemo(() => {
@@ -59,71 +60,71 @@ export default function DashboardPage() {
         pending: 0,
         approved: 0,
         totalValue: 0,
-      };
+      }
     }
 
     // Por enquanto, todos os anúncios são considerados pendentes
     // até que seja implementado o campo status no backend
-    const total = orders.length;
-    const pending = total; // Todos pendentes por enquanto
-    const approved = 0; // Nenhum aprovado por enquanto
+    const total = orders.length
+    const pending = total // Todos pendentes por enquanto
+    const approved = 0 // Nenhum aprovado por enquanto
 
     const totalValue = orders.reduce((sum, order) => {
-      const price = parseFloat(order.price?.toString() || "0");
-      return sum + price;
-    }, 0);
+      const price = parseFloat(order.price?.toString() || '0')
+      return sum + price
+    }, 0)
 
     return {
       total,
       pending,
       approved,
       totalValue,
-    };
-  }, [orders]);
+    }
+  }, [orders])
 
   const filteredOrders = useMemo(() => {
-    if (!orders) return [];
+    if (!orders) return []
 
     // Por enquanto, mostra todos os anúncios em ambos os tabs
     // até que o campo status seja implementado
-    if (activeTab === "announcements-approved") {
-      return []; // Nenhum aprovado ainda
+    if (activeTab === 'announcements-approved') {
+      return [] // Nenhum aprovado ainda
     }
-    return orders;
-  }, [orders, activeTab]);
+    return orders
+  }, [orders, activeTab])
 
   async function handleClick() {
-    const document = user?.document;
+    const document = user?.document
 
     if (document) {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       try {
-        const response = await verifyAccountByDocument({ document });
+        const response = await verifyAccountByDocument({ document })
 
         if (response.success) {
           toast({
-            variant: "default",
-            title: "E-mail enviado!",
+            variant: 'default',
+            title: 'E-mail enviado!',
             description:
-              "E-mail com as informações para ativação da conta foi enviado com sucesso!",
-          });
+              'E-mail com as informações para ativação da conta foi enviado com sucesso!',
+          })
         } else {
           toast({
-            variant: "destructive",
-            title: "Erro ao enviar e-mail",
-            description: "Ocorreu um erro ao enviar o e-mail de ativação.",
-          });
+            variant: 'destructive',
+            title: 'Erro ao enviar e-mail',
+            description: 'Ocorreu um erro ao enviar o e-mail de ativação.',
+          })
         }
       } catch (err) {
         toast({
-          variant: "destructive",
-          title: "Erro ao enviar e-mail",
-          description: "Ocorreu um erro ao enviar o e-mail de ativação.",
-        });
+          variant: 'destructive',
+          title: 'Erro ao enviar e-mail',
+          description: 'Ocorreu um erro ao enviar o e-mail de ativação.',
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
   }
@@ -136,7 +137,7 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold text-gray-700">Carregando...</h2>
         </div>
       </div>
-    );
+    )
   }
 
   // Renderiza erro de permissão com opção de reenviar email
@@ -154,7 +155,7 @@ export default function DashboardPage() {
                   </p>
                   <p className="text-sm text-yellow-700 mt-1">
                     {ordersError?.message ||
-                      "Por favor, confirme seu e-mail para acessar esta funcionalidade."}
+                      'Por favor, confirme seu e-mail para acessar esta funcionalidade.'}
                   </p>
                 </div>
               </div>
@@ -170,7 +171,7 @@ export default function DashboardPage() {
                       Enviando...
                     </>
                   ) : (
-                    "Reenviar e-mail de ativação"
+                    'Reenviar e-mail de ativação'
                   )}
                 </Button>
                 <p className="text-xs text-yellow-600 text-center">
@@ -181,7 +182,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   // Renderiza outros tipos de erro
@@ -197,14 +198,14 @@ export default function DashboardPage() {
                 <p className="text-sm text-red-700 mt-1">
                   {error ||
                     ordersError?.message ||
-                    "Não foi possível carregar os dados do dashboard."}
+                    'Não foi possível carregar os dados do dashboard.'}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -222,7 +223,7 @@ export default function DashboardPage() {
                       Dashboard
                     </h1>
                     <p className="mt-2 text-lg text-gray-600">
-                      Bem-vindo de volta, {user?.name || "Usuário"}!
+                      Bem-vindo de volta, {user?.name || 'Usuário'}!
                     </p>
                   </div>
                   <Restricted
@@ -241,7 +242,7 @@ export default function DashboardPage() {
                     }
                   >
                     <Button
-                      onClick={() => router.push("/advertise")}
+                      onClick={() => router.push('/advertise')}
                       className="bg-[#EAAC2E] hover:bg-[#ffc947]"
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -264,7 +265,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
-                      {ordersLoading ? "..." : statistics.total}
+                      {ordersLoading ? '...' : statistics.total}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       Todos os seus anúncios
@@ -283,7 +284,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
-                      {ordersLoading ? "..." : statistics.pending}
+                      {ordersLoading ? '...' : statistics.pending}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">Em análise</p>
                   </CardContent>
@@ -300,7 +301,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
-                      {ordersLoading ? "..." : statistics.approved}
+                      {ordersLoading ? '...' : statistics.approved}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       Publicados e ativos
@@ -320,10 +321,10 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="text-3xl font-bold text-gray-900">
                       {ordersLoading
-                        ? "..."
-                        : new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
+                        ? '...'
+                        : new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
                           }).format(statistics.totalValue)}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
@@ -396,7 +397,7 @@ export default function DashboardPage() {
                           </p>
                           <Restricted to={Role.User}>
                             <Button
-                              onClick={() => router.push("/advertise")}
+                              onClick={() => router.push('/advertise')}
                               className="bg-[#EAAC2E] hover:bg-[#ffc947]"
                             >
                               <PlusCircle className="mr-2 h-4 w-4" />
@@ -476,5 +477,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

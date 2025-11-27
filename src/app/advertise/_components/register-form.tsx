@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { useAdvertise } from "@/app/advertise/_components/use-advertise";
-import { Button } from "@/components/ui/button";
+import { useAdvertise } from '@/app/advertise/_components/use-advertise'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -17,29 +17,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { InputCurrency } from "@/components/ui/input-currency";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { InputCurrency } from '@/components/ui/input-currency'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useToast } from "@/components/ui/use-toast";
-import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from "@/lib/utils";
-import { createAnnouncementRequest } from "@/services/announcement.service";
-import { CreateAnnouncementRequestData } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
+} from '@/components/ui/tooltip'
+import { useToast } from '@/components/ui/use-toast'
+import { cnpjMask, cpfMask, currencyFormatter, pixKeysMask } from '@/lib/utils'
+import { createAnnouncementRequest } from '@/services/announcement.service'
+import { CreateAnnouncementRequestData } from '@/types'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
 import {
   AlertCircle,
   Calculator,
@@ -53,262 +53,273 @@ import {
   Upload,
   User,
   X,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 function handleSalePriceChange(value: string | number): string {
-  if (!value) return "";
+  if (!value) return ''
 
-  const valueStr = String(value);
+  const valueStr = String(value)
   const numericValue = parseFloat(
-    valueStr.replace(/[^\d,-]/g, "").replace(",", "."),
-  );
+    valueStr.replace(/[^\d,-]/g, '').replace(',', '.'),
+  )
 
   if (!isNaN(numericValue)) {
-    const calculatedBalance = (numericValue * 0.95).toFixed(2); // 95% do valor de venda
+    const calculatedBalance = (numericValue * 0.95).toFixed(2) // 95% do valor de venda
     const formattedBalance = currencyFormatter
       .format(Number(calculatedBalance))
-      .replace(/^R\$/, "")
-      .trim();
+      .replace(/^R\$/, '')
+      .trim()
 
-    return formattedBalance;
+    return formattedBalance
   }
 
-  return "";
+  return ''
 }
 
 export function RegisterForm(props: {
-  title: string;
-  description: string;
-  show: boolean;
-  announcementType: "RPV" | "PRECATORIO";
+  title: string
+  description: string
+  show: boolean
+  announcementType: 'RPV' | 'PRECATORIO'
 }) {
-  const [salePrice, setSalePrice] = useState("0,00");
-  const [documentBankAccount, setDocumentBankAccount] = useState("");
-  const [selectedOption, setSelectedOption] = useState<"PIX" | "TRANSFER_BANK">(
-    "PIX",
-  );
-  const [formattedPrice, setFormattedPrice] = useState("0,00");
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [fileErrors, setFileErrors] = useState<string[]>([]);
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  const { createAnnouncementSchema } = useAdvertise();
+  const [salePrice, setSalePrice] = useState('0,00')
+  const [documentBankAccount, setDocumentBankAccount] = useState('')
+  const [selectedOption, setSelectedOption] = useState<'PIX' | 'TRANSFER_BANK'>(
+    'PIX',
+  )
+  const [formattedPrice, setFormattedPrice] = useState('0,00')
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [fileErrors, setFileErrors] = useState<string[]>([])
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+  const { createAnnouncementSchema } = useAdvertise()
 
-  type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>;
+  type CreateAnnouncementSchema = z.infer<typeof createAnnouncementSchema>
 
   const form = useForm<CreateAnnouncementSchema>({
     resolver: zodResolver(createAnnouncementSchema),
     defaultValues: {
-      paymentOption: "PIX",
+      paymentOption: 'PIX',
     },
-  });
+  })
 
-  const handlePaymentReceivingOption = (option: "PIX" | "TRANSFER_BANK") => {
-    setSelectedOption(option);
-    form.setValue("paymentOption", option);
-  };
+  const handlePaymentReceivingOption = (option: 'PIX' | 'TRANSFER_BANK') => {
+    setSelectedOption(option)
+    form.setValue('paymentOption', option)
+  }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
+    const files = event.target.files
+    if (!files) return
 
-    const newErrors: string[] = [];
-    const validFiles: File[] = [];
+    const newErrors: string[] = []
+    const validFiles: File[] = []
 
     Array.from(files).forEach((file) => {
       // Verifica se é PDF
-      if (file.type !== "application/pdf") {
-        newErrors.push(`"${file.name}" não é um arquivo PDF válido.`);
-        return;
+      if (file.type !== 'application/pdf') {
+        newErrors.push(`"${file.name}" não é um arquivo PDF válido.`)
+        return
       }
 
       // Verifica o tamanho do arquivo
       if (file.size > MAX_FILE_SIZE) {
-        newErrors.push(`"${file.name}" excede o tamanho máximo de 10MB.`);
-        return;
+        newErrors.push(`"${file.name}" excede o tamanho máximo de 10MB.`)
+        return
       }
 
       // Verifica se o arquivo já foi adicionado
       if (
         uploadedFiles.some((f) => f.name === file.name && f.size === file.size)
       ) {
-        newErrors.push(`"${file.name}" já foi adicionado.`);
-        return;
+        newErrors.push(`"${file.name}" já foi adicionado.`)
+        return
       }
 
-      validFiles.push(file);
-    });
+      validFiles.push(file)
+    })
 
     if (newErrors.length > 0) {
-      setFileErrors(newErrors);
+      setFileErrors(newErrors)
       toast({
-        variant: "destructive",
-        title: "Erro ao adicionar arquivos",
-        description: newErrors.join(" "),
-      });
+        variant: 'destructive',
+        title: 'Erro ao adicionar arquivos',
+        description: newErrors.join(' '),
+      })
     } else {
-      setFileErrors([]);
+      setFileErrors([])
     }
 
     if (validFiles.length > 0) {
-      setUploadedFiles((prev) => [...prev, ...validFiles]);
+      setUploadedFiles((prev) => [...prev, ...validFiles])
       toast({
-        variant: "default",
+        variant: 'default',
         title: `${validFiles.length} arquivo(s) adicionado(s)`,
-        description: "Os documentos foram adicionados com sucesso.",
-      });
+        description: 'Os documentos foram adicionados com sucesso.',
+      })
     }
 
     // Limpa o input para permitir adicionar o mesmo arquivo novamente se necessário
-    event.target.value = "";
-  };
+    event.target.value = ''
+  }
 
   const removeFile = (index: number) => {
-    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  };
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+  }
 
-  const { toast } = useToast();
-  const router = useRouter();
+  const { toast } = useToast()
+  const router = useRouter()
 
   // Função auxiliar para converter valor monetário formatado para número
   const convertCurrencyToNumber = (value: string | undefined): string => {
-    if (!value || value.trim() === "") return "";
+    if (!value || value.trim() === '') return ''
     // Remove formatação e converte vírgula para ponto
     const numericValue = value
-      .replace(/[^\d,.-]/g, "")
-      .replace(/\./g, "")
-      .replace(",", ".");
-    return numericValue;
-  };
+      .replace(/[^\d,.-]/g, '')
+      .replace(/\./g, '')
+      .replace(',', '.')
+    return numericValue
+  }
 
   async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
     try {
       // Valida se todos os campos obrigatórios estão preenchidos
       if (!data.type && !props.announcementType) {
         toast({
-          variant: "destructive",
-          title: "Erro de validação",
-          description: "O tipo de anúncio é obrigatório",
-        });
-        return;
+          variant: 'destructive',
+          title: 'Erro de validação',
+          description: 'O tipo de anúncio é obrigatório',
+        })
+        return
       }
 
       // Garante que o tipo está presente
       const formDataToSend = {
         ...data,
         type: data.type || props.announcementType,
-      };
+      }
 
       // Valida campos obrigatórios antes de enviar
       const requiredFields = [
-        { key: "ownerFullName", label: "Nome completo" },
-        { key: "ownerDocument", label: "CPF" },
-        { key: "lawSuit", label: "Número do processo" },
-        { key: "origin", label: "Origem" },
-        { key: "court", label: "Tribunal" },
-        { key: "price", label: "Valor nominal" },
-        { key: "salePrice", label: "Valor de venda" },
-        { key: "liquidBalance", label: "Saldo líquido" },
-        { key: "paymentOption", label: "Forma de pagamento" },
-      ];
+        { key: 'ownerFullName', label: 'Nome completo' },
+        { key: 'ownerDocument', label: 'CPF' },
+        { key: 'lawSuit', label: 'Número do processo' },
+        { key: 'origin', label: 'Origem' },
+        { key: 'court', label: 'Tribunal' },
+        { key: 'price', label: 'Valor nominal' },
+        { key: 'salePrice', label: 'Valor de venda' },
+        { key: 'liquidBalance', label: 'Saldo líquido' },
+        { key: 'paymentOption', label: 'Forma de pagamento' },
+      ]
 
       const missingFields = requiredFields.filter(
-        (field) => !formDataToSend[field.key as keyof typeof formDataToSend] ||
-        String(formDataToSend[field.key as keyof typeof formDataToSend]).trim() === ""
-      );
+        (field) =>
+          !formDataToSend[field.key as keyof typeof formDataToSend] ||
+          String(
+            formDataToSend[field.key as keyof typeof formDataToSend],
+          ).trim() === '',
+      )
 
       if (missingFields.length > 0) {
         toast({
-          variant: "destructive",
-          title: "Campos obrigatórios não preenchidos",
-          description: `Por favor, preencha: ${missingFields.map(f => f.label).join(", ")}`,
-        });
-        return;
+          variant: 'destructive',
+          title: 'Campos obrigatórios não preenchidos',
+          description: `Por favor, preencha: ${missingFields.map((f) => f.label).join(', ')}`,
+        })
+        return
       }
 
       // Se houver arquivos, prepara FormData, caso contrário envia JSON normal
-      let response;
+      let response
 
       if (uploadedFiles.length > 0) {
         // Criar FormData para envio de arquivos
-        const formData = new FormData();
+        const formData = new FormData()
 
         // Adiciona todos os campos obrigatórios do formulário
         // Campos obrigatórios sempre presentes
-        formData.append("type", formDataToSend.type);
-        formData.append("ownerFullName", formDataToSend.ownerFullName);
-        formData.append("ownerDocument", formDataToSend.ownerDocument);
-        formData.append("lawSuit", formDataToSend.lawSuit);
-        formData.append("origin", formDataToSend.origin);
-        formData.append("court", formDataToSend.court);
-        
+        formData.append('type', formDataToSend.type)
+        formData.append('ownerFullName', formDataToSend.ownerFullName)
+        formData.append('ownerDocument', formDataToSend.ownerDocument)
+        formData.append('lawSuit', formDataToSend.lawSuit)
+        formData.append('origin', formDataToSend.origin)
+        formData.append('court', formDataToSend.court)
+
         // Valores monetários - converte para formato numérico
-        const price = convertCurrencyToNumber(formDataToSend.price);
-        const salePrice = convertCurrencyToNumber(formDataToSend.salePrice);
-        const liquidBalance = convertCurrencyToNumber(formDataToSend.liquidBalance);
-        
-        formData.append("price", price);
-        formData.append("salePrice", salePrice);
-        formData.append("liquidBalance", liquidBalance);
-        
+        const price = convertCurrencyToNumber(formDataToSend.price)
+        const salePrice = convertCurrencyToNumber(formDataToSend.salePrice)
+        const liquidBalance = convertCurrencyToNumber(
+          formDataToSend.liquidBalance,
+        )
+
+        formData.append('price', price)
+        formData.append('salePrice', salePrice)
+        formData.append('liquidBalance', liquidBalance)
+
         // Payment option
-        formData.append("paymentOption", formDataToSend.paymentOption);
+        formData.append('paymentOption', formDataToSend.paymentOption)
 
         // Campos condicionais baseados no tipo de pagamento
-        if (formDataToSend.paymentOption === "PIX") {
+        if (formDataToSend.paymentOption === 'PIX') {
           if (formDataToSend.pixKey) {
-            formData.append("pixKey", formDataToSend.pixKey);
+            formData.append('pixKey', formDataToSend.pixKey)
           }
-        } else if (formDataToSend.paymentOption === "TRANSFER_BANK") {
+        } else if (formDataToSend.paymentOption === 'TRANSFER_BANK') {
           if (formDataToSend.ownerBankAccount) {
-            formData.append("ownerBankAccount", formDataToSend.ownerBankAccount);
+            formData.append('ownerBankAccount', formDataToSend.ownerBankAccount)
           }
           if (formDataToSend.documentBankAccount) {
-            formData.append("documentBankAccount", formDataToSend.documentBankAccount);
+            formData.append(
+              'documentBankAccount',
+              formDataToSend.documentBankAccount,
+            )
           }
           if (formDataToSend.bankAccount) {
-            formData.append("bankAccount", formDataToSend.bankAccount);
+            formData.append('bankAccount', formDataToSend.bankAccount)
           }
           if (formDataToSend.agencyBankAccount) {
-            formData.append("agencyBankAccount", formDataToSend.agencyBankAccount);
+            formData.append(
+              'agencyBankAccount',
+              formDataToSend.agencyBankAccount,
+            )
           }
         }
 
         // Adiciona os arquivos PDF
         uploadedFiles.forEach((file, index) => {
-          formData.append(`documents[${index}]`, file);
-        });
+          formData.append(`documents[${index}]`, file)
+        })
 
         // Enviar com FormData
         const token = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("summit.token="))
-          ?.split("=")[1];
+          .split('; ')
+          .find((row) => row.startsWith('summit.token='))
+          ?.split('=')[1]
 
         if (!token) {
-          throw new Error("token_is_missing");
+          throw new Error('token_is_missing')
         }
 
         const baseUrl =
-          process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
-        const apiUrl = `${baseUrl}/announcement`;
+          process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || ''
+        const apiUrl = `${baseUrl}/announcement`
 
         response = await fetch(apiUrl, {
-          method: "POST",
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
-            "x-api-key": `${process.env.NEXT_PUBLIC_API_KEY}`,
+            'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
             // Não definir Content-Type para FormData - o browser fará isso automaticamente
           },
           body: formData,
@@ -317,17 +328,17 @@ export function RegisterForm(props: {
             const errorData = await res.json().catch(() => ({
               message: `HTTP error! status: ${res.status}`,
               statusCode: res.status,
-            }));
+            }))
             const error: Error & { statusCode?: number } = new Error(
               Array.isArray(errorData.message)
-                ? errorData.message.join(", ")
+                ? errorData.message.join(', ')
                 : errorData.message || `HTTP error! status: ${res.status}`,
-            );
-            error.statusCode = res.status || errorData.statusCode;
-            throw error;
+            )
+            error.statusCode = res.status || errorData.statusCode
+            throw error
           }
-          return res.json();
-        });
+          return res.json()
+        })
       } else {
         // Prepara dados para envio JSON - converte valores monetários
         const jsonData: CreateAnnouncementRequestData = {
@@ -341,127 +352,131 @@ export function RegisterForm(props: {
           salePrice: convertCurrencyToNumber(formDataToSend.salePrice),
           liquidBalance: convertCurrencyToNumber(formDataToSend.liquidBalance),
           paymentOption: formDataToSend.paymentOption,
-        };
+        }
 
         // Adiciona campos condicionais apenas se preenchidos
-        if (formDataToSend.paymentOption === "PIX" && formDataToSend.pixKey) {
-          jsonData.pixKey = formDataToSend.pixKey;
-        } else if (formDataToSend.paymentOption === "TRANSFER_BANK") {
+        if (formDataToSend.paymentOption === 'PIX' && formDataToSend.pixKey) {
+          jsonData.pixKey = formDataToSend.pixKey
+        } else if (formDataToSend.paymentOption === 'TRANSFER_BANK') {
           if (formDataToSend.ownerBankAccount) {
-            jsonData.ownerBankAccount = formDataToSend.ownerBankAccount;
+            jsonData.ownerBankAccount = formDataToSend.ownerBankAccount
           }
           if (formDataToSend.documentBankAccount) {
-            jsonData.documentBankAccount = formDataToSend.documentBankAccount;
+            jsonData.documentBankAccount = formDataToSend.documentBankAccount
           }
           if (formDataToSend.bankAccount) {
-            jsonData.bankAccount = formDataToSend.bankAccount;
+            jsonData.bankAccount = formDataToSend.bankAccount
           }
           if (formDataToSend.agencyBankAccount) {
-            jsonData.agencyBankAccount = formDataToSend.agencyBankAccount;
+            jsonData.agencyBankAccount = formDataToSend.agencyBankAccount
           }
         }
 
         // Envia normalmente sem arquivos
-        response = await createAnnouncementRequest(jsonData);
+        response = await createAnnouncementRequest(jsonData)
       }
 
       if (!response) {
         toast({
-          variant: "destructive",
-          title: "Erro interno",
-          description: "Não foi possível processar a sua requisição",
-        });
-        return;
+          variant: 'destructive',
+          title: 'Erro interno',
+          description: 'Não foi possível processar a sua requisição',
+        })
+        return
       }
 
       if (response && (response.statusCode === 201 || !response.statusCode)) {
         toast({
-          variant: "default",
+          variant: 'default',
           title: `Seu ${props.title} foi registrado com sucesso!`,
           description:
-            "Encaminhamos para o seu email os detalhes sobre o seu anúncio",
-        });
+            'Encaminhamos para o seu email os detalhes sobre o seu anúncio',
+        })
 
-        form.reset();
-        setUploadedFiles([]);
-        setFileErrors([]);
-        router.push("/dashboard");
+        form.reset()
+        setUploadedFiles([])
+        setFileErrors([])
+        router.push('/dashboard')
       } else {
         // Trata erros de validação com mensagens mais claras
         const errorMessage = Array.isArray(response?.message)
-          ? response.message.join(". ")
-          : response?.message || "Não foi possível processar a sua requisição";
-        
+          ? response.message.join('. ')
+          : response?.message || 'Não foi possível processar a sua requisição'
+
         toast({
-          variant: "destructive",
-          title: "Erro ao criar anúncio",
+          variant: 'destructive',
+          title: 'Erro ao criar anúncio',
           description: errorMessage,
-        });
+        })
       }
     } catch (error) {
       // Melhora o tratamento de erros para mostrar mensagens mais específicas
-      let errorMessage = "Não foi possível processar a sua requisição";
-      
-      if (error && typeof error === "object") {
-        if ("statusCode" in error) {
-          const httpError = error as { statusCode?: number; message?: string | string[] };
+      let errorMessage = 'Não foi possível processar a sua requisição'
+
+      if (error && typeof error === 'object') {
+        if ('statusCode' in error) {
+          const httpError = error as {
+            statusCode?: number
+            message?: string | string[]
+          }
           if (httpError.statusCode === 400) {
             // Erro de validação
-            const message = httpError.message;
+            const message = httpError.message
             if (Array.isArray(message)) {
-              errorMessage = `Erro de validação: ${message.join(". ")}`;
-            } else if (typeof message === "string") {
-              errorMessage = `Erro de validação: ${message}`;
+              errorMessage = `Erro de validação: ${message.join('. ')}`
+            } else if (typeof message === 'string') {
+              errorMessage = `Erro de validação: ${message}`
             }
           } else {
-            errorMessage = typeof httpError.message === "string"
-              ? httpError.message
-              : Array.isArray(httpError.message)
-              ? httpError.message.join(". ")
-              : errorMessage;
+            errorMessage =
+              typeof httpError.message === 'string'
+                ? httpError.message
+                : Array.isArray(httpError.message)
+                  ? httpError.message.join('. ')
+                  : errorMessage
           }
         }
       }
 
       toast({
-        variant: "destructive",
-        title: "Erro ao criar anúncio",
+        variant: 'destructive',
+        title: 'Erro ao criar anúncio',
         description: errorMessage,
-      });
+      })
     }
   }
 
-  const calculatedBalance = handleSalePriceChange(form.watch("salePrice"));
+  const calculatedBalance = handleSalePriceChange(form.watch('salePrice'))
 
   useEffect(() => {
-    form.setValue("liquidBalance", calculatedBalance);
-  }, [calculatedBalance, form]);
+    form.setValue('liquidBalance', calculatedBalance)
+  }, [calculatedBalance, form])
 
   useEffect(() => {
-    const newCalculatedBalance = handleSalePriceChange(salePrice);
-    form.setValue("liquidBalance", newCalculatedBalance);
-  }, [salePrice, form]);
+    const newCalculatedBalance = handleSalePriceChange(salePrice)
+    form.setValue('liquidBalance', newCalculatedBalance)
+  }, [salePrice, form])
 
   // Garante que o tipo está sempre definido
   useEffect(() => {
     if (props.announcementType) {
-      form.setValue("type", props.announcementType);
+      form.setValue('type', props.announcementType)
     }
-  }, [props.announcementType, form]);
+  }, [props.announcementType, form])
 
   // Valida se todos os campos obrigatórios estão preenchidos antes de enviar
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       // Log para debug (pode ser removido em produção)
-      if (process.env.NODE_ENV === "development" && name) {
-        console.log(`Field ${name} changed:`, value[name as keyof typeof value]);
+      if (process.env.NODE_ENV === 'development' && name) {
+        console.log(`Field ${name} changed:`, value[name as keyof typeof value])
       }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   if (!props.show) {
-    return null;
+    return null
   }
 
   return (
@@ -565,10 +580,10 @@ export function RegisterForm(props: {
                       <FormControl>
                         <Input
                           className="h-12 text-base"
-                          placeholder={`Informe o número do seu ${props.title === "RPV" ? "RPV" : "precatório"}`}
+                          placeholder={`Informe o número do seu ${props.title === 'RPV' ? 'RPV' : 'precatório'}`}
                           {...field}
                           onChange={(e) =>
-                            field.onChange(e.target.value.replace(/\D/g, ""))
+                            field.onChange(e.target.value.replace(/\D/g, ''))
                           }
                         />
                       </FormControl>
@@ -682,19 +697,19 @@ export function RegisterForm(props: {
                           {...field}
                           value={formattedPrice}
                           onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "");
+                            const value = e.target.value.replace(/\D/g, '')
                             setFormattedPrice(
                               currencyFormatter
                                 .format(Number(value) / 100)
-                                .replace(/^R\$/, "")
+                                .replace(/^R\$/, '')
                                 .trim(),
-                            );
+                            )
                             field.onChange(
                               currencyFormatter
                                 .format(Number(value) / 100)
-                                .replace(/^R\$/, "")
+                                .replace(/^R\$/, '')
                                 .trim(),
-                            );
+                            )
                           }}
                         />
                       </FormControl>
@@ -727,19 +742,19 @@ export function RegisterForm(props: {
                           {...field}
                           value={salePrice}
                           onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "");
+                            const value = e.target.value.replace(/\D/g, '')
                             setSalePrice(
                               currencyFormatter
                                 .format(Number(value) / 100)
-                                .replace(/^R\$/, "")
+                                .replace(/^R\$/, '')
                                 .trim(),
-                            );
+                            )
                             field.onChange(
                               currencyFormatter
                                 .format(Number(value) / 100)
-                                .replace(/^R\$/, "")
+                                .replace(/^R\$/, '')
                                 .trim(),
-                            );
+                            )
                           }}
                         />
                       </FormControl>
@@ -775,7 +790,7 @@ export function RegisterForm(props: {
                           <Input
                             className="h-12 text-base bg-gray-50 border-2 border-gray-200"
                             disabled
-                            value={`R$ ${field.value || "0,00"}`}
+                            value={`R$ ${field.value || '0,00'}`}
                             readOnly
                           />
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -814,7 +829,7 @@ export function RegisterForm(props: {
             <CardContent className="grid gap-6 pt-6">
               <RadioGroup
                 value={selectedOption}
-                onValueChange={(value: "PIX" | "TRANSFER_BANK") =>
+                onValueChange={(value: 'PIX' | 'TRANSFER_BANK') =>
                   handlePaymentReceivingOption(value)
                 }
                 className="grid gap-4 sm:grid-cols-2"
@@ -827,10 +842,11 @@ export function RegisterForm(props: {
                   />
                   <Label
                     htmlFor="pix"
-                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${selectedOption === "PIX"
-                        ? "border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
+                      selectedOption === 'PIX'
+                        ? 'border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
                   >
                     <div className="p-3 rounded-full bg-blue-100 mb-3">
                       <svg
@@ -864,10 +880,11 @@ export function RegisterForm(props: {
                   />
                   <Label
                     htmlFor="transfer_bank"
-                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${selectedOption === "TRANSFER_BANK"
-                        ? "border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                      }`}
+                    className={`flex flex-col items-center justify-center rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 ${
+                      selectedOption === 'TRANSFER_BANK'
+                        ? 'border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-md'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
                   >
                     <div className="p-3 rounded-full bg-green-100 mb-3">
                       <Landmark className="h-8 w-8 text-green-600" />
@@ -882,7 +899,7 @@ export function RegisterForm(props: {
                 </div>
               </RadioGroup>
 
-              {selectedOption === "PIX" ? (
+              {selectedOption === 'PIX' ? (
                 <div className="grid gap-4">
                   <FormField
                     control={form.control}
@@ -899,8 +916,8 @@ export function RegisterForm(props: {
                             placeholder="Digite ou cole a sua chave PIX"
                             {...field}
                             onChange={(e) => {
-                              const maskedValue = pixKeysMask(e.target.value);
-                              field.onChange(maskedValue);
+                              const maskedValue = pixKeysMask(e.target.value)
+                              field.onChange(maskedValue)
                             }}
                           />
                         </FormControl>
@@ -950,14 +967,14 @@ export function RegisterForm(props: {
                             onChange={(e) => {
                               const clearValue = e.target.value.replace(
                                 /\D/g,
-                                "",
-                              );
+                                '',
+                              )
                               if (clearValue.length <= 11) {
-                                setDocumentBankAccount(cpfMask(clearValue));
+                                setDocumentBankAccount(cpfMask(clearValue))
                               } else {
-                                setDocumentBankAccount(cnpjMask(clearValue));
+                                setDocumentBankAccount(cnpjMask(clearValue))
                               }
-                              field.onChange(clearValue);
+                              field.onChange(clearValue)
                             }}
                           />
                         </FormControl>
@@ -980,7 +997,7 @@ export function RegisterForm(props: {
                             placeholder="Número da conta"
                             {...field}
                             onChange={(e) =>
-                              field.onChange(e.target.value.replace(/\D/g, ""))
+                              field.onChange(e.target.value.replace(/\D/g, ''))
                             }
                           />
                         </FormControl>
@@ -1003,7 +1020,7 @@ export function RegisterForm(props: {
                             placeholder="Sem dígito verificador"
                             {...field}
                             onChange={(e) =>
-                              field.onChange(e.target.value.replace(/\D/g, ""))
+                              field.onChange(e.target.value.replace(/\D/g, ''))
                             }
                           />
                         </FormControl>
@@ -1155,11 +1172,11 @@ export function RegisterForm(props: {
             <div className="text-sm text-gray-600 flex items-center gap-2">
               <Info className="h-4 w-4" />
               <span>
-                Ao enviar, você concorda com nossos{" "}
+                Ao enviar, você concorda com nossos{' '}
                 <a href="/terms" className="text-[#EAAC2E] hover:underline">
                   Termos de Serviço
-                </a>{" "}
-                e{" "}
+                </a>{' '}
+                e{' '}
                 <a href="/privacy" className="text-[#EAAC2E] hover:underline">
                   Política de Privacidade
                 </a>
@@ -1176,12 +1193,12 @@ export function RegisterForm(props: {
                   Registrando...
                 </>
               ) : (
-                "Registrar Anúncio"
+                'Registrar Anúncio'
               )}
             </Button>
           </div>
         </form>
       </Form>
     </div>
-  );
+  )
 }
