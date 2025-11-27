@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   Card,
@@ -12,17 +12,17 @@ import { useState } from 'react'
 import { RegisterForm } from './_components/register-form'
 
 type AnnouncementType = {
-  label: 'RPV' | 'PRECATORIO';
-  isActive: boolean;
-  description: string;
-};
+  label: 'RPV' | 'PRECATORIO'
+  isActive: boolean
+  description: string
+}
 
 export default function AdvertisePage() {
   const [announcementType, setAnnouncementType] = useState<AnnouncementType>({
     description: '',
     isActive: false,
     label: 'PRECATORIO',
-  });
+  })
 
   const announcementTypes = [
     {
@@ -53,7 +53,7 @@ export default function AdvertisePage() {
       borderColor: 'border-[#EAAC2E]/30',
       bgColor: 'bg-[#EAAC2E]/5',
     },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -79,8 +79,8 @@ export default function AdvertisePage() {
         {!announcementType.isActive && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 mb-12">
             {announcementTypes.map((type) => {
-              const Icon = type.icon;
-              const isSelected = announcementType.label === type.label;
+              const Icon = type.icon
+              const isSelected = announcementType.label === type.label
 
               return (
                 <Card
@@ -95,7 +95,7 @@ export default function AdvertisePage() {
                       description: type.description,
                       isActive: true,
                       label: type.label,
-                    });
+                    })
                     // Scroll suave para o formulário
                     setTimeout(() => {
                       const formElement =
@@ -142,7 +142,7 @@ export default function AdvertisePage() {
                     </ul>
                   </CardContent>
                 </Card>
-              );
+              )
             })}
           </div>
         )}
@@ -202,8 +202,8 @@ export default function AdvertisePage() {
                   description: '',
                   isActive: false,
                   label: 'PRECATORIO',
-                });
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+                window.scrollTo({ top: 0, behavior: 'smooth' })
               }}
               className="text-sm text-gray-600 hover:text-gray-900 underline transition-colors"
             >
@@ -213,5 +213,5 @@ export default function AdvertisePage() {
         )}
       </div>
     </div>
-  );
+  )
 }

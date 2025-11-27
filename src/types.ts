@@ -78,7 +78,4 @@ export enum Role {
   User = 'common-user',
   Admin = 'admin-user',
   AccountActivator = 'account-activator',
-  User = 'common-user',
-  Admin = 'admin-user',
-  AccountActivator = 'account-activator',
 }

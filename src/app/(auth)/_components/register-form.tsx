@@ -41,18 +41,14 @@ const formSchema = z.object({
     .string()
     .min(3, 'Deve conter pelo menos 3 caracteres')
     .max(200, 'Deve conter no máximo 200 caracteres'),
-  email: z.string().email('Insira um endereço de e-mail válido.'),
+  email: z
+    .string()
+    .email('Insira um endereço de e-mail válido.')
     .min(3, 'Deve conter pelo menos 3 caracteres')
     .max(200, 'Deve conter no máximo 200 caracteres'),
-  email: z.string().email('Insira um endereço de e-mail válido.'),
-  document: z
-    .string()
-    .refine((document) => isCPFValid(document), {
-      message: 'CPF inválido',
-      message: 'CPF inválido',
-    })
-    .transform((value) => value.replace(/\D/g, '')),
-    .transform((value) => value.replace(/\D/g, '')),
+  document: z.string().refine((document) => isCPFValid(document), {
+    message: 'CPF inválido',
+  }),
   password: z
     .string()
     .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
@@ -65,10 +61,6 @@ export function RegisterForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      document: '',
-      email: '',
-      fullName: '',
-      password: '',
       document: '',
       email: '',
       fullName: '',
@@ -88,14 +80,11 @@ export function RegisterForm() {
 
       // Verifica se a resposta contém um erro
       if ('statusCode' in response && response.statusCode >= 400) {
-      if ('statusCode' in response && response.statusCode >= 400) {
         // Mantém o comportamento especial para 409 (conflito)
         if (response.statusCode === 409) {
           toast({
             variant: 'default',
-            variant: 'default',
             description:
-              'Este CPF já está conectado a uma conta, por favor faça o login.',
               'Este CPF já está conectado a uma conta, por favor faça o login.',
             action: (
               <Button asChild variant="outline" size="sm">
@@ -114,10 +103,8 @@ export function RegisterForm() {
         return
       }
 
-      if (response.statusCode === 201 || !response.statusCode) {
+      if (!('statusCode' in response) || response.statusCode === 201) {
         toast({
-          variant: 'default',
-          title: 'Conta criada com sucesso!',
           variant: 'default',
           title: 'Conta criada com sucesso!',
           description:
@@ -129,7 +116,6 @@ export function RegisterForm() {
       }
     } catch (error) {
       const errorToast = handleApiError(
-        error && typeof error === 'object' && 'statusCode' in error
         error && typeof error === 'object' && 'statusCode' in error
           ? (error as { statusCode?: number; message?: string })
           : error,
@@ -287,8 +273,6 @@ export function RegisterForm() {
                   {form.formState.isSubmitting
                     ? 'Criando conta...'
                     : 'Criar conta'}
-                    ? 'Criando conta...'
-                    : 'Criar conta'}
                 </Button>
 
                 <div className="relative mt-6">
@@ -319,11 +303,8 @@ export function RegisterForm() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             Ao criar uma conta, você concorda com nossos{' '}
-            Ao criar uma conta, você concorda com nossos{' '}
             <Link href="/terms" className="text-[#EAAC2E] hover:underline">
               Termos de Serviço
-            </Link>{' '}
-            e{' '}
             </Link>{' '}
             e{' '}
             <Link href="/privacy" className="text-[#EAAC2E] hover:underline">

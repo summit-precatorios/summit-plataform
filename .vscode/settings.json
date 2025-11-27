@@ -5,5 +5,4 @@
     "source.organizeImports": "explicit",
     "source.fixAll.stylelint": "explicit"
   },
-  "eslint.validate": ["javascript"]
 }

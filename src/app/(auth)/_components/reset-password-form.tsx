@@ -38,7 +38,6 @@ const formSchema = z
     password: z
       .string()
       .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
-      .min(8, { message: 'Sua senha precisa de no mínimo 8 caracteres' }),
     confirm: z.string(),
   })
   .refine((data) => data.password === data.confirm, {
@@ -75,8 +74,6 @@ export function ResetPasswordForm({
     defaultValues: {
       password: '',
       confirm: '',
-      password: '',
-      confirm: '',
     },
   })
 
@@ -89,13 +86,9 @@ export function ResetPasswordForm({
     try {
       const response = await api<{ statusCode?: number; message?: string }>(
         'auth/reset/password',
-        'auth/reset/password',
         {
           method: 'PATCH',
-          method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
             'Content-Type': 'application/json',
             'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
           },
@@ -235,8 +228,6 @@ export function ResetPasswordForm({
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? 'Redefinindo...'
-                    : 'Redefinir senha'}
                     ? 'Redefinindo...'
                     : 'Redefinir senha'}
                 </Button>
