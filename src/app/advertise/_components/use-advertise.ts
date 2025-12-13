@@ -1,5 +1,5 @@
-import { isCPFValid } from '@/lib/isCPFValid'
-import { z } from 'zod'
+import { isCPFValid } from '@/lib/isCPFValid';
+import { z } from 'zod';
 
 export const useAdvertise = () => {
   // Schema comum para ambos os tipos de pagamento
@@ -22,7 +22,7 @@ export const useAdvertise = () => {
     salePrice: z.string(),
     liquidBalance: z.string(),
     paymentOption: z.enum(['PIX', 'TRANSFER_BANK']),
-  })
+  });
 
   // Schema para opção PIX
   const pixSchema = baseSchema.extend({
@@ -34,7 +34,7 @@ export const useAdvertise = () => {
     documentBankAccount: z.string().optional(),
     bankAccount: z.string().optional(),
     agencyBankAccount: z.string().optional(),
-  })
+  });
 
   // Schema para opção Transferência Bancária
   const transferBankSchema = baseSchema.extend({
@@ -54,14 +54,14 @@ export const useAdvertise = () => {
 
     // Tornar o campo PIX opcional
     pixKey: z.string().optional(),
-  })
+  });
 
   const createAnnouncementSchema = z.discriminatedUnion('paymentOption', [
     pixSchema,
     transferBankSchema,
-  ])
+  ]);
 
   return {
     createAnnouncementSchema,
-  }
-}
+  };
+};

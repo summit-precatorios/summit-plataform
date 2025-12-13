@@ -1,18 +1,18 @@
-import { Toaster } from '@/components/ui/toaster'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { fonts } from './fonts'
-import './globals.css'
-import { Header } from './header'
-import { PermissionProvider } from '@/providers/PermissionProvider'
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { PermissionProvider } from '@/providers/PermissionProvider';
+import { fonts } from './fonts';
+import './globals.css';
+import { Header } from './header';
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html
-      lang="pt-BR"
+      lang='pt-BR'
       suppressHydrationWarning
       className={fonts.inter.className}
     >
@@ -24,5 +24,5 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import usePermission from '@/hooks/usePermission'
+import usePermission from '@/hooks/usePermission';
 
-import { Permission } from '@/types'
-import { ReactNode } from 'react'
+import { Permission } from '@/types';
+import { ReactNode } from 'react';
 
 type Props = {
-  to: Permission | Permission[]
-  children: ReactNode
-  fallback?: JSX.Element | string
-}
+  to: Permission | Permission[];
+  children: ReactNode;
+  fallback?: JSX.Element | string;
+};
 
 /**
  * Componente `Restricted`
@@ -48,7 +48,7 @@ type Props = {
  *
  * @notes
  * - A mensagem exibida na tela para usuários sem permissão pode ser customizada no código.
- * - O botão "Ativar conta" atualmente não tem funcionalidade implementada, mas pode ser configurado usando um callback via `onClick`.
+ * - O botão 'Ativar conta' atualmente não tem funcionalidade implementada, mas pode ser configurado usando um callback via `onClick`.
  *
  * @repository
  * - GitHub: [Permission Provider](https://github.com/francois-roget/permission-provider-demo/tree/master)
@@ -58,9 +58,9 @@ type Props = {
  */
 
 export function Restricted({ to, children, fallback }: Props): JSX.Element {
-  const { allowed } = usePermission(to)
+  const { allowed } = usePermission(to);
 
-  if (allowed) return <>{children}</>
+  if (allowed) return <>{children}</>;
 
-  return <>{fallback}</>
+  return <>{fallback}</>;
 }

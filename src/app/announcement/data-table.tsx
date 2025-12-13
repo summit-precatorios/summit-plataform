@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   Table,
@@ -8,17 +8,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from '@tanstack/react-table';
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
@@ -34,17 +34,17 @@ export function DataTable<TData, TValue>({
         id: false,
       },
     },
-  })
+  });
 
   if (!data)
     return (
-      <div className="flex items-center justify-center">
+      <div className='flex items-center justify-center'>
         Não foi possível carregar os dados.
       </div>
-    )
+    );
   return (
     <Table>
-      <TableCaption className="text-right">
+      <TableCaption className='text-right'>
         Lista dos Precatórios Anúnciados.
       </TableCaption>
       <TableHeader>
@@ -52,15 +52,15 @@ export function DataTable<TData, TValue>({
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id} className="w-[100px]">
+                <TableHead key={header.id} className='w-[100px]'>
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext(),
+                        header.getContext()
                       )}
                 </TableHead>
-              )
+              );
             })}
           </TableRow>
         ))}
@@ -73,7 +73,7 @@ export function DataTable<TData, TValue>({
               data-state={row.getIsSelected() && 'selected'}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="text-left">
+                <TableCell key={cell.id} className='text-left'>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -81,12 +81,12 @@ export function DataTable<TData, TValue>({
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
+            <TableCell colSpan={columns.length} className='h-24 text-center'>
               Sem resultados.
             </TableCell>
           </TableRow>
         )}
       </TableBody>
     </Table>
-  )
+  );
 }

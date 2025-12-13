@@ -1,13 +1,13 @@
-'use client'
+'use client';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Input } from '@/components/ui/input'
-import { HelpCircle, Search } from 'lucide-react'
-import { useState } from 'react'
+} from '@/components/ui/accordion';
+import { Input } from '@/components/ui/input';
+import { HelpCircle, Search } from 'lucide-react';
+import { useState } from 'react';
 
 const faqs = [
   {
@@ -105,10 +105,10 @@ const faqs = [
       },
     ],
   },
-]
+];
 
 export default function FAQPage() {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState('');
 
   const filteredFaqs = faqs
     .map((category) => ({
@@ -116,10 +116,10 @@ export default function FAQPage() {
       questions: category.questions.filter(
         (faq) =>
           faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          faq.answer.toLowerCase().includes(searchTerm.toLowerCase()),
+          faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
       ),
     }))
-    .filter((category) => category.questions.length > 0)
+    .filter((category) => category.questions.length > 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -219,5 +219,5 @@ export default function FAQPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

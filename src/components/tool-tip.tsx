@@ -1,15 +1,15 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { CircleHelp } from 'lucide-react'
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { CircleHelp } from 'lucide-react';
 
 interface Props {
-  content: string
-  handleClick?: () => Promise<void>
+  content: string;
+  handleClick?: () => Promise<void>;
 }
 
 export function ToolTipHelper({ content, handleClick }: Props) {
@@ -20,17 +20,17 @@ export function ToolTipHelper({ content, handleClick }: Props) {
           <span>
             <CircleHelp
               size={16}
-              className="ml-1 cursor-pointer text-red-300"
+              className='ml-1 cursor-pointer text-red-300'
             />
           </span>
         </TooltipTrigger>
-        <TooltipContent className="bg-transparent">
+        <TooltipContent className='bg-transparent'>
           {handleClick && (
             <Button
-              className="bg-transparent"
-              variant="link"
+              className='bg-transparent'
+              variant='link'
               onClick={() => {
-                handleClick()
+                handleClick();
               }}
             >
               {content}
@@ -39,5 +39,5 @@ export function ToolTipHelper({ content, handleClick }: Props) {
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }

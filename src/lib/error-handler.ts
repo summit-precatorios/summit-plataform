@@ -1,19 +1,19 @@
-import * as React from 'react'
-import { Button } from '@/components/ui/button'
-import { ToastAction, type ToastActionElement } from '@/components/ui/toast'
-import Link from 'next/link'
+import * as React from 'react';
+import { Button } from '@/components/ui/button';
+import { ToastAction, type ToastActionElement } from '@/components/ui/toast';
+import Link from 'next/link';
 
 export interface ApiError {
-  message?: string
-  statusCode?: number
-  error?: string
+  message?: string;
+  statusCode?: number;
+  error?: string;
 }
 
 export interface ErrorToastOptions {
-  title?: string
-  description?: string
-  action?: ToastActionElement
-  variant?: 'default' | 'destructive'
+  title?: string;
+  description?: string;
+  action?: ToastActionElement;
+  variant?: 'default' | 'destructive';
 }
 
 export const SupportActionElement: ToastActionElement = React.createElement(
@@ -25,10 +25,10 @@ export const SupportActionElement: ToastActionElement = React.createElement(
     React.createElement(
       Button,
       { variant: 'outline', size: 'sm' },
-      'Contatar Suporte',
-    ),
-  ),
-) as unknown as ToastActionElement
+      'Contatar Suporte'
+    )
+  )
+) as unknown as ToastActionElement;
 
 /**
  * Trata erros de API e retorna configuração para toast
@@ -36,8 +36,8 @@ export const SupportActionElement: ToastActionElement = React.createElement(
 export function handleApiError(error: unknown): ErrorToastOptions {
   // Se o erro já tem a estrutura de ApiError
   if (error && typeof error === 'object' && 'statusCode' in error) {
-    const apiError = error as ApiError
-    const statusCode = apiError.statusCode || 500
+    const apiError = error as ApiError;
+    const statusCode = apiError.statusCode || 500;
 
     switch (statusCode) {
       case 400:
@@ -47,7 +47,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           description:
             'Não foi possível processar sua requisição. Verifique os dados informados ou entre em contato com o suporte.',
           action: SupportActionElement,
-        }
+        };
 
       case 401:
         return {
@@ -55,7 +55,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           title: 'Credenciais inválidas',
           description:
             'O CPF ou senha informados estão incorretos. Verifique suas credenciais e tente novamente.',
-        }
+        };
 
       case 403:
         return {
@@ -64,7 +64,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           description:
             'Você não tem permissão para realizar esta ação. Entre em contato com o suporte se acredita que isto é um erro.',
           action: SupportActionElement,
-        }
+        };
 
       case 404:
         return {
@@ -72,7 +72,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           title: 'Não encontrado',
           description:
             'O recurso solicitado não foi encontrado. Verifique se a URL está correta.',
-        }
+        };
 
       case 409:
         return {
@@ -80,7 +80,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           title: 'Conflito',
           description:
             apiError.message || 'Já existe um registro com estes dados.',
-        }
+        };
 
       case 422:
         return {
@@ -89,7 +89,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           description:
             apiError.message ||
             'Os dados informados não são válidos. Verifique e tente novamente.',
-        }
+        };
 
       case 429:
         return {
@@ -97,7 +97,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           title: 'Muitas requisições',
           description:
             'Você realizou muitas tentativas. Aguarde alguns instantes e tente novamente.',
-        }
+        };
 
       case 500:
       case 502:
@@ -109,7 +109,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
           description:
             'Estamos enfrentando problemas técnicos. Por favor, tente novamente em alguns instantes ou entre em contato com o suporte.',
           action: SupportActionElement,
-        }
+        };
 
       default:
         return {
@@ -119,17 +119,17 @@ export function handleApiError(error: unknown): ErrorToastOptions {
             apiError.message ||
             'Não foi possível processar sua requisição. Tente novamente ou entre em contato com o suporte.',
           action: SupportActionElement,
-        }
+        };
     }
   }
 
   // Se o erro é uma instância de Error
   if (error instanceof Error) {
     // Verifica se a mensagem contém um status code
-    const statusMatch = error.message.match(/status: (\d+)/)
+    const statusMatch = error.message.match(/status: (\d+)/);
     if (statusMatch) {
-      const statusCode = parseInt(statusMatch[1], 10)
-      return handleApiError({ statusCode, message: error.message })
+      const statusCode = parseInt(statusMatch[1], 10);
+      return handleApiError({ statusCode, message: error.message });
     }
 
     return {
@@ -137,7 +137,7 @@ export function handleApiError(error: unknown): ErrorToastOptions {
       title: 'Erro inesperado',
       description:
         error.message || 'Ocorreu um erro inesperado. Tente novamente.',
-    }
+    };
   }
 
   // Erro desconhecido
@@ -147,26 +147,26 @@ export function handleApiError(error: unknown): ErrorToastOptions {
     description:
       'Não foi possível processar sua requisição. Tente novamente ou entre em contato com o suporte.',
     action: SupportActionElement,
-  }
+  };
 }
 
 /**
  * Extrai informações de erro de uma resposta fetch
  */
 export async function extractErrorFromResponse(
-  response: Response,
+  response: Response
 ): Promise<ApiError> {
   try {
-    const errorData = await response.json()
+    const errorData = await response.json();
     return {
       message: errorData.message || errorData.error || 'Erro desconhecido',
       statusCode: response.status || errorData.statusCode,
       error: errorData.error,
-    }
+    };
   } catch {
     return {
       message: `HTTP error! status: ${response.status}`,
       statusCode: response.status,
-    }
+    };
   }
 }
