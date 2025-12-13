@@ -12,6 +12,6 @@
     }
   },
   "mounts": [
-    "type=bind,source=${localEnv:HOME}/.ssh/,target=/home/node/.ssh/,readonly"
+    "type=bind,source=${localEnv:HOME}/.ssh/id_ed25519_github_personal,target=/home/node/.ssh/id_ed25519,readonly"
   ]
 }
