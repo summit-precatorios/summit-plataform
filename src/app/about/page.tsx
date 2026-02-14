@@ -1,7 +1,12 @@
-'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, TrendingUp, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sobre | Summit',
+  description: 'Conheça a Summit e nossa missão na negociação de precatórios.',
+};
 
 const values = [
   {
@@ -128,8 +133,8 @@ export default function AboutPage() {
                   className='border-2 hover:shadow-lg transition-shadow'
                 >
                   <CardHeader>
-                    <div className='rounded-lg bg-[#EAAC2E]/10 w-12 h-12 flex items-center justify-center mb-4'>
-                      <Icon className='h-6 w-6 text-[#EAAC2E]' />
+                    <div className='rounded-lg bg-brand/10 w-12 h-12 flex items-center justify-center mb-4'>
+                      <Icon className='h-6 w-6 text-brand' />
                     </div>
                     <CardTitle>{value.title}</CardTitle>
                   </CardHeader>
@@ -154,13 +159,10 @@ export default function AboutPage() {
 
           <div className='space-y-12'>
             {timeline.map((item, index) => (
-              <div
-                key={index}
-                className='relative pl-8 border-l-2 border-[#EAAC2E]'
-              >
-                <div className='absolute -left-2 top-0 h-4 w-4 rounded-full bg-[#EAAC2E]'></div>
+              <div key={index} className='relative pl-8 border-l-2 border-brand'>
+                <div className='absolute -left-2 top-0 h-4 w-4 rounded-full bg-brand'></div>
                 <div className='mb-2'>
-                  <span className='text-sm font-semibold text-[#EAAC2E]'>
+                  <span className='text-sm font-semibold text-brand'>
                     {item.year}
                   </span>
                 </div>
@@ -175,7 +177,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className='bg-gradient-to-r from-[#EAAC2E] to-[#ffc947] px-6 py-24 lg:px-8'>
+      <section className='bg-gradient-to-r from-brand to-brand-gold px-6 py-24 lg:px-8'>
         <div className='mx-auto max-w-4xl text-center'>
           <h2 className='text-4xl font-bold tracking-tight text-white'>
             Faça parte da nossa jornada
@@ -187,7 +189,7 @@ export default function AboutPage() {
           <div className='mt-10 flex items-center justify-center gap-x-6'>
             <Link
               href='/register'
-              className='rounded-md bg-white px-6 py-3 text-base font-semibold text-[#EAAC2E] shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
+              className='rounded-md bg-white px-6 py-3 text-base font-semibold text-brand shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
             >
               Criar conta gratuita
             </Link>

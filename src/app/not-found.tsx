@@ -20,7 +20,7 @@ export default function NotFound() {
       <div className='max-w-2xl w-full text-center'>
         {/* 404 Number */}
         <div className='mb-8'>
-          <h1 className='text-9xl font-bold text-[#EAAC2E] opacity-20 select-none'>
+          <h1 className='text-9xl font-bold text-brand opacity-20 select-none'>
             404
           </h1>
         </div>
@@ -70,7 +70,7 @@ export default function NotFound() {
               </Button>
               <Button
                 asChild
-                className='w-full sm:w-auto bg-[#EAAC2E] hover:bg-[#ffc947]'
+                className='w-full sm:w-auto bg-brand hover:bg-brand-gold'
               >
                 <Link href='/'>
                   <Home className='mr-2 h-4 w-4' />
@@ -111,7 +111,7 @@ export default function NotFound() {
           isso é um erro, por favor{' '}
           <Link
             href='/contact'
-            className='text-[#EAAC2E] hover:underline font-medium'
+            className='text-brand hover:underline font-medium'
           >
             entre em contato conosco
           </Link>

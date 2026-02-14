@@ -1,15 +1,9 @@
 'use client';
 
-import { AuthContext } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import PermissionContext from '@/contexts/PermissionContext';
 import { Permission } from '@/types';
-import React, {
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { ReactNode, useCallback, useMemo, useRef } from 'react';
 
 type Props = {
   children: ReactNode;
@@ -20,7 +14,7 @@ type PermissionCache = {
 };
 
 export function PermissionProvider({ children }: Props) {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const cacheRef = useRef<PermissionCache>({});
 
   const fetchPermission = useCallback(

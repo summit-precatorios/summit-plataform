@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
-import { AuthContext } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import PermissionContext from '@/contexts/PermissionContext';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { verifyAccountByDocument } from '@/services/auth.service';
@@ -34,7 +34,7 @@ import { useContext, useMemo, useState } from 'react';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const { isAllowedTo } = useContext(PermissionContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +93,15 @@ export default function DashboardPage() {
     return orders;
   }, [orders, activeTab]);
 
+  const formattedTotalValue = useMemo(
+    () =>
+      new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(statistics.totalValue),
+    [statistics.totalValue]
+  );
+
   async function handleClick() {
     const document = user?.document;
 
@@ -133,7 +142,7 @@ export default function DashboardPage() {
     return (
       <div className='flex min-h-screen items-center justify-center'>
         <div className='flex flex-col items-center gap-4'>
-          <LoadingSpinner className='h-8 w-8 text-[#EAAC2E]' />
+          <LoadingSpinner className='h-8 w-8 text-brand' />
           <h2 className='text-lg font-semibold text-gray-700'>Carregando...</h2>
         </div>
       </div>
@@ -163,7 +172,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={handleClick}
                   disabled={loading}
-                  className='bg-[#EAAC2E] hover:bg-[#ffc947] w-full'
+                  className='bg-brand-gold hover:bg-brand text-brand-dark font-semibold w-full'
                 >
                   {loading ? (
                     <>
@@ -243,7 +252,7 @@ export default function DashboardPage() {
                   >
                     <Button
                       onClick={() => router.push('/advertise')}
-                      className='bg-[#EAAC2E] hover:bg-[#ffc947]'
+                      className='bg-brand-gold hover:bg-brand text-brand-dark font-semibold'
                     >
                       <PlusCircle className='mr-2 h-4 w-4' />
                       Novo Anúncio
@@ -263,8 +272,8 @@ export default function DashboardPage() {
                       <FileText className='h-5 w-5 text-blue-600' />
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className='text-3xl font-bold text-gray-900'>
+                  <CardContent className='min-w-0'>
+                    <div className='text-[clamp(1.5rem,2.5vw,1.875rem)] font-bold text-gray-900 leading-tight'>
                       {ordersLoading ? '...' : statistics.total}
                     </div>
                     <p className='text-xs text-gray-500 mt-1'>
@@ -282,8 +291,8 @@ export default function DashboardPage() {
                       <Clock className='h-5 w-5 text-yellow-600' />
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className='text-3xl font-bold text-gray-900'>
+                  <CardContent className='min-w-0'>
+                    <div className='text-[clamp(1.5rem,2.5vw,1.875rem)] font-bold text-gray-900 leading-tight'>
                       {ordersLoading ? '...' : statistics.pending}
                     </div>
                     <p className='text-xs text-gray-500 mt-1'>Em análise</p>
@@ -299,8 +308,8 @@ export default function DashboardPage() {
                       <CheckCircle2 className='h-5 w-5 text-green-600' />
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className='text-3xl font-bold text-gray-900'>
+                  <CardContent className='min-w-0'>
+                    <div className='text-[clamp(1.5rem,2.5vw,1.875rem)] font-bold text-gray-900 leading-tight'>
                       {ordersLoading ? '...' : statistics.approved}
                     </div>
                     <p className='text-xs text-gray-500 mt-1'>
@@ -314,18 +323,16 @@ export default function DashboardPage() {
                     <CardTitle className='text-sm font-medium text-gray-600'>
                       Valor Total
                     </CardTitle>
-                    <div className='p-2 rounded-lg bg-[#EAAC2E]/10'>
-                      <TrendingUp className='h-5 w-5 text-[#EAAC2E]' />
+                    <div className='p-2 rounded-lg bg-brand/10'>
+                      <TrendingUp className='h-5 w-5 text-brand' />
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className='text-3xl font-bold text-gray-900'>
-                      {ordersLoading
-                        ? '...'
-                        : new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          }).format(statistics.totalValue)}
+                  <CardContent className='min-w-0'>
+                    <div
+                      className='text-[clamp(1rem,2vw,1.5rem)] font-bold text-gray-900 leading-tight whitespace-normal break-all'
+                      title={ordersLoading ? undefined : formattedTotalValue}
+                    >
+                      {ordersLoading ? '...' : formattedTotalValue}
                     </div>
                     <p className='text-xs text-gray-500 mt-1'>
                       Valor total dos anúncios
@@ -373,7 +380,7 @@ export default function DashboardPage() {
                       <CardContent className='pt-6'>
                         <div className='flex items-center justify-center py-12'>
                           <div className='flex flex-col items-center gap-4'>
-                            <LoadingSpinner className='h-8 w-8 text-[#EAAC2E]' />
+                            <LoadingSpinner className='h-8 w-8 text-brand' />
                             <p className='text-sm text-gray-600'>
                               Carregando anúncios...
                             </p>
@@ -398,7 +405,7 @@ export default function DashboardPage() {
                           <Restricted to={Role.User}>
                             <Button
                               onClick={() => router.push('/advertise')}
-                              className='bg-[#EAAC2E] hover:bg-[#ffc947]'
+                              className='bg-brand-gold hover:bg-brand text-brand-dark font-semibold'
                             >
                               <PlusCircle className='mr-2 h-4 w-4' />
                               Criar Primeiro Anúncio
@@ -431,7 +438,7 @@ export default function DashboardPage() {
                       <CardContent className='pt-6'>
                         <div className='flex items-center justify-center py-12'>
                           <div className='flex flex-col items-center gap-4'>
-                            <LoadingSpinner className='h-8 w-8 text-[#EAAC2E]' />
+                            <LoadingSpinner className='h-8 w-8 text-brand' />
                             <p className='text-sm text-gray-600'>
                               Carregando anúncios...
                             </p>

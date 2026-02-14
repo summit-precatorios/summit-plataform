@@ -54,8 +54,8 @@ export function useAnnouncements(
         if (!isMounted) return;
 
         // Tratamento específico de erros HTTP
-        const httpError = error as Error & { statusCode?: number };
-        const statusCode = httpError.statusCode;
+        const httpError = error as Error & { statusCode?: number; status?: number };
+        const statusCode = httpError.statusCode ?? httpError.status;
 
         if (statusCode === 403) {
           dispatchError({

@@ -6,6 +6,7 @@ import Link from 'next/link';
 export interface ApiError {
   message?: string;
   statusCode?: number;
+  status?: number;
   error?: string;
 }
 
@@ -35,9 +36,13 @@ export const SupportActionElement: ToastActionElement = React.createElement(
  */
 export function handleApiError(error: unknown): ErrorToastOptions {
   // Se o erro já tem a estrutura de ApiError
-  if (error && typeof error === 'object' && 'statusCode' in error) {
+  if (
+    error &&
+    typeof error === 'object' &&
+    ('statusCode' in error || 'status' in error)
+  ) {
     const apiError = error as ApiError;
-    const statusCode = apiError.statusCode || 500;
+    const statusCode = apiError.statusCode || apiError.status || 500;
 
     switch (statusCode) {
       case 400:

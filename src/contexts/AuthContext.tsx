@@ -1,11 +1,11 @@
 'use client';
 
 import { useToast } from '@/components/ui/use-toast';
+import { decodeToken, isTokenExpired, TOKEN_COOKIE_NAME } from '@/lib/auth';
 import { handleApiError } from '@/lib/error-handler';
 import { signInRequest } from '@/services/auth.service';
 import { User } from '@/types';
 import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   ReactNode,
@@ -35,7 +35,6 @@ export const AuthContext = createContext({} as AuthContextType);
 
 // Chave para sincronização entre abas
 const AUTH_SYNC_KEY = 'summit.auth.sync';
-const TOKEN_COOKIE_NAME = 'summit.token';
 
 // Helper function to parse all cookies (replacement for nookies.parseCookies)
 function parseCookies(): Record<string, string> {
@@ -60,12 +59,28 @@ export function AuthProvider({ children }: AuthContextProps) {
 
   const isAuthenticated = !!user;
 
+  const cookieOptions = {
+    expires: 1 / 24, // expires in 1 hour (1/24 of a day)
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+  };
+
   // Função para decodificar token e atualizar usuário
   const decodeTokenAndSetUser = useCallback((token: string) => {
     try {
-      const tokenDecoded: { payload: any; roles: string[] } = jwtDecode(
-        token as string
-      );
+      if (isTokenExpired(token)) {
+        Cookies.remove(TOKEN_COOKIE_NAME);
+        setUser(null);
+        return null;
+      }
+
+      const tokenDecoded = decodeToken(token);
+      if (!tokenDecoded) {
+        Cookies.remove(TOKEN_COOKIE_NAME);
+        setUser(null);
+        return null;
+      }
 
       const { payload, roles } = tokenDecoded;
 
@@ -118,10 +133,11 @@ export function AuthProvider({ children }: AuthContextProps) {
       }
 
       // Verifica se a resposta contém um erro
-      if ('statusCode' in response && response.statusCode >= 400) {
+      const err = response as { statusCode?: number; message?: string; error?: string };
+      if (typeof err.statusCode === 'number' && err.statusCode >= 400) {
         const errorToast = handleApiError({
-          statusCode: response.statusCode,
-          message: response.message || response.error,
+          statusCode: err.statusCode,
+          message: err.message || err.error,
         });
         toast(errorToast);
         return;
@@ -140,9 +156,7 @@ export function AuthProvider({ children }: AuthContextProps) {
         return;
       }
 
-      Cookies.set(TOKEN_COOKIE_NAME, token, {
-        expires: 1 / 24, // expires in 1 hour (1/24 of a day)
-      });
+      Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
 
       // Atualiza o usuário
       const userData = decodeTokenAndSetUser(token);
@@ -214,9 +228,7 @@ export function AuthProvider({ children }: AuthContextProps) {
           const { 'summit.token': currentToken } = parseCookies();
           if (currentToken !== token) {
             // Atualiza o cookie
-            Cookies.set(TOKEN_COOKIE_NAME, token, {
-              expires: 1 / 24, // expires in 1 hour
-            });
+            Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
             decodeTokenAndSetUser(token);
           }
         }

@@ -18,19 +18,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { InputPassword } from '@/components/ui/input-password';
 import { useToast } from '@/components/ui/use-toast';
+import { AuthFormLayout } from '@/app/(auth)/_components/auth-form-layout';
 import { handleApiError } from '@/lib/error-handler';
 import { isCPFValid } from '@/lib/isCPFValid';
 import { cpfMask } from '@/lib/utils';
 import { registerRequest } from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    ArrowLeft,
-    CheckCircle2,
-    Lock,
-    Mail,
-    User,
-    UserCircle,
-} from 'lucide-react';
+import { CheckCircle2, Lock, Mail, User, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -128,23 +122,11 @@ export function RegisterForm() {
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-12'>
-      <div className='w-full max-w-md'>
-        {/* Logo/Back Button */}
-        <div className='mb-8'>
-          <Link
-            href='/'
-            className='inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors'
-          >
-            <ArrowLeft className='mr-2 h-4 w-4' />
-            Voltar para home
-          </Link>
-        </div>
-
-        <Card className='border-2 shadow-xl'>
+    <AuthFormLayout backHref='/' backLabel='Voltar para home'>
+      <Card className='border-2 shadow-xl'>
           <CardHeader className='space-y-1 text-center pb-6'>
-            <div className='mx-auto w-16 h-16 rounded-full bg-[#EAAC2E]/10 flex items-center justify-center mb-4'>
-              <UserCircle className='h-8 w-8 text-[#EAAC2E]' />
+            <div className='mx-auto w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-4'>
+              <UserCircle className='h-8 w-8 text-brand' />
             </div>
             <CardTitle className='text-3xl font-bold'>
               Criar sua conta
@@ -293,7 +275,7 @@ export function RegisterForm() {
                   <span className='text-gray-600'>Já tem uma conta? </span>
                   <Link
                     href='/sign-in'
-                    className='font-semibold text-[#EAAC2E] hover:underline transition-colors'
+                    className='font-semibold text-brand hover:underline transition-colors'
                   >
                     Entrar
                   </Link>
@@ -301,21 +283,20 @@ export function RegisterForm() {
               </form>
             </Form>
           </CardContent>
-        </Card>
+      </Card>
 
-        <div className='mt-6 text-center text-sm text-gray-600'>
-          <p>
-            Ao criar uma conta, você concorda com nossos{' '}
-            <Link href='/terms' className='text-[#EAAC2E] hover:underline'>
-              Termos de Serviço
-            </Link>{' '}
-            e{' '}
-            <Link href='/privacy' className='text-[#EAAC2E] hover:underline'>
-              Política de Privacidade
-            </Link>
-          </p>
-        </div>
+      <div className='mt-6 text-center text-sm text-gray-600'>
+        <p>
+          Ao criar uma conta, você concorda com nossos{' '}
+          <Link href='/terms' className='text-brand hover:underline'>
+            Termos de Serviço
+          </Link>{' '}
+          e{' '}
+          <Link href='/privacy' className='text-brand hover:underline'>
+            Política de Privacidade
+          </Link>
+        </p>
       </div>
-    </div>
+    </AuthFormLayout>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthContext } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { cpfMask } from '@/lib/utils';
 import {
   AlertCircle,
@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext } from 'react';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -27,7 +26,7 @@ import {
 } from './ui/dropdown-menu';
 
 export function UserNav() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
 
   function getFallBack() {
     if (!user?.name) return 'U';
@@ -52,11 +51,11 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='relative h-10 w-10 rounded-full border-2 border-transparent hover:border-[#EAAC2E]/30 transition-all'
+          className='relative h-10 w-10 rounded-full border-2 border-transparent hover:border-brand/30 transition-all'
         >
           <Avatar className='h-10 w-10 border-2 border-gray-200'>
             {user?.image ? (
-              <AvatarFallback className='bg-gradient-to-br from-[#EAAC2E] to-[#ffc947] text-white font-semibold'>
+              <AvatarFallback className='bg-gradient-to-br from-brand to-brand-gold text-white font-semibold'>
                 <Image
                   src={user.image}
                   alt={user.name || 'Avatar'}
@@ -66,7 +65,7 @@ export function UserNav() {
                 />
               </AvatarFallback>
             ) : (
-              <AvatarFallback className='bg-gradient-to-br from-[#EAAC2E] to-[#ffc947] text-white font-semibold text-sm'>
+              <AvatarFallback className='bg-gradient-to-br from-brand to-brand-gold text-white font-semibold text-sm'>
                 {getFallBack()}
               </AvatarFallback>
             )}

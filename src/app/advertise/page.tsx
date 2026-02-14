@@ -49,9 +49,9 @@ export default function AdvertisePage() {
         'Processo mais seguro',
         'Melhor retorno financeiro',
       ],
-      color: 'from-[#EAAC2E] to-[#ffc947]',
-      borderColor: 'border-[#EAAC2E]/30',
-      bgColor: 'bg-[#EAAC2E]/5',
+      color: 'from-brand to-brand-gold',
+      borderColor: 'border-brand/30',
+      bgColor: 'bg-brand/5',
     },
   ];
 

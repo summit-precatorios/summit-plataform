@@ -1,6 +1,11 @@
-'use client';
 import { Card, CardContent } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Termos de Serviço | Summit',
+  description: 'Leia os termos de serviço da plataforma Summit.',
+};
 
 export default function TermsPage() {
   return (
@@ -9,8 +14,8 @@ export default function TermsPage() {
       <section className='relative overflow-hidden bg-white px-6 py-24 lg:px-8'>
         <div className='mx-auto max-w-4xl text-center'>
           <div className='flex justify-center mb-6'>
-            <div className='rounded-full bg-[#EAAC2E]/10 p-4'>
-              <FileText className='h-12 w-12 text-[#EAAC2E]' />
+            <div className='rounded-full bg-brand/10 p-4'>
+              <FileText className='h-12 w-12 text-brand' />
             </div>
           </div>
           <h1 className='text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl'>
@@ -208,7 +213,7 @@ export default function TermsPage() {
                     através da página de{' '}
                     <a
                       href='/contact'
-                      className='text-[#EAAC2E] hover:underline'
+                      className='text-brand hover:underline'
                     >
                       contato
                     </a>

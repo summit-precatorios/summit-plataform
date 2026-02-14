@@ -17,13 +17,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { InputPassword } from '@/components/ui/input-password';
-import { AuthContext } from '@/contexts/AuthContext';
+import { AuthFormLayout } from '@/app/(auth)/_components/auth-form-layout';
+import { useAuth } from '@/hooks/use-auth';
 import { cpfMask } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Lock, Mail, Shield } from 'lucide-react';
+import { Lock, Mail, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -36,7 +36,7 @@ const formSchema = z.object({
 });
 
 export function AuthForm() {
-  const { signIn } = useContext(AuthContext);
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,23 +54,11 @@ export function AuthForm() {
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-12'>
-      <div className='w-full max-w-md'>
-        {/* Logo/Back Button */}
-        <div className='mb-8'>
-          <Link
-            href='/'
-            className='inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors'
-          >
-            <ArrowLeft className='mr-2 h-4 w-4' />
-            Voltar para home
-          </Link>
-        </div>
-
-        <Card className='border-2 shadow-xl'>
+    <AuthFormLayout backHref='/' backLabel='Voltar para home'>
+      <Card className='border-2 shadow-xl'>
           <CardHeader className='space-y-1 text-center pb-6'>
-            <div className='mx-auto w-16 h-16 rounded-full bg-[#EAAC2E]/10 flex items-center justify-center mb-4'>
-              <Shield className='h-8 w-8 text-[#EAAC2E]' />
+            <div className='mx-auto w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-4'>
+              <Shield className='h-8 w-8 text-brand' />
             </div>
             <CardTitle className='text-3xl font-bold'>
               Bem-vindo de volta
@@ -146,7 +134,7 @@ export function AuthForm() {
                       e.preventDefault();
                       router.push('/reset/password');
                     }}
-                    className='text-sm text-[#EAAC2E] hover:underline font-medium transition-colors'
+                    className='text-sm text-brand hover:underline font-medium transition-colors'
                   >
                     Esqueceu sua senha?
                   </Link>
@@ -175,7 +163,7 @@ export function AuthForm() {
                   <span className='text-gray-600'>Não tem uma conta? </span>
                   <Link
                     href='/register'
-                    className='font-semibold text-[#EAAC2E] hover:underline transition-colors'
+                    className='font-semibold text-brand hover:underline transition-colors'
                   >
                     Criar conta gratuita
                   </Link>
@@ -185,19 +173,18 @@ export function AuthForm() {
           </CardContent>
         </Card>
 
-        <div className='mt-6 text-center text-sm text-gray-600'>
-          <p>
+      <div className='mt-6 text-center text-sm text-gray-600'>
+        <p>
             Ao entrar, você concorda com nossos{' '}
-            <Link href='/terms' className='text-[#EAAC2E] hover:underline'>
+            <Link href='/terms' className='text-brand hover:underline'>
               Termos de Serviço
             </Link>{' '}
             e{' '}
-            <Link href='/privacy' className='text-[#EAAC2E] hover:underline'>
+            <Link href='/privacy' className='text-brand hover:underline'>
               Política de Privacidade
             </Link>
-          </p>
-        </div>
+        </p>
       </div>
-    </div>
+    </AuthFormLayout>
   );
 }

@@ -18,9 +18,9 @@ export function Sidebar({ className }: SidebarProps) {
           <div className='space-y-2'>
             <Button
               variant='secondary'
-              className='w-full justify-start bg-[#EAAC2E]/10 hover:bg-[#EAAC2E]/20 text-gray-900 border-2 border-[#EAAC2E]/30'
+              className='w-full justify-start bg-brand/10 hover:bg-brand/20 text-gray-900 border-2 border-brand/30'
             >
-              <Scale size={20} className='mr-3 text-[#EAAC2E]' />
+              <Scale size={20} className='mr-3 text-brand' />
               <span className='font-semibold'>Precatórios</span>
             </Button>
             <Button

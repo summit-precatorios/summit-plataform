@@ -350,8 +350,8 @@ export default function AnnouncementDetailPage() {
                       Valor de Venda
                     </label>
                     <div className='flex items-baseline gap-2'>
-                      <TrendingUp className='h-5 w-5 text-[#EAAC2E]' />
-                      <p className='text-2xl font-bold text-[#EAAC2E]'>
+                      <TrendingUp className='h-5 w-5 text-brand' />
+                      <p className='text-2xl font-bold text-brand'>
                         {formatCurrency(announcement.salePrice)}
                       </p>
                     </div>
@@ -398,8 +398,8 @@ export default function AnnouncementDetailPage() {
             <Card className='border-2 shadow-lg'>
               <CardHeader>
                 <div className='flex items-center gap-3'>
-                  <div className='p-2 rounded-lg bg-[#EAAC2E]/10'>
-                    <CreditCard className='h-5 w-5 text-[#EAAC2E]' />
+                  <div className='p-2 rounded-lg bg-brand/10'>
+                    <CreditCard className='h-5 w-5 text-brand' />
                   </div>
                   <div>
                     <CardTitle className='text-xl'>
@@ -500,7 +500,7 @@ export default function AnnouncementDetailPage() {
                 <CardTitle className='text-lg'>Ações Rápidas</CardTitle>
               </CardHeader>
               <CardContent className='space-y-3'>
-                <Button className='w-full bg-[#EAAC2E] hover:bg-[#ffc947]'>
+                <Button className='w-full bg-brand hover:bg-brand-gold'>
                   <Share2 className='mr-2 h-4 w-4' />
                   Compartilhar Anúncio
                 </Button>
@@ -552,10 +552,10 @@ export default function AnnouncementDetailPage() {
             </Card>
 
             {/* Summary Card */}
-            <Card className='border-2 border-[#EAAC2E] bg-[#EAAC2E]/5 shadow-lg'>
+            <Card className='border-2 border-brand bg-brand/5 shadow-lg'>
               <CardHeader>
                 <CardTitle className='text-lg flex items-center gap-2'>
-                  <Scale className='h-5 w-5 text-[#EAAC2E]' />
+                  <Scale className='h-5 w-5 text-brand' />
                   Resumo
                 </CardTitle>
               </CardHeader>
@@ -565,7 +565,7 @@ export default function AnnouncementDetailPage() {
                     <span className='text-sm text-gray-600'>
                       Valor de Venda
                     </span>
-                    <span className='text-lg font-bold text-[#EAAC2E]'>
+                    <span className='text-lg font-bold text-brand'>
                       {formatCurrency(announcement.salePrice)}
                     </span>
                   </div>

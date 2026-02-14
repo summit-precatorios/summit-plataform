@@ -1,27 +1,3 @@
-export type SignInRequestData = {
-  document: string;
-  password: string;
-};
-
-export type RegisterRequestData = {
-  document: string;
-  email: string;
-  fullName: string;
-  password: string;
-};
-
-export type ForgotPasswordRequestData = {
-  email: string;
-};
-
-export type ActiveAccountRequestData = {
-  token: string | string[];
-};
-
-export type VerifyAccountRequestData = {
-  document: string;
-};
-
 export type PaymentMethod = 'PIX' | 'TRANSFER_BANK';
 
 export type CreateAnnouncementRequestData = {
@@ -62,20 +38,3 @@ export type Announcement = {
   bankAccount?: string;
   agencyBankAccount?: string;
 };
-
-export type Permission = string;
-
-export type User = {
-  name: string;
-  email: string;
-  image: string | null;
-  document: string;
-  isActive: boolean;
-  roles: string[];
-};
-
-export enum Role {
-  User = 'common-user',
-  Admin = 'admin-user',
-  AccountActivator = 'account-activator',
-}

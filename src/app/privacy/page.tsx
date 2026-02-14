@@ -1,6 +1,11 @@
-'use client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Política de Privacidade | Summit',
+  description: 'Saiba como a Summit trata e protege seus dados.',
+};
 
 export default function PrivacyPage() {
   return (
@@ -9,8 +14,8 @@ export default function PrivacyPage() {
       <section className='relative overflow-hidden bg-white px-6 py-24 lg:px-8'>
         <div className='mx-auto max-w-4xl text-center'>
           <div className='flex justify-center mb-6'>
-            <div className='rounded-full bg-[#EAAC2E]/10 p-4'>
-              <Shield className='h-12 w-12 text-[#EAAC2E]' />
+            <div className='rounded-full bg-brand/10 p-4'>
+              <Shield className='h-12 w-12 text-brand' />
             </div>
           </div>
           <h1 className='text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl'>
@@ -232,7 +237,7 @@ export default function PrivacyPage() {
                     conosco através da página de{' '}
                     <a
                       href='/contact'
-                      className='text-[#EAAC2E] hover:underline'
+                      className='text-brand hover:underline'
                     >
                       contato
                     </a>

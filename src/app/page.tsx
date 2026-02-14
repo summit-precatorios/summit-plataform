@@ -1,5 +1,4 @@
-'use client';
-import { Button } from '@/components/ui/button';
+import { HomeCta } from '@/app/_components/home-cta';
 import {
     Card,
     CardContent,
@@ -7,21 +6,24 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { AuthContext } from '@/contexts/AuthContext';
 import {
-    ArrowRight,
-    CheckCircle2,
-    DollarSign,
-    FileText,
-    Lock,
-    Shield,
-    TrendingUp,
-    Users,
-    Zap,
+  CheckCircle2,
+  DollarSign,
+  FileText,
+  Lock,
+  Shield,
+  TrendingUp,
+  Users,
+  Zap,
 } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useContext } from 'react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Summit | Negocie Precatórios com Segurança',
+  description:
+    'Plataforma completa para localizar, adquirir ou vender RPVs e Precatórios com transparência, segurança e agilidade.',
+};
 
 const benefits = [
   {
@@ -84,15 +86,13 @@ const features = [
 ];
 
 export default function Page() {
-  const { isAuthenticated } = useContext(AuthContext);
-
   return (
     <div className='min-h-screen bg-gradient-to-b from-white to-gray-50'>
       {/* Hero Section */}
       <section className='relative isolate overflow-hidden px-6 pt-14 lg:px-8'>
         <div className='absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80'>
           <div
-            className='relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#EAAC2E] to-[#ffc947] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]'
+            className='relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-brand to-brand-gold opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]'
             style={{
               clipPath:
                 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
@@ -115,7 +115,7 @@ export default function Page() {
             </div>
 
             <h1 className='text-5xl font-bold tracking-tight text-gray-900 sm:text-7xl'>
-              A maneira mais <span className='text-[#EAAC2E]'>simples</span> de
+              A maneira mais <span className='text-brand'>simples</span> de
               negociar
               <br />
               seus precatórios
@@ -127,35 +127,7 @@ export default function Page() {
               lugar.
             </p>
 
-            <div className='mt-10 flex items-center justify-center gap-x-6 flex-wrap gap-y-4'>
-              {!isAuthenticated && (
-                <>
-                  <Button asChild size='lg' className='h-14 px-8 text-lg'>
-                    <Link href='/register'>
-                      Criar conta gratuita
-                      <ArrowRight className='ml-2 h-5 w-5' />
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant='outline'
-                    size='lg'
-                    className='h-14 px-8 text-lg'
-                  >
-                    <Link href='/sign-in'>Já tenho uma conta</Link>
-                  </Button>
-                </>
-              )}
-
-              {isAuthenticated && (
-                <Button asChild size='lg' className='h-14 px-8 text-lg'>
-                  <Link href='/dashboard'>
-                    Acessar Dashboard
-                    <ArrowRight className='ml-2 h-5 w-5' />
-                  </Link>
-                </Button>
-              )}
-            </div>
+            <HomeCta variant='hero' />
 
             <div className='mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3'>
               {features.map((feature, index) => {
@@ -165,8 +137,8 @@ export default function Page() {
                     key={index}
                     className='flex flex-col items-center text-center'
                   >
-                    <div className='rounded-full bg-[#EAAC2E]/10 p-4 mb-4'>
-                      <Icon className='h-8 w-8 text-[#EAAC2E]' />
+                    <div className='rounded-full bg-brand/10 p-4 mb-4'>
+                      <Icon className='h-8 w-8 text-brand' />
                     </div>
                     <h3 className='text-lg font-semibold text-gray-900 mb-2'>
                       {feature.title}
@@ -201,11 +173,11 @@ export default function Page() {
               return (
                 <Card
                   key={index}
-                  className='border-2 hover:border-[#EAAC2E] transition-all duration-300 hover:shadow-lg'
+                  className='border-2 hover:border-brand transition-all duration-300 hover:shadow-lg'
                 >
                   <CardHeader>
-                    <div className='rounded-lg bg-[#EAAC2E]/10 w-12 h-12 flex items-center justify-center mb-4'>
-                      <Icon className='h-6 w-6 text-[#EAAC2E]' />
+                    <div className='rounded-lg bg-brand/10 w-12 h-12 flex items-center justify-center mb-4'>
+                      <Icon className='h-6 w-6 text-brand' />
                     </div>
                     <CardTitle className='text-xl'>{benefit.title}</CardTitle>
                   </CardHeader>
@@ -222,7 +194,7 @@ export default function Page() {
       </section>
 
       {/* CTA Section */}
-      <section className='bg-gradient-to-r from-[#EAAC2E] to-[#ffc947] py-24 px-6 lg:px-8'>
+      <section className='bg-gradient-to-r from-brand to-brand-gold py-24 px-6 lg:px-8'>
         <div className='mx-auto max-w-4xl text-center'>
           <h2 className='text-4xl font-bold tracking-tight text-white sm:text-5xl'>
             Pronto para começar?
@@ -231,21 +203,7 @@ export default function Page() {
             Junte-se a centenas de pessoas que já estão negociando seus
             precatórios de forma segura e eficiente.
           </p>
-          {!isAuthenticated && (
-            <div className='mt-10 flex items-center justify-center gap-x-6'>
-              <Button
-                asChild
-                size='lg'
-                variant='secondary'
-                className='h-14 px-8 text-lg'
-              >
-                <Link href='/register'>
-                  Criar conta gratuita
-                  <ArrowRight className='ml-2 h-5 w-5' />
-                </Link>
-              </Button>
-            </div>
-          )}
+          <HomeCta variant='footer' />
         </div>
       </section>
 

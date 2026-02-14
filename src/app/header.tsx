@@ -7,25 +7,18 @@ import {
     SheetContent,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { NavLink } from '@/components/nav-link';
 import { UserNav } from '@/components/user-nav';
-import { AuthContext } from '@/contexts/AuthContext';
-import {
-    Bell,
-    HelpCircle,
-    Info,
-    LayoutDashboard,
-    Mail,
-    Menu,
-    Shield,
-    UserPlus,
-} from 'lucide-react';
+import { NAV_LINKS } from '@/config/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { Bell, LayoutDashboard, Menu, UserPlus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 
 export function Header() {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated, user } = useAuth();
   const pathname = usePathname();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -74,7 +67,7 @@ export function Header() {
                           href='/dashboard'
                           className={`flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium transition-colors ${
                             isActive('/dashboard')
-                              ? 'bg-[#EAAC2E]/10 text-[#EAAC2E]'
+                              ? 'bg-brand/10 text-brand'
                               : 'text-gray-700 hover:bg-gray-100'
                           }`}
                           onClick={handleLinkClick}
@@ -85,49 +78,18 @@ export function Header() {
                       </SheetClose>
                     )}
 
-                    <SheetClose asChild>
-                      <Link
-                        href='/about'
-                        className='flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-100'
-                        onClick={handleLinkClick}
-                      >
-                        <Info className='h-5 w-5' />
-                        Sobre
-                      </Link>
-                    </SheetClose>
-
-                    <SheetClose asChild>
-                      <Link
-                        href='/contact'
-                        className='flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-100'
-                        onClick={handleLinkClick}
-                      >
-                        <Mail className='h-5 w-5' />
-                        Contato
-                      </Link>
-                    </SheetClose>
-
-                    <SheetClose asChild>
-                      <Link
-                        href='/faq'
-                        className='flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-100'
-                        onClick={handleLinkClick}
-                      >
-                        <HelpCircle className='h-5 w-5' />
-                        FAQ
-                      </Link>
-                    </SheetClose>
-
-                    <SheetClose asChild>
-                      <Link
-                        href='/privacy'
-                        className='flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-100'
-                        onClick={handleLinkClick}
-                      >
-                        <Shield className='h-5 w-5' />
-                        Privacidade
-                      </Link>
-                    </SheetClose>
+                    {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+                      <SheetClose asChild key={href}>
+                        <Link
+                          href={href}
+                          className='flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-100'
+                          onClick={handleLinkClick}
+                        >
+                          <Icon className='h-5 w-5' />
+                          {label}
+                        </Link>
+                      </SheetClose>
+                    ))}
 
                     <div className='border-t pt-4 mt-2'>
                       {!isAuthenticated ? (
@@ -193,7 +155,7 @@ export function Header() {
                   href='/dashboard'
                   className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
                     isActive('/dashboard')
-                      ? 'bg-[#EAAC2E]/10 text-[#EAAC2E]'
+                      ? 'bg-brand/10 text-brand'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
@@ -206,36 +168,11 @@ export function Header() {
 
           {/* Desktop Navigation - Right Side */}
           <nav className='hidden lg:flex items-center gap-1'>
-            <Link
-              href='/about'
-              className={`px-4 py-2 text-sm font-medium transition-colors rounded-md ${
-                isActive('/about')
-                  ? 'bg-[#EAAC2E]/10 text-[#EAAC2E]'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              Sobre
-            </Link>
-            <Link
-              href='/contact'
-              className={`px-4 py-2 text-sm font-medium transition-colors rounded-md ${
-                isActive('/contact')
-                  ? 'bg-[#EAAC2E]/10 text-[#EAAC2E]'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              Contato
-            </Link>
-            <Link
-              href='/faq'
-              className={`px-4 py-2 text-sm font-medium transition-colors rounded-md ${
-                isActive('/faq')
-                  ? 'bg-[#EAAC2E]/10 text-[#EAAC2E]'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              FAQ
-            </Link>
+            {NAV_LINKS.map(({ href, label }) => (
+              <NavLink key={href} href={href} isActive={isActive(href)}>
+                {label}
+              </NavLink>
+            ))}
 
             {!isAuthenticated ? (
               <div className='flex items-center gap-3 ml-4'>
@@ -243,7 +180,7 @@ export function Header() {
                   <Link href='/sign-in'>Entrar</Link>
                 </Button>
                 <Button
-                  className='bg-[#EAAC2E] hover:bg-[#EAAC2E]/90 text-white'
+                  className='bg-brand hover:bg-brand/90 text-white'
                   asChild
                 >
                   <Link href='/register' className='gap-2'>

@@ -1,11 +1,15 @@
-'use client';
-
-import { useParams } from 'next/navigation';
 import { ResetPasswordForm } from '../../../_components/reset-password-form';
+import type { Metadata } from 'next';
 
-export default function ResetPassword() {
-  const params = useParams();
-  const { token } = params;
+export const metadata: Metadata = {
+  title: 'Redefinir Senha | Summit',
+  description: 'Defina uma nova senha para acessar sua conta Summit.',
+};
 
-  return <ResetPasswordForm params={{ token }} />;
+export default function ResetPassword({
+  params,
+}: {
+  params: { token: string };
+}) {
+  return <ResetPasswordForm params={params} />;
 }

@@ -16,10 +16,11 @@ import {
 } from '@/components/ui/form';
 import { InputPassword } from '@/components/ui/input-password';
 import { useToast } from '@/components/ui/use-toast';
+import { AuthFormLayout } from '@/app/(auth)/_components/auth-form-layout';
+import { decodeJwt } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { jwtDecode } from 'jwt-decode';
-import { ArrowLeft, Lock, Mail, Shield } from 'lucide-react';
+import { Lock, Mail, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -56,7 +57,10 @@ export function ResetPasswordForm({
 
   useEffect(() => {
     try {
-      const tokenDecoded: Data = jwtDecode(params.token as string);
+      const tokenDecoded = decodeJwt<Data>(params.token as string);
+      if (!tokenDecoded) {
+        throw new Error('invalid_token');
+      }
       // Defer state update to avoid synchronous setState in effect
       setTimeout(() => {
         setData(tokenDecoded);
@@ -86,16 +90,9 @@ export function ResetPasswordForm({
     };
 
     try {
-      const response = await api<{ statusCode?: number; message?: string }>(
+      const response = await api.patch<{ statusCode?: number; message?: string }>(
         'auth/reset/password',
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': `${process.env.NEXT_PUBLIC_API_KEY}`,
-          },
-          body: JSON.stringify(enrichmentData, null, 2),
-        }
+        enrichmentData
       );
 
       if (response && (response.statusCode === 200 || !response.statusCode)) {
@@ -122,23 +119,11 @@ export function ResetPasswordForm({
   }
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-12'>
-      <div className='w-full max-w-md'>
-        {/* Logo/Back Button */}
-        <div className='mb-8'>
-          <Link
-            href='/sign-in'
-            className='inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors'
-          >
-            <ArrowLeft className='mr-2 h-4 w-4' />
-            Voltar para login
-          </Link>
-        </div>
-
-        <Card className='border-2 shadow-xl'>
+    <AuthFormLayout backHref='/sign-in' backLabel='Voltar para login'>
+      <Card className='border-2 shadow-xl'>
           <CardHeader className='space-y-1 text-center pb-6'>
-            <div className='mx-auto w-16 h-16 rounded-full bg-[#EAAC2E]/10 flex items-center justify-center mb-4'>
-              <Shield className='h-8 w-8 text-[#EAAC2E]' />
+            <div className='mx-auto w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center mb-4'>
+              <Shield className='h-8 w-8 text-brand' />
             </div>
             <CardTitle className='text-3xl font-bold'>
               Redefinir senha
@@ -236,8 +221,7 @@ export function ResetPasswordForm({
               </form>
             </Form>
           </CardContent>
-        </Card>
-      </div>
-    </div>
+      </Card>
+    </AuthFormLayout>
   );
 }

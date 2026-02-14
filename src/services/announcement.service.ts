@@ -1,15 +1,11 @@
-import { api, providerBaseHeaders } from '@/lib/api';
-import { CreateAnnouncementRequestData } from '@/types';
+import { api } from '@/lib/api';
+import { Announcement, CreateAnnouncementRequestData } from '@/types';
 
 export async function createAnnouncementRequest(
   data: CreateAnnouncementRequestData
 ) {
   try {
-    return await api('announcement', {
-      method: 'POST',
-      headers: providerBaseHeaders(),
-      body: JSON.stringify(data, null, 2),
-    });
+    return await api.post('announcement', data);
   } catch (error) {
     console.error('error_creating_announcement', error);
     throw error;
@@ -18,10 +14,7 @@ export async function createAnnouncementRequest(
 
 export async function getAnnouncementsByDocument(document: string) {
   try {
-    const response = await api(`user/announcement/${document}`, {
-      method: 'GET',
-      headers: providerBaseHeaders(),
-    });
+    const response = await api.get<Announcement>(`user/announcement/${document}`);
 
     return response;
   } catch (error) {
@@ -36,10 +29,7 @@ export async function getAnnouncementsByDocument(document: string) {
 
 export async function getAllAnnouncements() {
   try {
-    const response = await api('announcements', {
-      method: 'GET',
-      headers: providerBaseHeaders(),
-    });
+    const response = await api.get<Announcement[]>('announcements');
 
     return response;
   } catch (error) {
