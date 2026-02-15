@@ -78,9 +78,10 @@ export function useErrorHandler() {
 
       if (error instanceof ConflictError) {
         toast({
-          variant: 'destructive',
-          title: 'Conflito',
-          description: error.message,
+          variant: 'default',
+          title: 'Não foi possível concluir o cadastro',
+          description:
+            'Não foi possível processar sua solicitação. Se você já possui uma conta, faça login ou recupere sua senha.',
         });
         return;
       }

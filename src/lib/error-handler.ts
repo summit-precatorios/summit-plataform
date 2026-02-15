@@ -82,9 +82,9 @@ export function handleApiError(error: unknown): ErrorToastOptions {
       case 409:
         return {
           variant: 'default',
-          title: 'Conflito',
+          title: 'Não foi possível concluir o cadastro',
           description:
-            apiError.message || 'Já existe um registro com estes dados.',
+            'Não foi possível processar sua solicitação. Se você já possui uma conta, faça login ou recupere sua senha.',
         };
 
       case 422:

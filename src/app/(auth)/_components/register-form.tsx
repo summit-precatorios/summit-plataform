@@ -77,16 +77,21 @@ export function RegisterForm() {
 
       // Verifica se a resposta contém um erro
       if ('statusCode' in response && response.statusCode >= 400) {
-        // Mantém o comportamento especial para 409 (conflito)
         if (response.statusCode === 409) {
           toast({
             variant: 'default',
+            title: 'Não foi possível concluir o cadastro',
             description:
-              'Este CPF já está conectado a uma conta, por favor faça o login.',
+              'Não foi possível processar sua solicitação. Se você já possui uma conta, faça login ou recupere sua senha.',
             action: (
-              <Button asChild variant='outline' size='sm'>
-                <Link href='/sign-in'>Entrar</Link>
-              </Button>
+              <div className='flex gap-2'>
+                <Button asChild variant='outline' size='sm'>
+                  <Link href='/sign-in'>Entrar</Link>
+                </Button>
+                <Button asChild variant='outline' size='sm'>
+                  <Link href='/recovery-password'>Recuperar senha</Link>
+                </Button>
+              </div>
             ),
           });
           return;
@@ -94,7 +99,6 @@ export function RegisterForm() {
 
         const errorToast = handleApiError({
           statusCode: response.statusCode,
-          message: response.message || response.error,
         });
         toast(errorToast);
         return;
@@ -112,9 +116,40 @@ export function RegisterForm() {
         router.push('/sign-in');
       }
     } catch (error) {
+      const status =
+        error &&
+        typeof error === 'object' &&
+        ('statusCode' in error || 'status' in error)
+          ? (error as { statusCode?: number; status?: number }).statusCode ??
+            (error as { status?: number }).status
+          : undefined;
+
+      if (status === 409) {
+        toast({
+          variant: 'default',
+          title: 'Não foi possível concluir o cadastro',
+          description:
+            'Não foi possível processar sua solicitação. Se você já possui uma conta, faça login ou recupere sua senha.',
+          action: (
+            <div className='flex gap-2'>
+              <Button asChild variant='outline' size='sm'>
+                <Link href='/sign-in'>Entrar</Link>
+              </Button>
+              <Button asChild variant='outline' size='sm'>
+                <Link href='/recovery-password'>Recuperar senha</Link>
+              </Button>
+            </div>
+          ),
+        });
+        return;
+      }
+
       const errorToast = handleApiError(
-        error && typeof error === 'object' && 'statusCode' in error
-          ? (error as { statusCode?: number; message?: string })
+        error && typeof error === 'object' && ('statusCode' in error || 'status' in error)
+          ? {
+              statusCode: (error as { statusCode?: number }).statusCode ?? (error as { status?: number }).status,
+              message: (error as { message?: string }).message,
+            }
           : error
       );
       toast(errorToast);
