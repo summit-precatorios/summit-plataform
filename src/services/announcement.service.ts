@@ -29,7 +29,7 @@ export async function getAnnouncementsByDocument(document: string) {
 
 export async function getAllAnnouncements() {
   try {
-    const response = await api.get<Announcement[]>('announcements');
+    const response = await api.get<Announcement[]>('announcement');
 
     return response;
   } catch (error) {
@@ -37,6 +37,18 @@ export async function getAllAnnouncements() {
       message: 'failed to fetch all announcements.',
       cause: error,
     });
+    throw error;
+  }
+}
+
+export async function updateAnnouncementStatus(
+  id: string,
+  status: 'APROVED' | 'PENDENT' | 'REPROVED'
+) {
+  try {
+    return await api.patch(`announcement/${id}/status`, { status });
+  } catch (error) {
+    console.error('error_updating_announcement_status', error);
     throw error;
   }
 }

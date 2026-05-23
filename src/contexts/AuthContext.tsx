@@ -29,6 +29,7 @@ type AuthContextType = {
   user: User | null;
   signIn: (data: SignInData) => Promise<void>;
   logout: () => Promise<void>;
+  updateSession: (token: string) => void;
 };
 
 export const AuthContext = createContext({} as AuthContextType);
@@ -182,6 +183,18 @@ export function AuthProvider({ children }: AuthContextProps) {
     }
   }
 
+  const updateSession = useCallback(
+    (token: string) => {
+      Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
+      const userData = decodeTokenAndSetUser(token);
+      syncTokenToOtherTabs(token);
+      if (userData) {
+        router.replace('/dashboard');
+      }
+    },
+    [decodeTokenAndSetUser, syncTokenToOtherTabs, router] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   async function logout() {
     Cookies.remove(TOKEN_COOKIE_NAME);
 
@@ -280,7 +293,7 @@ export function AuthProvider({ children }: AuthContextProps) {
   }, [user, pathname, router, decodeTokenAndSetUser]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout, updateSession }}>
       {children}
     </AuthContext.Provider>
   );

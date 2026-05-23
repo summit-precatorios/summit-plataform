@@ -120,11 +120,19 @@ export default function AnnouncementDetailPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    if (status === 'APPROVED') {
+    if (status === 'APROVED') {
       return (
         <Badge className='bg-green-100 text-green-800 hover:bg-green-100'>
           <CheckCircle2 className='mr-1 h-3 w-3' />
           Aprovado
+        </Badge>
+      );
+    }
+    if (status === 'REPROVED') {
+      return (
+        <Badge className='bg-red-100 text-red-800 hover:bg-red-100'>
+          <AlertCircle className='mr-1 h-3 w-3' />
+          Reprovado
         </Badge>
       );
     }
@@ -196,7 +204,7 @@ export default function AnnouncementDetailPage() {
                 <h1 className='text-3xl font-bold tracking-tight text-gray-900'>
                   Detalhes do Anúncio
                 </h1>
-                {getStatusBadge(announcement.status || 'PENDING')}
+                {getStatusBadge(announcement.status || 'PENDENT')}
               </div>
               <p className='text-lg text-gray-600'>
                 {getTypeName(announcement.type)}
@@ -526,7 +534,7 @@ export default function AnnouncementDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className='space-y-4'>
-                  {getStatusBadge(announcement.status || 'PENDING')}
+                  {getStatusBadge(announcement.status || 'PENDENT')}
                   <div className='pt-4 border-t'>
                     <div className='space-y-2 text-sm'>
                       <div className='flex items-center justify-between'>

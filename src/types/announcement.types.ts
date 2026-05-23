@@ -30,7 +30,7 @@ export type Announcement = {
   salePrice: string;
   liquidBalance: string;
   paymentOption: PaymentMethod;
-  status?: string;
+  status?: 'APROVED' | 'PENDENT' | 'REPROVED';
   createdAt?: string;
   pixKey?: string;
   ownerBankAccount?: string;

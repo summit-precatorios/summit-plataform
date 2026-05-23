@@ -1,6 +1,7 @@
 import { api } from '@/lib/api';
 import {
   ActiveAccountRequestData,
+  ActiveAccountResponse,
   ForgotPasswordRequestData,
   RegisterRequestData,
   SignInResponse,
@@ -41,10 +42,7 @@ export async function forgotPassword(data: ForgotPasswordRequestData) {
 
 export async function activeAccount(data: ActiveAccountRequestData) {
   try {
-    return await api.patch<{ message: string; error: string; statusCode: number }>(
-      'auth/active/account',
-      data
-    );
+    return await api.patch<ActiveAccountResponse>('auth/active/account', data);
   } catch (error) {
     console.error('error_activating_account', error);
     throw error;

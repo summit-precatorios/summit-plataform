@@ -1,16 +1,18 @@
 import { Button } from '@/components/ui/button';
+import { AuthContext } from '@/contexts/AuthContext';
 import { activeAccount } from '@/services/auth.service';
 import { ActiveAccountRequestData } from '@/types';
 import { TriangleAlert } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 export function ActiveAccount({
   params,
 }: {
   params: { token: string | string[] };
 }) {
+  const { updateSession } = useContext(AuthContext);
   const [accountActivated, setAccountActivated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +20,6 @@ export function ActiveAccount({
   useEffect(() => {
     const onPageInit = async () => {
       try {
-        // Verifica se o token é uma string válida
         const token = Array.isArray(params.token)
           ? params.token[0]
           : params.token;
@@ -29,23 +30,15 @@ export function ActiveAccount({
         const data: ActiveAccountRequestData = { token };
         const response = await activeAccount(data);
 
-        if (!response || response.statusCode === 401) {
-          throw new Error(
-            'O token de ativação é inválido ou expirado. Solicite um novo link de ativação.'
-          );
-        }
-
-        if (!response || response.statusCode === 400) {
+        if (!response?.accessToken) {
           throw new Error(
             'Ocorreu um erro na ativação da sua conta! Por favor, tente mais tarde.'
           );
         }
 
-        // Ativação bem-sucedida
+        // Atualiza a sessão com o novo token e redireciona para o dashboard
+        updateSession(response.accessToken);
         setAccountActivated(true);
-
-        // Redireciona para a página de login após a ativação
-        // router.push('/sign-in')
       } catch (err) {
         setError(
           err instanceof Error
@@ -53,12 +46,12 @@ export function ActiveAccount({
             : 'Ocorreu um erro inesperado. Tente novamente mais tarde.'
         );
       } finally {
-        setIsLoading(false); // Finaliza o estado de carregamento
+        setIsLoading(false);
       }
     };
 
     onPageInit();
-  }, [params.token]);
+  }, [params.token, updateSession]);
 
   if (isLoading) {
     return (
@@ -96,9 +89,7 @@ export function ActiveAccount({
         <h1 className='text-3xl font-medium w-96 text-wrap text-center'>
           A sua conta foi ativada com sucesso!
         </h1>
-        <Button asChild className='mt-10 py-6 px-8'>
-          <Link href='/sign-in'>Acessar minha conta</Link>
-        </Button>
+        <p className='text-muted-foreground mt-4'>Redirecionando para o dashboard...</p>
       </div>
     );
   }

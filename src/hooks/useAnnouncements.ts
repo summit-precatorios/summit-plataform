@@ -16,6 +16,7 @@ export function useAnnouncements(
   const [orders, dispatchOrders] = useState<Announcement[]>([]);
   const [loading, dispatchLoading] = useState<boolean>(false);
   const [error, dispatchError] = useState<AnnouncementsError | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -91,7 +92,7 @@ export function useAnnouncements(
     return () => {
       isMounted = false;
     };
-  }, [user, isAllowedTo]);
+  }, [user, isAllowedTo, refreshTick]);
 
-  return { orders, loading, error };
+  return { orders, loading, error, refetch: () => setRefreshTick(t => t + 1) };
 }

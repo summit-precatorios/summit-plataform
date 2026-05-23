@@ -26,6 +26,10 @@ export type SignInResponse = {
   accessToken: string;
 };
 
+export type ActiveAccountResponse = {
+  accessToken: string;
+};
+
 export type VerifyAccountResponse = {
   message: string;
   statusCode: number;

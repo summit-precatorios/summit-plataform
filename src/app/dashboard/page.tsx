@@ -1,6 +1,6 @@
 'use client';
 
-import { columns } from '@/app/announcement/columns';
+import { getColumns } from '@/app/announcement/columns';
 import { DataTable } from '@/app/announcement/data-table';
 import { Sidebar } from '@/app/dashboard/_components/sidebar';
 import { LoadingSpinner } from '@/components/loading-spinner';
@@ -19,6 +19,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import PermissionContext from '@/contexts/PermissionContext';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { updateAnnouncementStatus } from '@/services/announcement.service';
 import { verifyAccountByDocument } from '@/services/auth.service';
 import { Role } from '@/types';
 import {
@@ -44,6 +45,7 @@ export default function DashboardPage() {
     orders,
     loading: ordersLoading,
     error: ordersError,
+    refetch,
   } = useAnnouncements(user, isAllowedTo);
 
   // Verifica se o erro é relacionado à falta de permissão/role
@@ -63,11 +65,9 @@ export default function DashboardPage() {
       };
     }
 
-    // Por enquanto, todos os anúncios são considerados pendentes
-    // até que seja implementado o campo status no backend
     const total = orders.length;
-    const pending = total; // Todos pendentes por enquanto
-    const approved = 0; // Nenhum aprovado por enquanto
+    const pending = orders.filter(o => o.status === 'PENDENT').length;
+    const approved = orders.filter(o => o.status === 'APROVED').length;
 
     const totalValue = orders.reduce((sum, order) => {
       const price = parseFloat(order.price?.toString() || '0');
@@ -85,12 +85,10 @@ export default function DashboardPage() {
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
 
-    // Por enquanto, mostra todos os anúncios em ambos os tabs
-    // até que o campo status seja implementado
     if (activeTab === 'announcements-approved') {
-      return []; // Nenhum aprovado ainda
+      return orders.filter(o => o.status === 'APROVED');
     }
-    return orders;
+    return orders.filter(o => o.status === 'PENDENT');
   }, [orders, activeTab]);
 
   const formattedTotalValue = useMemo(
@@ -100,6 +98,17 @@ export default function DashboardPage() {
         currency: 'BRL',
       }).format(statistics.totalValue),
     [statistics.totalValue]
+  );
+
+  const columns = useMemo(
+    () =>
+      getColumns({
+        onStatusChange: async (id, status) => {
+          await updateAnnouncementStatus(id, status);
+          refetch();
+        },
+      }),
+    [refetch]
   );
 
   async function handleClick() {
