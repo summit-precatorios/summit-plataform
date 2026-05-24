@@ -1,4 +1,15 @@
+import { decodeJwt } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
+
+function isTokenValid(token: string): boolean {
+  try {
+    const payload = decodeJwt(token);
+    if (!payload.exp) return false;
+    return Date.now() < payload.exp * 1000;
+  } catch {
+    return false;
+  }
+}
 
 const publicRoutes = [
   {
@@ -60,7 +71,8 @@ const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/sign-in';
 
 export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const authToken = request.cookies.get('summit.token')?.value;
+  const rawToken = request.cookies.get('summit.token')?.value;
+  const isAuthenticated = !!rawToken && isTokenValid(rawToken);
 
   const publicRoute = publicRoutes.find((route) => {
     if (route.isDynamic) {
@@ -70,40 +82,28 @@ export function proxy(request: NextRequest) {
     }
   });
 
-  // Verifica se a rota é uma rota protegida conhecida
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
   );
 
-  // Se não for rota pública nem protegida conhecida, permite que o Next.js processe
-  // (isso permite que páginas 404 sejam exibidas normalmente)
   if (!publicRoute && !isProtectedRoute) {
     return NextResponse.next();
   }
 
-  if (!authToken && publicRoute) {
+  if (!isAuthenticated && publicRoute) {
     return NextResponse.next();
   }
 
-  // Redireciona apenas se for uma rota protegida conhecida e não houver token
-  if (!authToken && isProtectedRoute) {
+  if (!isAuthenticated && isProtectedRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE;
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (
-    authToken &&
-    publicRoute &&
-    publicRoute.whenAuthenticated === 'redirect'
-  ) {
+  if (isAuthenticated && publicRoute && publicRoute.whenAuthenticated === 'redirect') {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/dashboard';
     return NextResponse.redirect(redirectUrl);
-  }
-
-  if (authToken && !publicRoute) {
-    return NextResponse.next();
   }
 
   return NextResponse.next();
