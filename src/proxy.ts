@@ -1,11 +1,13 @@
-import { decodeJwt } from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 
 function isTokenValid(token: string): boolean {
   try {
-    const payload = decodeJwt(token);
-    if (!payload.exp) return false;
-    return Date.now() < payload.exp * 1000;
+    const [, payloadB64] = token.split('.');
+    if (!payloadB64) return false;
+    const json = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
+    const { exp } = JSON.parse(json) as { exp?: number };
+    if (!exp) return false;
+    return Date.now() < exp * 1000;
   } catch {
     return false;
   }
