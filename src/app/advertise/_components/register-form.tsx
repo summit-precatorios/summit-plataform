@@ -63,7 +63,16 @@ export function RegisterForm(props: {
   const form = useForm<CreateAnnouncementSchema>({
     resolver: zodResolver(createAnnouncementSchema),
     defaultValues: {
+      type: props.announcementType,
       paymentOption: 'PIX',
+      ownerFullName: '',
+      ownerDocument: '',
+      lawSuit: '',
+      origin: '',
+      court: '',
+      price: '',
+      salePrice: '',
+      liquidBalance: '',
     },
   });
 
@@ -159,7 +168,7 @@ export function RegisterForm(props: {
       .replace(/\./g, '');
   };
 
-  async function onSubmit(data: z.infer<typeof createAnnouncementSchema>) {
+  async function onSubmit(data: CreateAnnouncementSchema) {
     try {
       // Valida se todos os campos obrigatórios estão preenchidos
       if (!data.type && !props.announcementType) {
@@ -318,7 +327,8 @@ export function RegisterForm(props: {
         return;
       }
 
-      if (response && (response.statusCode === 201 || !response.statusCode)) {
+      const res = response as { statusCode?: number; message?: string | string[]; error?: string };
+      if (res.statusCode === 201 || !res.statusCode) {
         toast({
           variant: 'default',
           title: `Seu ${props.title} foi registrado com sucesso!`,
@@ -331,10 +341,9 @@ export function RegisterForm(props: {
         setFileErrors([]);
         router.push('/dashboard');
       } else {
-        // Trata erros de validação com mensagens mais claras
-        const errorMessage = Array.isArray(response?.message)
-          ? response.message.join('. ')
-          : response?.message || 'Não foi possível processar a sua requisição';
+        const errorMessage = Array.isArray(res.message)
+          ? res.message.join('. ')
+          : res.message || 'Não foi possível processar a sua requisição';
 
         toast({
           variant: 'destructive',
@@ -351,20 +360,19 @@ export function RegisterForm(props: {
           status?: number;
           statusCode?: number;
           message?: string | string[];
+          body?: { message?: string | string[] };
         };
         const statusCode = errorWithStatus.statusCode ?? errorWithStatus.status;
+        const message = errorWithStatus.body?.message ?? errorWithStatus.message;
 
         if (statusCode === 400) {
-          const message = errorWithStatus.message;
           if (Array.isArray(message)) {
             errorMessage = `Erro de validação: ${message.join('. ')}`;
           } else if (typeof message === 'string') {
             errorMessage = `Erro de validação: ${message}`;
           }
-        } else if (errorWithStatus.message) {
-          errorMessage = Array.isArray(errorWithStatus.message)
-            ? errorWithStatus.message.join('. ')
-            : errorWithStatus.message;
+        } else if (message) {
+          errorMessage = Array.isArray(message) ? message.join('. ') : message;
         }
       }
 

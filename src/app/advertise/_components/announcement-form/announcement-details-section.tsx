@@ -111,12 +111,12 @@ export function AnnouncementDetailsSection({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value='federal'>TRF-1</SelectItem>
-                    <SelectItem value='estadual'>TRF-4</SelectItem>
-                    <SelectItem value='estadual'>TRF-5</SelectItem>
-                    <SelectItem value='estadual'>TJSP</SelectItem>
-                    <SelectItem value='estadual'>TJMG</SelectItem>
-                    <SelectItem value='estadual'>TJRS</SelectItem>
+                    <SelectItem value='TRF-1'>TRF-1</SelectItem>
+                    <SelectItem value='TRF-4'>TRF-4</SelectItem>
+                    <SelectItem value='TRF-5'>TRF-5</SelectItem>
+                    <SelectItem value='TJSP'>TJSP</SelectItem>
+                    <SelectItem value='TJMG'>TJMG</SelectItem>
+                    <SelectItem value='TJRS'>TJRS</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
