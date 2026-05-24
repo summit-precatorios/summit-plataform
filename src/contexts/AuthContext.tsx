@@ -55,7 +55,6 @@ export function AuthProvider({ children }: AuthContextProps) {
   const pathname = usePathname();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
-  const isInitialMount = useRef(true);
   const syncListenerRef = useRef<((e: StorageEvent) => void) | null>(null);
 
   const isAuthenticated = !!user;
@@ -159,19 +158,8 @@ export function AuthProvider({ children }: AuthContextProps) {
 
       Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
 
-      // Atualiza o usuário
-      const userData = decodeTokenAndSetUser(token);
-
-      // Sincroniza com outras abas
+      decodeTokenAndSetUser(token);
       syncTokenToOtherTabs(token);
-
-      // Aguarda um pequeno delay para garantir que o cookie seja setado
-      // e o estado seja atualizado antes do redirecionamento
-      if (userData) {
-        setTimeout(() => {
-          router.replace('/dashboard');
-        }, 100);
-      }
     } catch (error) {
       // Trata erros com statusCode quando disponível
       const errorToast = handleApiError(
@@ -260,37 +248,27 @@ export function AuthProvider({ children }: AuthContextProps) {
     };
   }, [pathname, router, decodeTokenAndSetUser]);
 
+  // Redireciona para /dashboard quando o usuário se autentica e está em página de auth
+  useEffect(() => {
+    const isAuthPage = pathname === '/sign-in' || pathname === '/register';
+    if (user && isAuthPage) {
+      router.replace('/dashboard');
+    }
+  }, [user, pathname, router]);
+
   // Verifica token inicial e em mudanças de rota (mas não redireciona na página de ativação)
   useEffect(() => {
     const { 'summit.token': token } = parseCookies();
-
-    // Evita redirecionamento automático na página de ativação ou reset de senha
     const isActivationPage = pathname?.startsWith('/active/account');
     const isResetPasswordPage = pathname?.startsWith('/reset/password');
-    const shouldSkipRedirect = isActivationPage || isResetPasswordPage;
 
     if (token && !user) {
-      // Defer state update to avoid synchronous setState in effect
-      setTimeout(() => {
-        const userData = decodeTokenAndSetUser(token);
-
-        // Só redireciona se não estiver em páginas especiais e for o primeiro mount
-        if (userData && !shouldSkipRedirect && isInitialMount.current) {
-          router.push('/dashboard');
-        }
-      }, 0);
-    } else if (!token && user) {
-      // Token foi removido (logout em outra aba, por exemplo)
-      setTimeout(() => {
-        setUser(null);
-      }, 0);
+      decodeTokenAndSetUser(token);
+      // Redirect é tratado pelo useEffect dedicado acima (quando user for setado)
+    } else if (!token && user && !isActivationPage && !isResetPasswordPage) {
+      setUser(null);
     }
-
-    // Marca que o mount inicial foi concluído
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    }
-  }, [user, pathname, router, decodeTokenAndSetUser]);
+  }, [user, pathname, decodeTokenAndSetUser]);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout, updateSession }}>

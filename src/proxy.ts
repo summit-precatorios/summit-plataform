@@ -58,7 +58,7 @@ const protectedRoutes = ['/dashboard', '/advertise', '/announcement'] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/sign-in';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const authToken = request.cookies.get('summit.token')?.value;
 
