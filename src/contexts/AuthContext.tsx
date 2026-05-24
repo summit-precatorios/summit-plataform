@@ -42,10 +42,11 @@ function parseCookies(): Record<string, string> {
   if (typeof document === 'undefined') return {};
   const cookies: Record<string, string> = {};
   document.cookie.split(';').forEach((cookie) => {
-    const [name, value] = cookie.trim().split('=');
-    if (name && value) {
-      cookies[name] = decodeURIComponent(value);
-    }
+    const eqIdx = cookie.indexOf('=');
+    if (eqIdx === -1) return;
+    const name = cookie.slice(0, eqIdx).trim();
+    const value = decodeURIComponent(cookie.slice(eqIdx + 1).trim());
+    if (name) cookies[name] = value;
   });
   return cookies;
 }
