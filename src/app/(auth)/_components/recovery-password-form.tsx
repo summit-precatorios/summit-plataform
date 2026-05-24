@@ -50,17 +50,17 @@ export function RecoveryPasswordForm() {
         return;
       }
 
-      // Verifica se a resposta contém um erro
-      if ('statusCode' in response && response.statusCode >= 400) {
+      const res = response as { statusCode?: number; message?: string; error?: string };
+      if (res.statusCode !== undefined && res.statusCode >= 400) {
         const errorToast = handleApiError({
-          statusCode: response.statusCode,
-          message: response.message || response.error,
+          statusCode: res.statusCode,
+          message: res.message || res.error,
         });
         toast(errorToast);
         return;
       }
 
-      if (response && (response.statusCode === 201 || !response.statusCode)) {
+      if (response && (res.statusCode === 201 || !res.statusCode)) {
         toast({
           variant: 'default',
           title: 'E-mail enviado com sucesso!',

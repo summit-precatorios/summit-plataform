@@ -3,12 +3,12 @@
 import usePermission from '@/hooks/usePermission';
 
 import { Permission } from '@/types';
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 type Props = {
   to: Permission | Permission[];
   children: ReactNode;
-  fallback?: JSX.Element | string;
+  fallback?: ReactElement | string;
 };
 
 /**
@@ -23,7 +23,7 @@ type Props = {
  * @param {Permission} props.to - A permissão necessária para acessar o conteúdo.
  * @param {ReactNode} props.children - O conteúdo a ser exibido caso o acesso seja permitido.
  *
- * @returns {JSX.Element}
+ * @returns {ReactElement}
  * - Um componente de carregamento (`<h2>loading...</h2>`) enquanto verifica as permissões.
  * - O conteúdo filho (`children`) se o usuário tiver permissão.
  * - Um aviso e um botão para ativar a conta se o acesso for negado.
@@ -57,7 +57,7 @@ type Props = {
  * - Explicação detalhada da implementação: [How to conditionally render React UI based on user permissions](https://medium.com/geekculture/how-to-conditionally-render-react-ui-based-on-user-permissions-7b9a1c73ffe2)
  */
 
-export function Restricted({ to, children, fallback }: Props): JSX.Element {
+export function Restricted({ to, children, fallback }: Props): ReactElement {
   const { allowed } = usePermission(to);
 
   if (allowed) return <>{children}</>;

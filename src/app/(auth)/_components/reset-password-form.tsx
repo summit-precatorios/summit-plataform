@@ -168,6 +168,7 @@ export function ResetPasswordForm({
                             <Lock className='h-5 w-5' />
                           </div>
                           <InputPassword
+                            type='password'
                             placeholder='Mínimo 8 caracteres'
                             className='pl-10 h-12'
                             {...field}
@@ -193,6 +194,7 @@ export function ResetPasswordForm({
                             <Lock className='h-5 w-5' />
                           </div>
                           <InputPassword
+                            type='password'
                             placeholder='Digite a senha novamente'
                             className='pl-10 h-12'
                             {...field}

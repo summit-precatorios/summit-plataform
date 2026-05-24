@@ -7,5 +7,5 @@ export default function ActivationAccount() {
   const params = useParams();
   const { token } = params;
 
-  return <ActiveAccount params={{ token }} />;
+  return <ActiveAccount params={{ token: token as string | string[] }} />;
 }

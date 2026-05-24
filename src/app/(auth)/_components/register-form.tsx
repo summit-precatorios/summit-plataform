@@ -75,9 +75,9 @@ export function RegisterForm() {
         return;
       }
 
-      // Verifica se a resposta contém um erro
-      if ('statusCode' in response && response.statusCode >= 400) {
-        if (response.statusCode === 409) {
+      const res = response as { statusCode?: number; message?: string; error?: string };
+      if (res.statusCode !== undefined && res.statusCode >= 400) {
+        if (res.statusCode === 409) {
           toast({
             variant: 'default',
             title: 'Não foi possível concluir o cadastro',
@@ -98,13 +98,13 @@ export function RegisterForm() {
         }
 
         const errorToast = handleApiError({
-          statusCode: response.statusCode,
+          statusCode: res.statusCode,
         });
         toast(errorToast);
         return;
       }
 
-      if (!('statusCode' in response) || response.statusCode === 201) {
+      if (res.statusCode === undefined || res.statusCode === 201) {
         toast({
           variant: 'default',
           title: 'Conta criada com sucesso!',

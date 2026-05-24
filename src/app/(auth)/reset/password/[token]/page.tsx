@@ -6,10 +6,11 @@ export const metadata: Metadata = {
   description: 'Defina uma nova senha para acessar sua conta Summit.',
 };
 
-export default function ResetPassword({
+export default async function ResetPassword({
   params,
 }: {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }) {
-  return <ResetPasswordForm params={params} />;
+  const { token } = await params;
+  return <ResetPasswordForm params={{ token }} />;
 }
