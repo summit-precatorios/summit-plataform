@@ -1,5 +1,3 @@
-import { getAuthToken } from '@/lib/auth';
-
 export class HttpClientError extends Error {
   constructor(
     public status: number,
@@ -34,7 +32,10 @@ export function createHttpClient(config: HttpClientConfig) {
       throw new Error('API resource is required');
     }
 
-    const url = new URL(resource, baseURL);
+    const resolvedBase = baseURL.startsWith('/')
+      ? `${typeof window !== 'undefined' ? window.location.origin : ''}${baseURL}`
+      : baseURL;
+    const url = new URL(resource, resolvedBase);
     if (params) {
       Object.entries(params).forEach(([key, value]) =>
         url.searchParams.set(key, value)
@@ -45,11 +46,6 @@ export function createHttpClient(config: HttpClientConfig) {
       ...defaultHeaders,
       ...(requestHeaders || {}),
     });
-
-    const token = getAuthToken();
-    if (token && !headers.has('Authorization')) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
 
     const isFormData = fetchOptions.body instanceof FormData;
     if (!headers.has('Content-Type') && !isFormData) {

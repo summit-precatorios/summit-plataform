@@ -1,11 +1,8 @@
 'use client';
 
 import { useToast } from '@/components/ui/use-toast';
-import { decodeToken, isTokenExpired, TOKEN_COOKIE_NAME } from '@/lib/auth';
 import { handleApiError } from '@/lib/error-handler';
-import { signInRequest } from '@/services/auth.service';
 import { User } from '@/types';
-import Cookies from 'js-cookie';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   ReactNode,
@@ -24,145 +21,88 @@ export type SignInData = {
   document: string;
   password: string;
 };
+
 type AuthContextType = {
   isAuthenticated: boolean;
+  isLoading: boolean;
   user: User | null;
   signIn: (data: SignInData) => Promise<void>;
   logout: () => Promise<void>;
-  updateSession: (token: string) => void;
+  updateSession: (token: string) => Promise<void>;
 };
 
 export const AuthContext = createContext({} as AuthContextType);
 
-// Chave para sincronização entre abas
 const AUTH_SYNC_KEY = 'summit.auth.sync';
-
-// Helper function to parse all cookies (replacement for nookies.parseCookies)
-function parseCookies(): Record<string, string> {
-  if (typeof document === 'undefined') return {};
-  const cookies: Record<string, string> = {};
-  document.cookie.split(';').forEach((cookie) => {
-    const eqIdx = cookie.indexOf('=');
-    if (eqIdx === -1) return;
-    const name = cookie.slice(0, eqIdx).trim();
-    const value = decodeURIComponent(cookie.slice(eqIdx + 1).trim());
-    if (name) cookies[name] = value;
-  });
-  return cookies;
-}
 
 export function AuthProvider({ children }: AuthContextProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const syncListenerRef = useRef<((e: StorageEvent) => void) | null>(null);
 
   const isAuthenticated = !!user;
 
-  const cookieOptions = {
-    expires: 1 / 24, // expires in 1 hour (1/24 of a day)
-    path: '/',
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-  };
-
-  // Função para decodificar token e atualizar usuário
-  const decodeTokenAndSetUser = useCallback((token: string) => {
+  const fetchCurrentUser = useCallback(async (): Promise<User | null> => {
     try {
-      if (isTokenExpired(token)) {
-        Cookies.remove(TOKEN_COOKIE_NAME);
+      const res = await fetch('/api/auth/me');
+      if (!res.ok) {
         setUser(null);
         return null;
       }
-
-      const tokenDecoded = decodeToken(token);
-      if (!tokenDecoded) {
-        Cookies.remove(TOKEN_COOKIE_NAME);
-        setUser(null);
-        return null;
-      }
-
-      const { payload, roles } = tokenDecoded;
-
-      const data: User = {
-        ...payload,
-        roles,
-      };
-
-      setUser(data);
-      return data;
-    } catch (error) {
-      console.error('error_decoding_token', error);
-      Cookies.remove(TOKEN_COOKIE_NAME);
+      const data = await res.json();
+      const fetchedUser = data?.user ?? null;
+      setUser(fetchedUser);
+      return fetchedUser;
+    } catch {
       setUser(null);
       return null;
     }
   }, []);
 
-  // Função para sincronizar token entre abas
-  const syncTokenToOtherTabs = useCallback((token: string | null) => {
+  function syncAuthEvent(action: 'signin' | 'logout') {
     try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(
-          AUTH_SYNC_KEY,
-          JSON.stringify({ token, timestamp: Date.now() })
-        );
-        // Remove o item imediatamente para evitar acúmulo
-        // O evento storage será disparado mesmo assim
-        setTimeout(() => {
-          localStorage.removeItem(AUTH_SYNC_KEY);
-        }, 100);
-      }
-    } catch (error) {
-      console.warn('Could not sync token to other tabs', error);
+      if (typeof window === 'undefined') return;
+      localStorage.setItem(AUTH_SYNC_KEY, JSON.stringify({ action, timestamp: Date.now() }));
+      setTimeout(() => localStorage.removeItem(AUTH_SYNC_KEY), 100);
+    } catch {
+      // silently ignore
     }
-  }, []);
+  }
 
   async function signIn({ document, password }: SignInData) {
     try {
-      const response = await signInRequest({ document, password });
+      const res = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ document, password }),
+      });
 
-      if (!response) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro interno',
-          description: 'Não foi possível processar a sua requisição',
-        });
+      const data = await res.json();
 
-        return;
-      }
-
-      // Verifica se a resposta contém um erro
-      const err = response as { statusCode?: number; message?: string; error?: string };
-      if (typeof err.statusCode === 'number' && err.statusCode >= 400) {
+      if (!res.ok) {
         const errorToast = handleApiError({
-          statusCode: err.statusCode,
-          message: err.message || err.error,
+          statusCode: data.statusCode ?? res.status,
+          message: data.message ?? data.error,
         });
         toast(errorToast);
         return;
       }
 
-      const { accessToken: token } = response;
-
-      if (!token) {
+      if (!data?.user) {
         toast({
           variant: 'destructive',
           title: 'Credenciais inválidas',
-          description:
-            'O CPF ou senha informados estão incorretos. Verifique suas credenciais e tente novamente.',
+          description: 'O CPF ou senha informados estão incorretos. Verifique suas credenciais e tente novamente.',
         });
-
         return;
       }
 
-      Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
-
-      decodeTokenAndSetUser(token);
-      syncTokenToOtherTabs(token);
+      setUser(data.user);
+      syncAuthEvent('signin');
     } catch (error) {
-      // Trata erros com statusCode quando disponível
       const errorToast = handleApiError(
         error && typeof error === 'object' && 'statusCode' in error
           ? (error as { statusCode?: number; message?: string })
@@ -173,69 +113,60 @@ export function AuthProvider({ children }: AuthContextProps) {
   }
 
   const updateSession = useCallback(
-    (token: string) => {
-      Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
-      const userData = decodeTokenAndSetUser(token);
-      syncTokenToOtherTabs(token);
-      if (userData) {
-        router.replace('/dashboard');
+    async (token: string) => {
+      try {
+        const res = await fetch('/api/auth/update-session', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ accessToken: token }),
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data?.user) {
+          setUser(data.user);
+          syncAuthEvent('signin');
+          router.replace('/dashboard');
+        }
+      } catch {
+        // silently ignore
       }
     },
-    [decodeTokenAndSetUser, syncTokenToOtherTabs, router] // eslint-disable-line react-hooks/exhaustive-deps
+    [router]
   );
 
   async function logout() {
-    Cookies.remove(TOKEN_COOKIE_NAME);
-
+    await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
-
-    // Sincroniza logout com outras abas
-    syncTokenToOtherTabs(null);
-
+    syncAuthEvent('logout');
     router.push('/sign-in');
   }
 
-  // Sincronização entre abas - escuta mudanças no localStorage
+  // Sincronização entre abas
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handleStorageChange = (e: StorageEvent) => {
-      // Ignora eventos que não são relacionados à autenticação
-      if (e.key !== AUTH_SYNC_KEY) return;
+    const handleStorageChange = async (e: StorageEvent) => {
+      if (e.key !== AUTH_SYNC_KEY || !e.newValue) return;
 
       try {
-        // Se newValue é null, significa que foi removido (logout)
-        if (!e.newValue) {
-          const { 'summit.token': currentToken } = parseCookies();
-          if (currentToken) {
-            Cookies.remove(TOKEN_COOKIE_NAME);
-            setUser(null);
-            // Redireciona para login se estiver em página protegida
-            const isProtectedPage =
-              pathname?.startsWith('/dashboard') ||
-              pathname?.startsWith('/advertise') ||
-              pathname?.startsWith('/announcement');
-            if (isProtectedPage) {
-              router.push('/sign-in');
-            }
-          }
-          return;
-        }
+        const { action } = JSON.parse(e.newValue) as { action: string };
 
-        const syncData = JSON.parse(e.newValue);
-        const { token } = syncData;
-
-        if (token) {
-          // Token foi atualizado em outra aba
-          const { 'summit.token': currentToken } = parseCookies();
-          if (currentToken !== token) {
-            // Atualiza o cookie
-            Cookies.set(TOKEN_COOKIE_NAME, token, cookieOptions);
-            decodeTokenAndSetUser(token);
+        if (action === 'signin') {
+          await fetchCurrentUser();
+        } else if (action === 'logout') {
+          setUser(null);
+          const isProtectedPage =
+            pathname?.startsWith('/dashboard') ||
+            pathname?.startsWith('/advertise') ||
+            pathname?.startsWith('/announcement');
+          if (isProtectedPage) {
+            router.push('/sign-in');
           }
         }
-      } catch (error) {
-        console.error('error_handling_storage_sync', error);
+      } catch {
+        // silently ignore
       }
     };
 
@@ -247,9 +178,9 @@ export function AuthProvider({ children }: AuthContextProps) {
         window.removeEventListener('storage', syncListenerRef.current);
       }
     };
-  }, [pathname, router, decodeTokenAndSetUser]);
+  }, [pathname, router, fetchCurrentUser]);
 
-  // Redireciona para /dashboard quando o usuário se autentica e está em página de auth
+  // Redireciona para /dashboard quando o usuário se autentica em página de auth
   useEffect(() => {
     const isAuthPage = pathname === '/sign-in' || pathname === '/register';
     if (user && isAuthPage) {
@@ -257,22 +188,14 @@ export function AuthProvider({ children }: AuthContextProps) {
     }
   }, [user, pathname, router]);
 
-  // Verifica token inicial e em mudanças de rota (mas não redireciona na página de ativação)
+  // Hidrata o estado de auth na montagem inicial
   useEffect(() => {
-    const { 'summit.token': token } = parseCookies();
-    const isActivationPage = pathname?.startsWith('/active/account');
-    const isResetPasswordPage = pathname?.startsWith('/reset/password');
-
-    if (token && !user) {
-      decodeTokenAndSetUser(token);
-      // Redirect é tratado pelo useEffect dedicado acima (quando user for setado)
-    } else if (!token && user && !isActivationPage && !isResetPasswordPage) {
-      setUser(null);
-    }
-  }, [user, pathname, decodeTokenAndSetUser]);
+    setIsLoading(true);
+    fetchCurrentUser().finally(() => setIsLoading(false));
+  }, [fetchCurrentUser]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, signIn, user, logout, updateSession }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, signIn, user, logout, updateSession }}>
       {children}
     </AuthContext.Provider>
   );

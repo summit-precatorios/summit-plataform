@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
 export const TOKEN_COOKIE_NAME = 'summit.token';
@@ -38,6 +37,3 @@ export function isTokenExpired(token: string): boolean {
   return Date.now() >= decoded.exp * 1000;
 }
 
-export function getAuthToken(): string | null {
-  return Cookies.get(TOKEN_COOKIE_NAME) ?? null;
-}

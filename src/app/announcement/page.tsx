@@ -25,8 +25,8 @@ type PublicAnnouncement = {
 };
 
 async function getPublicAnnouncements(): Promise<PublicAnnouncement[]> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+  const apiUrl = process.env.API_URL;
+  const apiKey = process.env.API_KEY;
 
   if (!apiUrl || !apiKey) return [];
 

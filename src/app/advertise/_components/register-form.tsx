@@ -81,36 +81,39 @@ export function RegisterForm(props: {
     form.setValue('paymentOption', option);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
     const newErrors: string[] = [];
     const validFiles: File[] = [];
 
-    Array.from(files).forEach((file) => {
-      // Verifica se é PDF
+    for (const file of Array.from(files)) {
       if (file.type !== 'application/pdf') {
         newErrors.push(`'${file.name}' não é um arquivo PDF válido.`);
-        return;
+        continue;
       }
 
-      // Verifica o tamanho do arquivo
+      // Verifica magic bytes (%PDF-) para rejeitar arquivos renomeados
+      const buffer = await file.slice(0, 5).arrayBuffer();
+      const header = new TextDecoder().decode(buffer);
+      if (!header.startsWith('%PDF-')) {
+        newErrors.push(`'${file.name}' não é um arquivo PDF válido.`);
+        continue;
+      }
+
       if (file.size > MAX_FILE_SIZE) {
         newErrors.push(`'${file.name}' excede o tamanho máximo de 10MB.`);
-        return;
+        continue;
       }
 
-      // Verifica se o arquivo já foi adicionado
-      if (
-        uploadedFiles.some((f) => f.name === file.name && f.size === file.size)
-      ) {
+      if (uploadedFiles.some((f) => f.name === file.name && f.size === file.size)) {
         newErrors.push(`'${file.name}' já foi adicionado.`);
-        return;
+        continue;
       }
 
       validFiles.push(file);
-    });
+    }
 
     if (newErrors.length > 0) {
       setFileErrors(newErrors);
@@ -132,7 +135,6 @@ export function RegisterForm(props: {
       });
     }
 
-    // Limpa o input para permitir adicionar o mesmo arquivo novamente se necessário
     event.target.value = '';
   };
 
