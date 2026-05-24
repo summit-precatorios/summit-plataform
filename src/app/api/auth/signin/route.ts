@@ -1,4 +1,3 @@
-import { decodeJwt } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -7,6 +6,17 @@ const API_KEY = process.env.API_KEY!;
 function getApiBase(): string {
   const url = process.env.API_URL ?? '';
   return url.endsWith('/') ? url : `${url}/`;
+}
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const [, payloadB64] = token.split('.');
+    if (!payloadB64) return null;
+    const json = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -27,9 +37,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: res.status });
   }
 
-  const decoded = decodeJwt(data.accessToken);
-  const cookieStore = await cookies();
+  const decoded = decodeJwtPayload(data.accessToken);
+  if (!decoded) {
+    return NextResponse.json({ message: 'Invalid token from backend' }, { status: 502 });
+  }
 
+  const cookieStore = await cookies();
   cookieStore.set('summit.token', data.accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
