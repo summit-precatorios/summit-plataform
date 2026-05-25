@@ -1,22 +1,12 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { decodeToken } from '@/lib/auth';
 
 const API_KEY = process.env.API_KEY!;
 
 function getApiBase(): string {
   const url = process.env.API_URL ?? '';
   return url.endsWith('/') ? url : `${url}/`;
-}
-
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  try {
-    const [, payloadB64] = token.split('.');
-    if (!payloadB64) return null;
-    const json = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
 }
 
 export async function POST(request: NextRequest) {
@@ -37,7 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: res.status });
   }
 
-  const decoded = decodeJwtPayload(data.accessToken);
+  const decoded = decodeToken(data.accessToken);
   if (!decoded) {
     return NextResponse.json({ message: 'Invalid token from backend' }, { status: 502 });
   }
@@ -51,14 +41,7 @@ export async function POST(request: NextRequest) {
     maxAge: 60 * 60,
   });
 
-  const userPayload = decoded.payload as {
-    name: string;
-    email: string;
-    image: string | null;
-    document: string;
-    isActive: boolean;
-  };
-  const roles = (decoded.roles ?? []) as string[];
+  const { payload: userPayload, roles } = decoded;
 
   return NextResponse.json({ user: { ...userPayload, roles } });
 }
