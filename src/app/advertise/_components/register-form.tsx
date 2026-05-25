@@ -73,6 +73,11 @@ export function RegisterForm(props: {
       price: '',
       salePrice: '',
       liquidBalance: '',
+      pixKey: '',
+      ownerBankAccount: '',
+      documentBankAccount: '',
+      bankAccount: '',
+      agencyBankAccount: '',
     },
   });
 
