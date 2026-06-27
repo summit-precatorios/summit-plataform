@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
 import { handleApiError } from '@/lib/error-handler';
-import { getAnnouncementsByDocument } from '@/services/announcement.service';
-import { Announcement } from '@/types';
+import { getAnnouncementById, updateAnnouncementStatus } from '@/services/announcement.service';
+import { Restricted } from '@/components/restricted';
+import { Announcement, Role } from '@/types';
 import {
   AlertCircle,
   ArrowLeft,
@@ -25,6 +26,7 @@ import {
   TrendingUp,
   User,
   Wallet,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -37,6 +39,7 @@ export default function AnnouncementDetailPage() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     async function fetchAnnouncement() {
@@ -51,7 +54,7 @@ export default function AnnouncementDetailPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await getAnnouncementsByDocument(id);
+        const response = await getAnnouncementById(id);
         if (response && response.id) {
           setAnnouncement(response);
         } else {
@@ -72,6 +75,43 @@ export default function AnnouncementDetailPage() {
 
     fetchAnnouncement();
   }, [params?.id, toast]);
+
+  async function handleShare() {
+    const url = `${window.location.origin}/announcement/${announcement?.id}`;
+    const title = `${isRPV ? 'RPV' : 'Precatório'} ${getOriginName(announcement?.origin ?? '')} — Summit`;
+    const text = `Confira este anúncio na Summit: ${formatCurrency(announcement?.salePrice ?? 0)}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+      } catch (e: any) {
+        if (e?.name !== 'AbortError')
+          toast({ variant: 'destructive', title: 'Erro ao compartilhar' });
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast({ title: 'Link copiado!', description: url });
+    }
+  }
+
+  async function handleStatusChange(status: 'APROVED' | 'REPROVED') {
+    if (!announcement) return;
+    setActionLoading(true);
+    try {
+      await updateAnnouncementStatus(announcement.id, status);
+      setAnnouncement(prev => prev ? { ...prev, status } : prev);
+      toast({
+        title: status === 'APROVED' ? 'Anúncio aprovado!' : 'Anúncio reprovado!',
+        description: status === 'APROVED'
+          ? 'O anúncio foi aprovado e publicado na vitrine.'
+          : 'O anúncio foi reprovado.',
+      });
+    } catch {
+      toast({ variant: 'destructive', title: 'Erro ao atualizar status' });
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   const formatCurrency = (value: string | number) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -182,8 +222,7 @@ export default function AnnouncementDetailPage() {
         </div>
 
         {/* Hero Card */}
-        <Card className='border-0 shadow-md overflow-hidden'>
-          <div className='h-1.5 bg-gradient-to-r from-brand to-brand-gold' />
+        <Card className='shadow-md overflow-hidden'>
           <CardContent className='p-6 sm:p-8'>
             <div className='flex flex-col lg:flex-row gap-8 lg:gap-12'>
 
@@ -237,7 +276,7 @@ export default function AnnouncementDetailPage() {
                 <div className='flex-1 p-4 space-y-1 bg-brand/5'>
                   <div className='flex items-center gap-1.5 text-xs font-medium text-brand uppercase tracking-wide'>
                     <TrendingUp className='h-3 w-3' />
-                    Valor de Venda
+                    Preço de listagem
                   </div>
                   <p className='text-xl sm:text-2xl font-bold text-brand tabular-nums'>
                     {formatCurrency(announcement.salePrice)}
@@ -247,7 +286,7 @@ export default function AnnouncementDetailPage() {
                 <div className='flex-1 p-4 space-y-1'>
                   <div className='flex items-center gap-1.5 text-xs font-medium text-blue-500 uppercase tracking-wide'>
                     <Wallet className='h-3 w-3' />
-                    Saldo Líquido
+                    Vendedor recebe
                   </div>
                   <p className='text-lg sm:text-xl font-bold text-blue-700 tabular-nums'>
                     {formatCurrency(announcement.liquidBalance)}
@@ -262,145 +301,58 @@ export default function AnnouncementDetailPage() {
         {/* Main Content */}
         <div className='grid gap-6 lg:grid-cols-3'>
 
-          {/* Left Column */}
-          <div className='lg:col-span-2 space-y-6'>
-
-            {/* Process Info */}
-            <Card className='shadow-sm'>
-              <CardHeader className='pb-3'>
-                <div className='flex items-center gap-3'>
-                  <div className='p-2 rounded-lg bg-purple-50'>
-                    <FileText className='h-4 w-4 text-purple-600' />
-                  </div>
-                  <CardTitle className='text-base font-semibold'>
-                    Informações do {isRPV ? 'RPV' : 'Precatório'}
-                  </CardTitle>
+          {/* Process Info — row 1, col 1-2 */}
+          <Card className='shadow-sm lg:col-span-2'>
+            <CardHeader className='pb-3'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 rounded-lg bg-purple-50'>
+                  <FileText className='h-4 w-4 text-purple-600' />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className='grid gap-y-5 gap-x-8 sm:grid-cols-2'>
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Número do Processo</p>
-                    <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.lawSuit}</p>
-                  </div>
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Origem</p>
-                    <p className='text-sm font-semibold text-gray-900'>{getOriginName(announcement.origin)}</p>
-                  </div>
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Tribunal</p>
-                    <div className='flex items-center gap-1.5'>
-                      <Landmark className='h-3.5 w-3.5 text-gray-400' />
-                      <p className='text-sm font-semibold text-gray-900'>{getCourtName(announcement.court)}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Tipo</p>
-                    <p className='text-sm font-semibold text-gray-900'>
-                      {isRPV ? 'RPV — Requisição de Pequeno Valor' : 'Precatório'}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Owner Info */}
-            <Card className='shadow-sm'>
-              <CardHeader className='pb-3'>
-                <div className='flex items-center gap-3'>
-                  <div className='p-2 rounded-lg bg-blue-50'>
-                    <User className='h-4 w-4 text-blue-600' />
-                  </div>
-                  <CardTitle className='text-base font-semibold'>Dados do Proprietário</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className='grid gap-y-5 gap-x-8 sm:grid-cols-2'>
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Nome Completo</p>
-                    <p className='text-sm font-semibold text-gray-900'>{announcement.ownerFullName}</p>
-                  </div>
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>CPF</p>
-                    <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.ownerDocument}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Payment Info */}
-            <Card className='shadow-sm'>
-              <CardHeader className='pb-3'>
-                <div className='flex items-center gap-3'>
-                  <div className='p-2 rounded-lg bg-brand/10'>
-                    <CreditCard className='h-4 w-4 text-brand' />
-                  </div>
-                  <CardTitle className='text-base font-semibold'>Dados para Recebimento</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className='space-y-5'>
+                <CardTitle className='text-base font-semibold'>
+                  Informações do {isRPV ? 'RPV' : 'Precatório'}
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className='grid gap-y-5 gap-x-8 sm:grid-cols-2'>
                 <div>
-                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-2'>Método de Pagamento</p>
-                  {announcement.paymentOption === 'PIX' ? (
-                    <div className='inline-flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5'>
-                      <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 48 48'>
-                        <path fill='#37c6d0' d='M19.262,44.037l-8.04-8.04L11,35l-1.777-1.003l-5.26-5.26c-2.617-2.617-2.617-6.859,0-9.475l5.26-5.26L11,13l0.223-0.997l8.04-8.04c2.617-2.617,6.859-2.617,9.475,0l8.04,8.04L37,13l1.777,1.003l5.26,5.26c2.617,2.617,2.617,6.859,0,9.475l-5.26,5.26L37,35l-0.223,0.997l-8.04,8.04C26.121,46.653,21.879,46.653,19.262,44.037z' />
-                      </svg>
-                      <span className='text-sm font-semibold text-blue-900'>PIX</span>
-                    </div>
-                  ) : (
-                    <div className='inline-flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-1.5'>
-                      <Landmark className='h-4 w-4 text-green-600' />
-                      <span className='text-sm font-semibold text-green-900'>Transferência Bancária</span>
-                    </div>
-                  )}
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Número do Processo</p>
+                  <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.lawSuit}</p>
                 </div>
-
-                {announcement.paymentOption === 'PIX' ? (
-                  <div>
-                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Chave PIX</p>
-                    <p className='text-sm font-semibold text-gray-900'>{announcement.pixKey || 'Não informado'}</p>
+                <div>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Origem</p>
+                  <p className='text-sm font-semibold text-gray-900'>{getOriginName(announcement.origin)}</p>
+                </div>
+                <div>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Tribunal</p>
+                  <div className='flex items-center gap-1.5'>
+                    <Landmark className='h-3.5 w-3.5 text-gray-400' />
+                    <p className='text-sm font-semibold text-gray-900'>{getCourtName(announcement.court)}</p>
                   </div>
-                ) : (
-                  <div className='grid gap-y-5 gap-x-8 sm:grid-cols-2'>
-                    <div>
-                      <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Titular da Conta</p>
-                      <p className='text-sm font-semibold text-gray-900'>{announcement.ownerBankAccount || 'Não informado'}</p>
-                    </div>
-                    <div>
-                      <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>CPF/CNPJ</p>
-                      <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.documentBankAccount || 'Não informado'}</p>
-                    </div>
-                    <div>
-                      <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Conta</p>
-                      <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.bankAccount || 'Não informado'}</p>
-                    </div>
-                    <div>
-                      <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Agência</p>
-                      <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.agencyBankAccount || 'Não informado'}</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+                <div>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Tipo</p>
+                  <p className='text-sm font-semibold text-gray-900'>
+                    {isRPV ? 'RPV — Requisição de Pequeno Valor' : 'Precatório'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          </div>
-
-          {/* Sidebar */}
-          <div className='space-y-4 lg:sticky lg:top-8 lg:self-start'>
-
-            {/* Summary + Actions */}
-            <Card className='border-2 border-brand/20 shadow-md bg-white'>
+          {/* Financial Summary — rows 1-2, col 3 */}
+          <div className='lg:row-span-2 flex flex-col'>
+            <Card className='shadow-md bg-white flex-1 flex flex-col'>
               <CardHeader className='pb-3'>
                 <CardTitle className='flex items-center gap-2 text-base'>
                   <Scale className='h-4 w-4 text-brand' />
                   Resumo Financeiro
                 </CardTitle>
               </CardHeader>
-              <CardContent className='space-y-4'>
+              <CardContent className='flex flex-col flex-1 pb-6'>
                 <div className='space-y-2.5'>
                   <div className='flex items-center justify-between text-sm'>
-                    <span className='text-gray-500'>Valor de Venda</span>
+                    <span className='text-gray-500'>Preço de listagem</span>
                     <span className='font-semibold text-gray-900 tabular-nums'>
                       {formatCurrency(announcement.salePrice)}
                     </span>
@@ -413,59 +365,161 @@ export default function AnnouncementDetailPage() {
                   </div>
                   <Separator />
                   <div className='flex items-center justify-between'>
-                    <span className='text-sm font-semibold text-gray-900'>Saldo Líquido</span>
+                    <span className='text-sm font-semibold text-gray-900'>Vendedor recebe</span>
                     <span className='text-xl font-bold text-brand tabular-nums'>
                       {formatCurrency(announcement.liquidBalance)}
                     </span>
                   </div>
                 </div>
-
-                <div className='space-y-2 pt-2'>
-                  <Button className='w-full bg-brand hover:bg-brand/90 text-white font-semibold'>
+                <div className='space-y-2 mt-auto pt-6'>
+                  <Button className='w-full bg-brand hover:bg-brand/90 text-white font-semibold' disabled={announcement.status === 'REPROVED'} onClick={handleShare}>
                     <Share2 className='mr-2 h-4 w-4' />
                     Compartilhar Anúncio
                   </Button>
-                  <Button variant='outline' className='w-full'>
+                  <Button variant='outline' className='w-full' disabled>
                     <Download className='mr-2 h-4 w-4' />
                     Baixar Detalhes
                   </Button>
                 </div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* Status Card */}
-            <Card className='shadow-sm'>
-              <CardHeader className='pb-3'>
-                <CardTitle className='text-base font-semibold'>Status do Anúncio</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                {getStatusBadge(announcement.status ?? 'PENDENT')}
-                <div className='space-y-3 border-t pt-3'>
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='text-gray-500'>Criado em</span>
-                    <span className='font-medium text-gray-900'>
-                      {announcement.createdAt
-                        ? new Date(announcement.createdAt).toLocaleDateString('pt-BR')
-                        : '—'}
-                    </span>
+          {/* Owner Info — row 2, col 1-2 */}
+          <Card className='shadow-sm lg:col-span-2'>
+            <CardHeader className='pb-3'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 rounded-lg bg-blue-50'>
+                  <User className='h-4 w-4 text-blue-600' />
+                </div>
+                <CardTitle className='text-base font-semibold'>Dados do Proprietário</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className='grid gap-y-5 gap-x-8 sm:grid-cols-2'>
+                <div>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Nome Completo</p>
+                  <p className='text-sm font-semibold text-gray-900'>{announcement.ownerFullName}</p>
+                </div>
+                <div>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>CPF</p>
+                  <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.ownerDocument}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Info — row 3, col 1-2 */}
+          <Card className='shadow-sm lg:col-span-2'>
+            <CardHeader className='pb-3'>
+              <div className='flex items-center gap-3'>
+                <div className='p-2 rounded-lg bg-brand/10'>
+                  <CreditCard className='h-4 w-4 text-brand' />
+                </div>
+                <CardTitle className='text-base font-semibold'>Dados para Recebimento</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className='space-y-5'>
+              <div>
+                <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-2'>Método de Pagamento</p>
+                {announcement.paymentOption === 'PIX' ? (
+                  <div className='inline-flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5'>
+                    <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 48 48'>
+                      <path fill='#37c6d0' d='M19.262,44.037l-8.04-8.04L11,35l-1.777-1.003l-5.26-5.26c-2.617-2.617-2.617-6.859,0-9.475l5.26-5.26L11,13l0.223-0.997l8.04-8.04c2.617-2.617,6.859-2.617,9.475,0l8.04,8.04L37,13l1.777,1.003l5.26,5.26c2.617,2.617,2.617,6.859,0,9.475l-5.26,5.26L37,35l-0.223,0.997l-8.04,8.04C26.121,46.653,21.879,46.653,19.262,44.037z' />
+                    </svg>
+                    <span className='text-sm font-semibold text-blue-900'>PIX</span>
                   </div>
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='text-gray-500'>Tipo</span>
-                    <span className='font-medium text-gray-900'>
-                      {isRPV ? 'RPV' : 'Precatório'}
-                    </span>
+                ) : (
+                  <div className='inline-flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-1.5'>
+                    <Landmark className='h-4 w-4 text-green-600' />
+                    <span className='text-sm font-semibold text-green-900'>Transferência Bancária</span>
                   </div>
-                  <div className='flex items-start justify-between text-sm gap-2'>
-                    <span className='text-gray-500 flex-shrink-0'>ID</span>
-                    <span className='font-mono text-xs text-gray-500 text-right break-all'>
-                      {announcement.id}
-                    </span>
+                )}
+              </div>
+
+              {announcement.paymentOption === 'PIX' ? (
+                <div>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Chave PIX</p>
+                  <p className='text-sm font-semibold text-gray-900'>{announcement.pixKey || 'Não informado'}</p>
+                </div>
+              ) : (
+                <div className='grid gap-y-5 gap-x-8 sm:grid-cols-2'>
+                  <div>
+                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Titular da Conta</p>
+                    <p className='text-sm font-semibold text-gray-900'>{announcement.ownerBankAccount || 'Não informado'}</p>
+                  </div>
+                  <div>
+                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>CPF/CNPJ</p>
+                    <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.documentBankAccount || 'Não informado'}</p>
+                  </div>
+                  <div>
+                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Conta</p>
+                    <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.bankAccount || 'Não informado'}</p>
+                  </div>
+                  <div>
+                    <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-1'>Agência</p>
+                    <p className='text-sm font-semibold text-gray-900 font-mono'>{announcement.agencyBankAccount || 'Não informado'}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </CardContent>
+          </Card>
 
-          </div>
+          {/* Status — row 3, col 3 */}
+          <Card className='shadow-sm'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='text-base font-semibold'>Status do Anúncio</CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              {getStatusBadge(announcement.status ?? 'PENDENT')}
+              <div className='space-y-3 border-t pt-3'>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-gray-500'>Criado em</span>
+                  <span className='font-medium text-gray-900'>
+                    {announcement.createdAt
+                      ? new Date(announcement.createdAt).toLocaleDateString('pt-BR')
+                      : '—'}
+                  </span>
+                </div>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-gray-500'>Tipo</span>
+                  <span className='font-medium text-gray-900'>
+                    {isRPV ? 'RPV' : 'Precatório'}
+                  </span>
+                </div>
+                <div className='flex items-start justify-between text-sm gap-2'>
+                  <span className='text-gray-500 flex-shrink-0'>ID</span>
+                  <span className='font-mono text-xs text-gray-500 text-right break-all'>
+                    {announcement.id}
+                  </span>
+                </div>
+              </div>
+
+              <Restricted to={Role.Admin}>
+                <div className='space-y-2 border-t pt-4'>
+                  <p className='text-xs font-medium text-gray-400 uppercase tracking-wide mb-3'>Ações do Administrador</p>
+                  <Button
+                    className='w-full bg-green-600 hover:bg-green-700 text-white'
+                    disabled={actionLoading || announcement.status === 'APROVED'}
+                    onClick={() => handleStatusChange('APROVED')}
+                  >
+                    <CheckCircle2 className='mr-2 h-4 w-4' />
+                    Aprovar Anúncio
+                  </Button>
+                  <Button
+                    variant='outline'
+                    className='w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
+                    disabled={actionLoading || announcement.status === 'REPROVED'}
+                    onClick={() => handleStatusChange('REPROVED')}
+                  >
+                    <XCircle className='mr-2 h-4 w-4' />
+                    Reprovar Anúncio
+                  </Button>
+                </div>
+              </Restricted>
+            </CardContent>
+          </Card>
+
         </div>
       </div>
     </div>

@@ -12,6 +12,19 @@ export async function createAnnouncementRequest(
   }
 }
 
+export async function getAnnouncementById(id: string) {
+  try {
+    const response = await api.get<Announcement>(`announcement/public/${id}`);
+    return response;
+  } catch (error) {
+    console.error('fetch_error', {
+      message: 'failed to fetch announcement by id.',
+      cause: error,
+    });
+    throw error;
+  }
+}
+
 export async function getAnnouncementsByDocument(document: string) {
   try {
     const response = await api.get<Announcement>(`user/announcement/${document}`);
