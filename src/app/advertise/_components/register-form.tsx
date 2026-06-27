@@ -17,35 +17,20 @@ import { currencyFormatter } from '@/lib/utils';
 import { createAnnouncementRequest } from '@/services/announcement.service';
 import { CreateAnnouncementRequestData, PaymentMethod } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-    Info,
-} from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-function handleSalePriceChange(value: string | number): string {
-  if (!value) return '';
-
+function parseFormattedAmount(value: string | number): number {
+  if (!value) return 0;
   const valueStr = String(value);
-  const numericValue = /^\d+$/.test(valueStr)
-    ? Number(valueStr) / 100
-    : Number(
-        valueStr.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')
-      );
-
-  if (!isNaN(numericValue)) {
-    const calculatedBalance = (numericValue * 0.95).toFixed(2); // 95% do valor de venda
-    const formattedBalance = currencyFormatter
-      .format(Number(calculatedBalance))
-      .replace(/^R\$/, '')
-      .trim();
-
-    return formattedBalance;
-  }
-
-  return '';
+  if (/^\d+$/.test(valueStr)) return Number(valueStr) / 100;
+  return (
+    Number(valueStr.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0
+  );
 }
+
 
 export function RegisterForm(props: {
   title: string;
@@ -53,7 +38,7 @@ export function RegisterForm(props: {
   show: boolean;
   announcementType: 'RPV' | 'PRECATORIO';
 }) {
-  const [salePrice, setSalePrice] = useState('0,00');
+  const [desiredAmount, setDesiredAmount] = useState('0,00');
   const [documentBankAccount, setDocumentBankAccount] = useState('');
   const [selectedOption, setSelectedOption] = useState<PaymentMethod>('PIX');
   const [formattedPrice, setFormattedPrice] = useState('0,00');
@@ -201,8 +186,7 @@ export function RegisterForm(props: {
         { key: 'origin', label: 'Origem' },
         { key: 'court', label: 'Tribunal' },
         { key: 'price', label: 'Valor nominal' },
-        { key: 'salePrice', label: 'Valor de venda' },
-        { key: 'liquidBalance', label: 'Saldo líquido' },
+        { key: 'liquidBalance', label: 'Quanto quer receber' },
         { key: 'paymentOption', label: 'Forma de pagamento' },
       ];
 
@@ -391,16 +375,21 @@ export function RegisterForm(props: {
     }
   }
 
-  const calculatedBalance = handleSalePriceChange(form.watch('salePrice'));
-
   useEffect(() => {
-    form.setValue('liquidBalance', calculatedBalance);
-  }, [calculatedBalance, form]);
-
-  useEffect(() => {
-    const newCalculatedBalance = handleSalePriceChange(salePrice);
-    form.setValue('liquidBalance', newCalculatedBalance);
-  }, [salePrice, form]);
+    const desired = parseFormattedAmount(desiredAmount);
+    if (desired <= 0) {
+      form.setValue('salePrice', '');
+      form.setValue('liquidBalance', '');
+      return;
+    }
+    const salePriceValue = desired / 0.95;
+    const formattedSalePrice = currencyFormatter
+      .format(salePriceValue)
+      .replace(/^R\$\s?/, '')
+      .trim();
+    form.setValue('salePrice', formattedSalePrice);
+    form.setValue('liquidBalance', desiredAmount);
+  }, [desiredAmount, form]);
 
   // Garante que o tipo está sempre definido
   useEffect(() => {
@@ -408,6 +397,11 @@ export function RegisterForm(props: {
       form.setValue('type', props.announcementType);
     }
   }, [props.announcementType, form]);
+
+  const priceNumeric = parseFormattedAmount(formattedPrice);
+  const desiredNumeric = parseFormattedAmount(desiredAmount);
+  const isOverNominal =
+    priceNumeric > 0 && desiredNumeric > 0 && desiredNumeric / 0.95 > priceNumeric;
 
   if (!props.show) {
     return null;
@@ -429,8 +423,8 @@ export function RegisterForm(props: {
             title={props.title}
             formattedPrice={formattedPrice}
             setFormattedPrice={setFormattedPrice}
-            salePrice={salePrice}
-            setSalePrice={setSalePrice}
+            desiredAmount={desiredAmount}
+            setDesiredAmount={setDesiredAmount}
           />
 
           {/* Section 4: Dados para Recebimento */}
@@ -466,20 +460,28 @@ export function RegisterForm(props: {
                 </a>
               </span>
             </div>
-            <Button
-              type='submit'
-              className='w-full sm:w-auto min-w-[200px] h-12 text-base font-semibold'
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? (
-                <>
-                  <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
-                  Registrando...
-                </>
-              ) : (
-                'Registrar Anúncio'
+            <div className='flex flex-col items-end gap-2'>
+              {isOverNominal && (
+                <p className='text-sm text-amber-700 flex items-center gap-1'>
+                  <AlertTriangle className='h-4 w-4 flex-shrink-0' />
+                  Corrija o preço de listagem antes de continuar.
+                </p>
               )}
-            </Button>
+              <Button
+                type='submit'
+                className='w-full sm:w-auto min-w-[200px] h-12 text-base font-semibold'
+                disabled={form.formState.isSubmitting || isOverNominal}
+              >
+                {form.formState.isSubmitting ? (
+                  <>
+                    <div className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
+                    Registrando...
+                  </>
+                ) : (
+                  'Registrar Anúncio'
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

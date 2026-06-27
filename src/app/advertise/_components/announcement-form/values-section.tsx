@@ -22,7 +22,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { currencyFormatter } from '@/lib/utils';
-import { CircleHelp, DollarSign, Info } from 'lucide-react';
+import { AlertTriangle, CircleHelp, DollarSign, Info } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { CreateAnnouncementSchema } from '@/app/advertise/_schemas/announcement.schema';
@@ -32,18 +32,34 @@ type ValuesSectionProps = {
   title: string;
   formattedPrice: string;
   setFormattedPrice: Dispatch<SetStateAction<string>>;
-  salePrice: string;
-  setSalePrice: Dispatch<SetStateAction<string>>;
+  desiredAmount: string;
+  setDesiredAmount: Dispatch<SetStateAction<string>>;
 };
+
+function parseAmount(value: string): number {
+  if (!value) return 0;
+  return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+}
 
 export function ValuesSection({
   form,
   title,
   formattedPrice,
   setFormattedPrice,
-  salePrice,
-  setSalePrice,
+  desiredAmount,
+  setDesiredAmount,
 }: ValuesSectionProps) {
+  const priceNumeric = parseAmount(formattedPrice);
+  const desiredNumeric = parseAmount(desiredAmount);
+  const salePriceNumeric = desiredNumeric > 0 ? desiredNumeric / 0.95 : 0;
+  const platformFeeNumeric = salePriceNumeric - desiredNumeric;
+  const desagioPercent =
+    priceNumeric > 0 && salePriceNumeric > 0
+      ? (1 - salePriceNumeric / priceNumeric) * 100
+      : null;
+  const isOverNominal = priceNumeric > 0 && salePriceNumeric > priceNumeric;
+  const showSummary = desiredNumeric > 0;
+
   return (
     <Card className='border-2 shadow-lg'>
       <CardHeader>
@@ -58,7 +74,8 @@ export function ValuesSection({
         </div>
       </CardHeader>
       <CardContent className='grid gap-6 pt-6'>
-        <div className='grid gap-4 sm:grid-cols-3'>
+        <div className='grid gap-4 sm:grid-cols-2'>
+          {/* Valor Nominal */}
           <FormField
             control={form.control}
             name='price'
@@ -72,7 +89,7 @@ export function ValuesSection({
                         <CircleHelp className='h-4 w-4 text-gray-400' />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Valor original do {title}</p>
+                        <p>Valor de face do {title} conforme o documento judicial</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -86,7 +103,7 @@ export function ValuesSection({
                       const value = e.target.value.replace(/\D/g, '');
                       const formatted = currencyFormatter
                         .format(Number(value) / 100)
-                        .replace(/^R\$/, '')
+                        .replace(/^R\$\s?/, '')
                         .trim();
                       setFormattedPrice(formatted);
                       field.onChange(value);
@@ -98,52 +115,52 @@ export function ValuesSection({
             )}
           />
 
+          {/* Quanto quer receber */}
+          <FormItem>
+            <FormLabel className='text-base font-medium flex items-center gap-2'>
+              Quanto quer receber?
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <CircleHelp className='h-4 w-4 text-gray-400' />
+                  </TooltipTrigger>
+                  <TooltipContent className='max-w-xs'>
+                    <p>
+                      Valor líquido que você deseja receber após a taxa da
+                      plataforma (5%). O preço de listagem é calculado
+                      automaticamente.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </FormLabel>
+            <FormControl>
+              <InputCurrency
+                className='h-12 text-base'
+                value={desiredAmount}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  const formatted = currencyFormatter
+                    .format(Number(value) / 100)
+                    .replace(/^R\$\s?/, '')
+                    .trim();
+                  setDesiredAmount(formatted);
+                }}
+              />
+            </FormControl>
+            <FormDescription className='text-sm text-gray-500'>
+              O valor que cairá na sua conta após a taxa
+            </FormDescription>
+          </FormItem>
+
+          {/* Preço de listagem (derivado) */}
           <FormField
             control={form.control}
             name='salePrice'
             render={({ field }) => (
-              <FormItem>
+              <FormItem className='sm:col-span-2'>
                 <FormLabel className='text-base font-medium flex items-center gap-2'>
-                  Valor de Venda
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <CircleHelp className='h-4 w-4 text-gray-400' />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Valor que você deseja receber pela venda</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </FormLabel>
-                <FormControl>
-                  <InputCurrency
-                    className='h-12 text-base'
-                    {...field}
-                    value={salePrice}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      const formatted = currencyFormatter
-                        .format(Number(value) / 100)
-                        .replace(/^R\$/, '')
-                        .trim();
-                      setSalePrice(formatted);
-                      field.onChange(value);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name='liquidBalance'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className='text-base font-medium flex items-center gap-2'>
-                  Saldo Líquido
+                  Preço de listagem
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
@@ -151,8 +168,8 @@ export function ValuesSection({
                       </TooltipTrigger>
                       <TooltipContent className='max-w-xs'>
                         <p>
-                          Valor líquido após a taxa de 5%. Calculado
-                          automaticamente como 95% do valor de venda.
+                          Valor que o comprador pagará. Calculado
+                          automaticamente: o que você quer receber ÷ 0,95.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -173,12 +190,85 @@ export function ValuesSection({
                 </FormControl>
                 <FormDescription className='flex items-center gap-1 text-sm text-gray-600'>
                   <Info className='h-3 w-3' />
-                  Calculado automaticamente (95% do valor de venda)
+                  Calculado automaticamente (valor desejado ÷ 0,95)
                 </FormDescription>
               </FormItem>
             )}
           />
         </div>
+
+        {/* Resumo financeiro */}
+        {showSummary && (
+          <div
+            className={`rounded-lg border-2 p-4 space-y-3 ${
+              isOverNominal
+                ? 'border-amber-300 bg-amber-50'
+                : 'border-gray-200 bg-gray-50'
+            }`}
+          >
+            <p className='text-sm font-semibold text-gray-700'>
+              Resumo financeiro
+            </p>
+
+            {isOverNominal && (
+              <div className='flex items-start gap-2 text-amber-700 text-sm'>
+                <AlertTriangle className='h-4 w-4 mt-0.5 flex-shrink-0' />
+                <span>
+                  O valor desejado resulta em um preço de listagem superior ao
+                  valor nominal. Compradores dificilmente aceitarão esse preço.
+                </span>
+              </div>
+            )}
+
+            <div className='grid gap-2 text-sm'>
+              <div className='flex justify-between'>
+                <span className='text-gray-500'>Valor Nominal</span>
+                <span className='font-medium text-gray-700'>
+                  {priceNumeric > 0
+                    ? currencyFormatter.format(priceNumeric)
+                    : '—'}
+                </span>
+              </div>
+              <div className='flex justify-between'>
+                <span className='text-gray-500'>Preço de listagem</span>
+                <span className='font-medium text-gray-900'>
+                  {currencyFormatter.format(salePriceNumeric)}
+                </span>
+              </div>
+              <div className='flex justify-between text-red-600'>
+                <span>Taxa da plataforma (5%)</span>
+                <span className='font-medium'>
+                  − {currencyFormatter.format(platformFeeNumeric)}
+                </span>
+              </div>
+              <div className='flex justify-between pt-2 border-t border-gray-200'>
+                <span className='font-semibold text-gray-900'>
+                  Você recebe
+                </span>
+                <span className='font-bold text-green-700'>
+                  {currencyFormatter.format(desiredNumeric)}
+                </span>
+              </div>
+
+              {desagioPercent !== null && (
+                <div className='flex justify-between pt-1'>
+                  <span className='text-gray-500'>Deságio implícito</span>
+                  <span
+                    className={`font-medium ${
+                      desagioPercent < 0
+                        ? 'text-red-600'
+                        : desagioPercent < 10
+                          ? 'text-amber-600'
+                          : 'text-gray-700'
+                    }`}
+                  >
+                    {desagioPercent.toFixed(1)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

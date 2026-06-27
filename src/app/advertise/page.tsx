@@ -7,150 +7,190 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { CheckCircle2, FileText, Info, TrendingUp } from 'lucide-react';
+import { ArrowRight, CheckCircle2, FileText, Info, Scale } from 'lucide-react';
 import { useState } from 'react';
 import { RegisterForm } from './_components/register-form';
 
+type AnnouncementLabel = 'RPV' | 'PRECATORIO';
+
 type AnnouncementType = {
-  label: 'RPV' | 'PRECATORIO';
+  label: AnnouncementLabel | null;
   isActive: boolean;
   description: string;
 };
+
+const announcementTypes = [
+  {
+    label: 'RPV' as AnnouncementLabel,
+    title: 'RPV',
+    subtitle: 'Requisição de Pequeno Valor',
+    description: 'Créditos de até 30 salários mínimos',
+    icon: Scale,
+    details: [
+      'Prazo de pagamento geralmente mais curto',
+      'Processo menos burocrático',
+      'Percentual de deságio costuma ser menor',
+    ],
+    gradientFrom: 'from-blue-500',
+    gradientTo: 'to-blue-600',
+    borderColor: 'border-blue-300',
+    selectedBorder: 'border-blue-500',
+    bgColor: 'bg-blue-50',
+  },
+  {
+    label: 'PRECATORIO' as AnnouncementLabel,
+    title: 'Precatório',
+    subtitle: 'Crédito Judicial Federal ou Estadual',
+    description: 'Créditos acima de 30 salários mínimos',
+    icon: FileText,
+    details: [
+      'Valores nominais geralmente mais elevados',
+      'Ampla aceitação no mercado secundário',
+      'Diversas origens e modalidades disponíveis',
+    ],
+    gradientFrom: 'from-emerald-500',
+    gradientTo: 'to-emerald-600',
+    borderColor: 'border-emerald-300',
+    selectedBorder: 'border-emerald-500',
+    bgColor: 'bg-emerald-50',
+  },
+];
 
 export default function AdvertisePage() {
   const [announcementType, setAnnouncementType] = useState<AnnouncementType>({
     description: '',
     isActive: false,
-    label: 'PRECATORIO',
+    label: null,
   });
 
-  const announcementTypes = [
-    {
-      label: 'RPV' as const,
-      title: 'RPV - Requisição de Pequeno Valor',
-      description: 'Valores de até 30 salários mínimos',
-      icon: FileText,
-      benefits: [
-        'Processo mais rápido e ágil',
-        'Desconto menor aplicado',
-        'Liquidação em menor tempo',
-      ],
-      color: 'from-blue-500 to-blue-600',
-      borderColor: 'border-blue-200',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      label: 'PRECATORIO' as const,
-      title: 'Precatório',
-      description: 'Valores acima de 30 salários mínimos',
-      icon: TrendingUp,
-      benefits: [
-        'Maior valor de negociação',
-        'Processo mais seguro',
-        'Melhor retorno financeiro',
-      ],
-      color: 'from-brand to-brand-gold',
-      borderColor: 'border-brand/30',
-      bgColor: 'bg-brand/5',
-    },
-  ];
+  const selectedType = announcementTypes.find(
+    (t) => t.label === announcementType.label,
+  );
+
+  function handleSelect(label: AnnouncementLabel) {
+    const type = announcementTypes.find((t) => t.label === label)!;
+    setAnnouncementType((prev) => ({
+      ...prev,
+      label,
+      description: type.description,
+    }));
+  }
+
+  function handleConfirm() {
+    setAnnouncementType((prev) => ({ ...prev, isActive: true }));
+    setTimeout(() => {
+      document
+        .getElementById('announcement-form')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function handleBack() {
+    setAnnouncementType({ description: '', isActive: false, label: null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-gray-50 to-white'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16'>
-        {/* Header Section */}
+        {/* Header */}
         <div className='text-center mb-8 sm:mb-12'>
           <h1 className='text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 mb-4'>
-            Anuncie seu{' '}
-            {announcementType.isActive
-              ? announcementTypes
-                  .find((t) => t.label === announcementType.label)
-                  ?.title.split(' - ')[0] || 'Precatório'
-              : 'Precatório'}
+            {announcementType.isActive && selectedType
+              ? `Anuncie seu ${selectedType.title}`
+              : 'Anuncie seu crédito judicial'}
           </h1>
           <p className='text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto'>
             {announcementType.isActive
-              ? `Preencha as informações abaixo para anunciar seu ${announcementTypes.find((t) => t.label === announcementType.label)?.title.split(' - ')[0] || 'precatório'}.`
-              : 'Escolha o tipo de precatório que deseja anunciar e comece a negociar hoje mesmo.'}
+              ? `Preencha as informações abaixo para anunciar seu ${selectedType?.title}.`
+              : 'Selecione o tipo de crédito judicial que você possui para continuar.'}
           </p>
         </div>
 
         {/* Selection Cards */}
         {!announcementType.isActive && (
-          <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-2 mb-12'>
-            {announcementTypes.map((type) => {
-              const Icon = type.icon;
-              const isSelected = announcementType.label === type.label;
+          <>
+            <div className='grid gap-6 sm:grid-cols-2 mb-8'>
+              {announcementTypes.map((type) => {
+                const Icon = type.icon;
+                const isSelected = announcementType.label === type.label;
 
-              return (
-                <Card
-                  key={type.label}
-                  className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
-                    isSelected
-                      ? `${type.bgColor} ${type.borderColor} border-2 shadow-lg`
-                      : 'border-2 hover:border-gray-300'
-                  }`}
-                  onClick={() => {
-                    setAnnouncementType({
-                      description: type.description,
-                      isActive: true,
-                      label: type.label,
-                    });
-                    // Scroll suave para o formulário
-                    setTimeout(() => {
-                      const formElement =
-                        document.getElementById('announcement-form');
-                      formElement?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                      });
-                    }, 100);
-                  }}
-                >
-                  <CardHeader>
-                    <div className='flex items-center justify-between mb-2'>
-                      <div
-                        className={`p-3 rounded-lg ${
-                          isSelected
-                            ? `bg-gradient-to-r ${type.color} text-white`
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        <Icon className='h-6 w-6' />
+                return (
+                  <Card
+                    key={type.label}
+                    role='button'
+                    aria-pressed={isSelected}
+                    className={`cursor-pointer transition-all duration-200 border-2 ${
+                      isSelected
+                        ? `${type.bgColor} ${type.selectedBorder} shadow-md`
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md bg-white'
+                    }`}
+                    onClick={() => handleSelect(type.label)}
+                  >
+                    <CardHeader>
+                      <div className='flex items-center justify-between mb-3'>
+                        <div
+                          className={`p-3 rounded-lg bg-gradient-to-r ${type.gradientFrom} ${type.gradientTo} text-white`}
+                        >
+                          <Icon className='h-6 w-6' />
+                        </div>
+                        {isSelected && (
+                          <CheckCircle2 className='h-6 w-6 text-green-500' />
+                        )}
                       </div>
-                      {isSelected && (
-                        <CheckCircle2 className='h-6 w-6 text-green-500' />
-                      )}
-                    </div>
-                    <CardTitle className='text-xl sm:text-2xl'>
-                      {type.title}
-                    </CardTitle>
-                    <CardDescription className='text-base mt-2'>
-                      {type.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className='space-y-2 mt-4'>
-                      {type.benefits.map((benefit, index) => (
-                        <li key={index} className='flex items-start gap-2'>
-                          <CheckCircle2 className='h-4 w-4 text-green-500 mt-0.5 flex-shrink-0' />
-                          <span className='text-sm text-gray-600'>
-                            {benefit}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                      <CardTitle className='text-xl sm:text-2xl'>
+                        {type.title}
+                      </CardTitle>
+                      <CardDescription className='text-sm'>
+                        {type.subtitle}
+                      </CardDescription>
+                      <p className='text-base text-gray-700 mt-1'>
+                        {type.description}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className='space-y-2'>
+                        {type.details.map((detail, i) => (
+                          <li key={i} className='flex items-start gap-2'>
+                            <span className='text-gray-400 mt-0.5 select-none'>
+                              •
+                            </span>
+                            <span className='text-sm text-gray-600'>
+                              {detail}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Confirm CTA — only shown after user actively selects a card */}
+            <div
+              className={`text-center transition-all duration-200 mb-12 ${
+                announcementType.label
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 pointer-events-none translate-y-2'
+              }`}
+            >
+              <button
+                onClick={handleConfirm}
+                disabled={!announcementType.label}
+                className='inline-flex items-center gap-2 px-8 py-3 bg-brand text-white font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed'
+              >
+                Continuar com {selectedType?.title ?? ''}
+                <ArrowRight className='h-4 w-4' />
+              </button>
+            </div>
+          </>
         )}
 
         {/* Info Banner */}
-        {announcementType.isActive && (
+        {announcementType.isActive && selectedType && (
           <Card
-            className={`mb-8 border-2 ${announcementTypes.find((t) => t.label === announcementType.label)?.borderColor || 'border-blue-200'} ${announcementTypes.find((t) => t.label === announcementType.label)?.bgColor || 'bg-blue-50'}`}
+            className={`mb-8 border-2 ${selectedType.borderColor} ${selectedType.bgColor}`}
           >
             <CardContent className='pt-6'>
               <div className='flex items-start gap-3'>
@@ -179,10 +219,10 @@ export default function AdvertisePage() {
           </Card>
         )}
 
-        {/* Form Section */}
+        {/* Form */}
         <div id='announcement-form'>
           <RegisterForm
-            announcementType={announcementType.label}
+            announcementType={announcementType.label ?? 'PRECATORIO'}
             title={announcementType.label === 'RPV' ? 'RPV' : 'Precatório'}
             description={
               announcementType.isActive
@@ -193,18 +233,11 @@ export default function AdvertisePage() {
           />
         </div>
 
-        {/* Back Button */}
+        {/* Back */}
         {announcementType.isActive && (
           <div className='mt-8 text-center'>
             <button
-              onClick={() => {
-                setAnnouncementType({
-                  description: '',
-                  isActive: false,
-                  label: 'PRECATORIO',
-                });
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={handleBack}
               className='text-sm text-gray-600 hover:text-gray-900 underline transition-colors'
             >
               ← Voltar para seleção de tipo
