@@ -1,18 +1,23 @@
 'use client';
 
-import { Restricted } from '@/components/restricted';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/use-toast';
-import { updateAnnouncementStatus } from '@/services/announcement.service';
-import { Announcement, Role } from '@/types';
+import { Announcement } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+const STATUS_LABEL: Record<string, string> = {
+  PENDENT: 'Pendente',
+  APROVED: 'Aprovado',
+  REPROVED: 'Reprovado',
+};
+
+const STATUS_CLASS: Record<string, string> = {
+  PENDENT: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
+  APROVED: 'bg-green-100 text-green-800 hover:bg-green-100',
+  REPROVED: 'bg-red-100 text-red-800 hover:bg-red-100',
+};
 
 export type ColumnActions = {
   onStatusChange?: (id: string, status: 'APROVED' | 'REPROVED') => Promise<void>;
@@ -56,8 +61,30 @@ export function getColumns(actions: ColumnActions = {}): ColumnDef<Announcement>
       },
     },
     {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = (row.getValue('status') as string) ?? 'PENDENT';
+        return (
+          <Badge className={STATUS_CLASS[status] ?? ''}>
+            {STATUS_LABEL[status] ?? status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Data',
+      cell: ({ row }) => {
+        const date = row.getValue('createdAt') as string;
+        return date
+          ? new Intl.DateTimeFormat('pt-BR').format(new Date(date))
+          : '—';
+      },
+    },
+    {
       accessorKey: 'salePrice',
-      header: 'Valor de Venda',
+      header: 'Preço de listagem',
       cell: ({ row }) => {
         const salePrice = parseFloat(row.getValue('salePrice'));
         const formatted = new Intl.NumberFormat('pt-BR', {
@@ -69,85 +96,28 @@ export function getColumns(actions: ColumnActions = {}): ColumnDef<Announcement>
     },
     {
       id: 'options',
-      header: () => <div className='text-right'>Opções</div>,
+      header: () => <div className='text-right'>Ações</div>,
       enableHiding: true,
       cell: ({ row }) => <RowActions row={row} actions={actions} />,
     },
   ];
 }
 
-function RowActions({
-  row,
-  actions,
-}: {
-  row: any;
-  actions: ColumnActions;
-}) {
-  const { toast } = useToast();
-
-  async function handleStatusChange(status: 'APROVED' | 'REPROVED') {
-    const id = row.getValue('id') as string;
-    try {
-      if (actions.onStatusChange) {
-        await actions.onStatusChange(id, status);
-      } else {
-        await updateAnnouncementStatus(id, status);
-      }
-      toast({
-        variant: 'default',
-        title: status === 'APROVED' ? 'Anúncio aprovado!' : 'Anúncio reprovado!',
-        description:
-          status === 'APROVED'
-            ? 'O anúncio foi aprovado e publicado na vitrine.'
-            : 'O anúncio foi reprovado.',
-      });
-    } catch {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao atualizar status',
-        description: 'Não foi possível atualizar o status. Tente novamente.',
-      });
-    }
-  }
+function RowActions({ row }: { row: any; actions: ColumnActions }) {
+  const router = useRouter();
+  const id = row.getValue('id') as string;
 
   return (
-    <div className='text-right'>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
-            <MoreHorizontal />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <Restricted to={[Role.Admin, Role.User]}>
-            <DropdownMenuItem
-              onClick={() => {
-                const id = row.getValue('id');
-                window.location.href = `/announcement/${id}`;
-              }}
-              className='hover:cursor-pointer'
-            >
-              Ver detalhes do Anúncio
-            </DropdownMenuItem>
-          </Restricted>
-
-          <Restricted to={Role.Admin}>
-            <DropdownMenuItem
-              onClick={() => handleStatusChange('APROVED')}
-              className='hover:cursor-pointer'
-            >
-              Aprovar Anúncio
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => handleStatusChange('REPROVED')}
-              className='hover:cursor-pointer text-red-600 focus:text-red-600'
-            >
-              Reprovar Anúncio
-            </DropdownMenuItem>
-          </Restricted>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className='flex items-center justify-end gap-2'>
+      <Button
+        variant='outline'
+        size='sm'
+        className='h-8 gap-1.5 text-xs hover:border-brand hover:text-brand hover:bg-brand/5'
+        onClick={() => router.push(`/announcement/${id}`)}
+      >
+        <Eye className='h-3.5 w-3.5' />
+        Detalhes
+      </Button>
     </div>
   );
 }
