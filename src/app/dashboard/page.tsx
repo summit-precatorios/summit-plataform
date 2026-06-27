@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('announcements');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
 
   const {
     orders,
@@ -82,14 +83,26 @@ export default function DashboardPage() {
     };
   }, [orders]);
 
+  const TYPE_LABELS: Record<string, string> = {
+    RPV: 'RPV',
+    PRECATORIO: 'Precatório',
+  };
+
+  const uniqueTypes = useMemo(
+    () => [...new Set(orders.map(o => o.type).filter(Boolean))],
+    [orders]
+  );
+
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
 
-    if (activeTab === 'announcements-approved') {
-      return orders.filter(o => o.status === 'APROVED');
-    }
-    return orders.filter(o => o.status === 'PENDENT');
-  }, [orders, activeTab]);
+    const byStatus = activeTab === 'announcements-approved'
+      ? orders.filter(o => o.status === 'APROVED')
+      : orders.filter(o => o.status === 'PENDENT');
+
+    if (typeFilter === 'all') return byStatus;
+    return byStatus.filter(o => o.type === typeFilter);
+  }, [orders, activeTab, typeFilter]);
 
   const formattedTotalValue = useMemo(
     () =>
@@ -230,7 +243,11 @@ export default function DashboardPage() {
     <div className='min-h-screen bg-gradient-to-b from-gray-50 to-white'>
       <div className='bg-background'>
         <div className='grid lg:grid-cols-5'>
-          <Sidebar className='hidden lg:block' />
+          <Sidebar
+            className='hidden lg:block'
+            activeTab={activeTab}
+            onTabChange={(tab) => { setActiveTab(tab); setTypeFilter('all'); }}
+          />
           <div className='col-span-3 lg:col-span-4 lg:border-l'>
             <div className='h-full px-4 py-6 lg:px-8'>
               {/* Header Section */}
@@ -354,7 +371,7 @@ export default function DashboardPage() {
               <Tabs
                 defaultValue='announcements'
                 value={activeTab}
-                onValueChange={setActiveTab}
+                onValueChange={(tab) => { setActiveTab(tab); setTypeFilter('all'); }}
                 className='h-full space-y-6'
               >
                 <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
@@ -378,6 +395,34 @@ export default function DashboardPage() {
                       )}
                     </TabsTrigger>
                   </TabsList>
+
+                  {!ordersLoading && uniqueTypes.length > 0 && (
+                    <div className='flex items-center bg-muted rounded-lg p-1 gap-1'>
+                      <button
+                        onClick={() => setTypeFilter('all')}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                          typeFilter === 'all'
+                            ? 'bg-white shadow-sm text-gray-900'
+                            : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Todos
+                      </button>
+                      {uniqueTypes.map(type => (
+                        <button
+                          key={type}
+                          onClick={() => setTypeFilter(type)}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                            typeFilter === type
+                              ? 'bg-white shadow-sm text-gray-900'
+                              : 'text-gray-500 hover:text-gray-700'
+                          }`}
+                        >
+                          {TYPE_LABELS[type] ?? type}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <TabsContent
@@ -404,22 +449,34 @@ export default function DashboardPage() {
                           <div className='p-4 rounded-full bg-gray-100 mb-4'>
                             <FileText className='h-10 w-10 text-gray-400' />
                           </div>
-                          <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                            Nenhum anúncio aguardando aprovação
-                          </h3>
-                          <p className='text-sm text-gray-600 mb-6 max-w-sm'>
-                            Você ainda não possui anúncios aguardando aprovação.
-                            Crie seu primeiro anúncio para começar!
-                          </p>
-                          <Restricted to={Role.User}>
-                            <Button
-                              onClick={() => router.push('/advertise')}
-                              className='bg-brand-gold hover:bg-brand text-brand-dark font-semibold'
-                            >
-                              <PlusCircle className='mr-2 h-4 w-4' />
-                              Criar Primeiro Anúncio
-                            </Button>
-                          </Restricted>
+                          {orders.length === 0 ? (
+                            <>
+                              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                                Nenhum anúncio cadastrado
+                              </h3>
+                              <p className='text-sm text-gray-600 mb-6 max-w-sm'>
+                                Você ainda não possui anúncios. Crie seu primeiro anúncio para começar!
+                              </p>
+                              <Restricted to={Role.User}>
+                                <Button
+                                  onClick={() => router.push('/advertise')}
+                                  className='bg-brand-gold hover:bg-brand text-brand-dark font-semibold'
+                                >
+                                  <PlusCircle className='mr-2 h-4 w-4' />
+                                  Criar Primeiro Anúncio
+                                </Button>
+                              </Restricted>
+                            </>
+                          ) : (
+                            <>
+                              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                                Nenhum anúncio aguardando aprovação
+                              </h3>
+                              <p className='text-sm text-gray-600 max-w-sm'>
+                                Seus anúncios pendentes aparecerão aqui quando estiverem em análise.
+                              </p>
+                            </>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -462,13 +519,34 @@ export default function DashboardPage() {
                           <div className='p-4 rounded-full bg-green-100 mb-4'>
                             <CheckCircle2 className='h-10 w-10 text-green-600' />
                           </div>
-                          <h3 className='text-lg font-semibold text-gray-900 mb-2'>
-                            Nenhum anúncio aprovado ainda
-                          </h3>
-                          <p className='text-sm text-gray-600 mb-6 max-w-sm'>
-                            Seus anúncios aprovados aparecerão aqui assim que
-                            forem validados pela nossa equipe.
-                          </p>
+                          {orders.length === 0 ? (
+                            <>
+                              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                                Nenhum anúncio cadastrado
+                              </h3>
+                              <p className='text-sm text-gray-600 mb-6 max-w-sm'>
+                                Você ainda não possui anúncios. Crie seu primeiro anúncio para começar!
+                              </p>
+                              <Restricted to={Role.User}>
+                                <Button
+                                  onClick={() => router.push('/advertise')}
+                                  className='bg-brand-gold hover:bg-brand text-brand-dark font-semibold'
+                                >
+                                  <PlusCircle className='mr-2 h-4 w-4' />
+                                  Criar Primeiro Anúncio
+                                </Button>
+                              </Restricted>
+                            </>
+                          ) : (
+                            <>
+                              <h3 className='text-lg font-semibold text-gray-900 mb-2'>
+                                Nenhum anúncio aprovado ainda
+                              </h3>
+                              <p className='text-sm text-gray-600 max-w-sm'>
+                                Seus anúncios aprovados aparecerão aqui assim que forem validados pela nossa equipe.
+                              </p>
+                            </>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
