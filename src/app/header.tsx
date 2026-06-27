@@ -77,7 +77,6 @@ export function Header() {
                         </Link>
                       </SheetClose>
                     )}
-
                     {NAV_LINKS.map(({ href, label, icon: Icon }) => (
                       <SheetClose asChild key={href}>
                         <Link

@@ -61,7 +61,7 @@ export function AuthForm() {
               <Shield className='h-8 w-8 text-brand' />
             </div>
             <CardTitle className='text-3xl font-bold'>
-              Bem-vindo de volta
+              Bem-vindo(a) de volta
             </CardTitle>
             <CardDescription className='text-base'>
               Entre com suas credenciais para acessar sua conta
